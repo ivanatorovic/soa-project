@@ -1,11 +1,10 @@
 package com.soa.blog_service.controller;
 
-import com.soa.blog_service.model.Comment;
+import com.soa.blog_service.dto.CreateCommentRequest;
+import com.soa.blog_service.dto.UpdateCommentRequest;
 import com.soa.blog_service.service.CommentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -18,17 +17,20 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<Comment> createComment(@RequestBody Comment comment) {
-        return ResponseEntity.ok(commentService.createComment(comment));
+    public ResponseEntity<?> createComment(@RequestBody CreateCommentRequest request) {
+        return commentService.createComment(request);
     }
 
     @GetMapping("/blog/{blogId}")
-    public ResponseEntity<List<Comment>> getCommentsByBlogId(@PathVariable Long blogId) {
-        return ResponseEntity.ok(commentService.getCommentsByBlogId(blogId));
+    public ResponseEntity<?> getCommentsByBlogId(@PathVariable Long blogId) {
+        return commentService.getCommentsByBlogId(blogId);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Comment> updateComment(@PathVariable Long id, @RequestBody String text) {
-        return ResponseEntity.ok(commentService.updateComment(id, text));
+    public ResponseEntity<?> updateComment(
+            @PathVariable Long id,
+            @RequestBody UpdateCommentRequest request
+    ) {
+        return commentService.updateComment(id, request.getText());
     }
 }

@@ -1,5 +1,6 @@
 package com.soa.blog_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -11,7 +12,10 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long blogId;
+    @ManyToOne
+    @JoinColumn(name = "blog_id", nullable = false)
+    @JsonIgnore
+    private Blog blog;
 
     private Long authorId;
 
@@ -19,7 +23,6 @@ public class Comment {
     private String text;
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -34,12 +37,13 @@ public class Comment {
     }
 
     public Long getId() { return id; }
-    public Long getBlogId() { return blogId; }
-    public void setBlogId(Long blogId) { this.blogId = blogId; }
+    public Blog getBlog() { return blog; }
+    public void setBlog(Blog blog) { this.blog = blog; }
     public Long getAuthorId() { return authorId; }
     public void setAuthorId(Long authorId) { this.authorId = authorId; }
     public String getText() { return text; }
     public void setText(String text) { this.text = text; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
 }
