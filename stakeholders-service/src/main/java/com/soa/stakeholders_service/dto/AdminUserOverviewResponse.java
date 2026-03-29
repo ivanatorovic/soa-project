@@ -1,59 +1,47 @@
-package com.soa.stakeholders_service.model;
+package com.soa.stakeholders_service.dto;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.soa.stakeholders_service.model.UserRole;
 
-@Entity
-@Table(name = "users")
-public class User {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class AdminUserOverviewResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true, length = 50)
     private String username;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false, unique = true, length = 100)
     private String email;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private UserRole role;
+    private boolean blocked;
 
-    @Column(nullable = false)
-    private boolean blocked = false;
-    @Column(length = 100)
     private String firstName;
-
-    @Column(length = 100)
     private String lastName;
-
-    @Column(length = 500)
     private String profileImage;
-
-    @Column(length = 2000)
     private String biography;
-
-    @Column(length = 255)
     private String motto;
 
-
-    public User() {
+    public AdminUserOverviewResponse() {
     }
 
-    public User(String username, String password, String email, UserRole role, boolean blocked) {
+    public AdminUserOverviewResponse(Long id, String username, String email, UserRole role, boolean blocked,
+                                     String firstName, String lastName, String profileImage,
+                                     String biography, String motto) {
+        this.id = id;
         this.username = username;
-        this.password = password;
-        this.email = email;
+        this.email =  email;
         this.role = role;
         this.blocked = blocked;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.profileImage = profileImage;
+        this.biography = biography;
+        this.motto = motto;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -62,14 +50,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {
@@ -95,40 +75,41 @@ public class User {
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
     }
+
     public String getFirstName() {
         return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getProfileImage() {
-        return profileImage;
-    }
-
-    public String getBiography() {
-        return biography;
-    }
-
-    public String getMotto() {
-        return motto;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
     }
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
 
+    public String getBiography() {
+        return biography;
+    }
+
     public void setBiography(String biography) {
         this.biography = biography;
+    }
+
+    public String getMotto() {
+        return motto;
     }
 
     public void setMotto(String motto) {

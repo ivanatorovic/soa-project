@@ -4,6 +4,7 @@ import com.soa.stakeholders_service.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -40,7 +41,12 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users", "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/users/me/profile").hasAnyRole("GUIDE", "TOURIST")
+                        .requestMatchers(HttpMethod.GET, "/api/users/me/profile").authenticated()
+
+                        .requestMatchers("/api/users").hasRole("ADMIN")
+                        .requestMatchers("/api/users/*/block").hasRole("ADMIN")
+                        .requestMatchers("/api/users/*").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
