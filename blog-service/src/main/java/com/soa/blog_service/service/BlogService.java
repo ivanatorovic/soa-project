@@ -22,15 +22,16 @@ public class BlogService {
         this.blogLikeRepository = blogLikeRepository;
     }
 
-    public ResponseEntity<?> createBlog(CreateBlogRequest request) {
+    public ResponseEntity<?> createBlog(CreateBlogRequest request, Long authorId) {
         Blog blog = new Blog();
         blog.setTitle(request.getTitle());
         blog.setDescription(request.getDescription());
+        blog.setAuthorId(authorId);
         blog.setImageUrl(request.getImageUrl());
-        blog.setAuthorId(request.getAuthorId());
 
-        Blog savedBlog = blogRepository.save(blog);
-        return ResponseEntity.ok(mapToResponse(savedBlog));
+        blogRepository.save(blog);
+
+        return ResponseEntity.ok(blog);
     }
 
     public ResponseEntity<?> getAllBlogs() {

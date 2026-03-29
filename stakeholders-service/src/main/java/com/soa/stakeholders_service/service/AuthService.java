@@ -73,7 +73,11 @@ public class AuthService {
             throw new UnauthorizedException("Your account is blocked.");
         }
 
-        String token = jwtService.generateToken(user.getUsername(), user.getRole().name());
+        String token = jwtService.generateToken(
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name()
+        );
 
         return new AuthResponse(token, mapToResponse(user));
     }

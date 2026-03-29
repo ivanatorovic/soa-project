@@ -1,9 +1,10 @@
 package com.soa.blog_service.controller;
 
-import com.soa.blog_service.dto.BlogResponse;
 import com.soa.blog_service.dto.CreateBlogRequest;
+import com.soa.blog_service.security.JwtUserPrincipal;
 import com.soa.blog_service.service.BlogService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,8 +18,11 @@ public class BlogController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createBlog(@RequestBody CreateBlogRequest request) {
-        return blogService.createBlog(request);
+    public ResponseEntity<?> createBlog(
+            @RequestBody CreateBlogRequest request,
+            @AuthenticationPrincipal JwtUserPrincipal principal
+    ) {
+        return blogService.createBlog(request, principal.getUserId());
     }
 
     @GetMapping
@@ -34,17 +38,17 @@ public class BlogController {
     @PostMapping("/{blogId}/like")
     public ResponseEntity<?> likeBlog(
             @PathVariable Long blogId,
-            @RequestParam(required = false) Long userId
+            @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.likeBlog(blogId, userId);
+        return blogService.likeBlog(blogId, principal.getUserId());
     }
 
     @DeleteMapping("/{blogId}/like")
     public ResponseEntity<?> unlikeBlog(
             @PathVariable Long blogId,
-            @RequestParam(required = false) Long userId
+            @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.unlikeBlog(blogId, userId);
+        return blogService.unlikeBlog(blogId, principal.getUserId());
     }
 
     @GetMapping("/{blogId}/likes/count")

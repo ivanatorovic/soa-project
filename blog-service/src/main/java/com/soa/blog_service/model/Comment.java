@@ -1,49 +1,61 @@
 package com.soa.blog_service.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comments")
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "blog_id", nullable = false)
-    @JsonIgnore
-    private Blog blog;
-
     private Long authorId;
 
-    @Column(columnDefinition = "TEXT")
+    private String authorUsername;
+
     private String text;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @ManyToOne
+    @JoinColumn(name = "blog_id", nullable = false)
+    private Blog blog;
 
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    public Long getId() {
+        return id;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public Long getAuthorId() {
+        return authorId;
     }
 
-    public Long getId() { return id; }
-    public Blog getBlog() { return blog; }
-    public void setBlog(Blog blog) { this.blog = blog; }
-    public Long getAuthorId() { return authorId; }
-    public void setAuthorId(Long authorId) { this.authorId = authorId; }
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public String getAuthorUsername() {
+        return authorUsername;
+    }
 
+    public String getText() {
+        return text;
+    }
+
+    public Blog getBlog() {
+        return blog;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
+    }
+
+    public void setAuthorUsername(String authorUsername) {
+        this.authorUsername = authorUsername;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setBlog(Blog blog) {
+        this.blog = blog;
+    }
 }

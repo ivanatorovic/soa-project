@@ -1,5 +1,6 @@
 package com.soa.blog_service.service;
 
+import com.soa.blog_service.dto.CommentResponse;
 import com.soa.blog_service.dto.CreateCommentRequest;
 import com.soa.blog_service.model.Blog;
 import com.soa.blog_service.model.Comment;
@@ -21,7 +22,7 @@ public class CommentService {
         this.blogRepository = blogRepository;
     }
 
-    public ResponseEntity<?> createComment(CreateCommentRequest request) {
+    public ResponseEntity<?> createComment(CreateCommentRequest request, Long authorId, String authorUsername) {
         Blog blog = blogRepository.findById(request.getBlogId()).orElse(null);
 
         if (blog == null) {
@@ -34,10 +35,20 @@ public class CommentService {
 
         Comment comment = new Comment();
         comment.setBlog(blog);
-        comment.setAuthorId(request.getAuthorId());
+        comment.setAuthorId(authorId);
+        comment.setAuthorUsername(authorUsername);
         comment.setText(request.getText());
 
-        return ResponseEntity.ok(commentRepository.save(comment));
+        Comment savedComment = commentRepository.save(comment);
+
+        CommentResponse response = new CommentResponse(
+                savedComment.getId(),
+                savedComment.getBlog().getId(),
+                savedComment.getAuthorUsername(),
+                savedComment.getText()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getCommentsByBlogId(Long blogId) {
@@ -53,14 +64,27 @@ public class CommentService {
             return ResponseEntity.status(404).body("Nema komentara za ovaj blog");
         }
 
-        return ResponseEntity.ok(comments);
+        List<CommentResponse> response = comments.stream()
+                .map(comment -> new CommentResponse(
+                        comment.getId(),
+                        comment.getBlog().getId(),
+                        comment.getAuthorUsername(),
+                        comment.getText()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> updateComment(Long id, String newText) {
+    public ResponseEntity<?> updateComment(Long id, String newText, Long currentUserId) {
         Comment comment = commentRepository.findById(id).orElse(null);
 
         if (comment == null) {
             return ResponseEntity.status(404).body("Ne postoji komentar sa ID: " + id);
+        }
+
+        if (!comment.getAuthorId().equals(currentUserId)) {
+            return ResponseEntity.status(403).body("Mozete menjati samo svoj komentar");
         }
 
         if (newText == null || newText.trim().isEmpty()) {
@@ -68,6 +92,15 @@ public class CommentService {
         }
 
         comment.setText(newText);
-        return ResponseEntity.ok(commentRepository.save(comment));
+        Comment updatedComment = commentRepository.save(comment);
+
+        CommentResponse response = new CommentResponse(
+                updatedComment.getId(),
+                updatedComment.getBlog().getId(),
+                updatedComment.getAuthorUsername(),
+                updatedComment.getText()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
