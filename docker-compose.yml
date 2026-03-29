@@ -31,5 +31,48 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SERVER_PORT: 8082
 
+  stakeholders-db:
+    image: postgres:15
+    container_name: stakeholders-db
+    restart: always
+    environment:
+      POSTGRES_DB: stakeholdersdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - stakeholders-db-data:/var/lib/postgresql/data
+  stakeholders-service:
+    build:
+      context: ./stakeholders-service
+      dockerfile: Dockerfile
+    container_name: stakeholders-service
+    restart: on-failure
+    depends_on:
+      - stakeholders-db
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stakeholders-db:5432/stakeholdersdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8081
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - blog-db
+      - stakeholders-db
+
 volumes:
   blog-db-data:
+  stakeholders-db-data:
