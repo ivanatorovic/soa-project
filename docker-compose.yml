@@ -72,7 +72,10 @@ services:
     depends_on:
       - blog-db
       - stakeholders-db
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
 volumes:
   blog-db-data:
   stakeholders-db-data:
+  pgadmin-data:
