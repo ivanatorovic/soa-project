@@ -1,6 +1,7 @@
 package com.soa.blog_service.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class BlogResponse {
 
@@ -8,7 +9,7 @@ public class BlogResponse {
     private String title;
     private String description;
     private LocalDateTime createdAt;
-    private String imageUrl;
+    private List<String> imageUrls;
     private Long authorId;
     private int likesCount;
 
@@ -24,8 +25,8 @@ public class BlogResponse {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 
     public Long getAuthorId() { return authorId; }
     public void setAuthorId(Long authorId) { this.authorId = authorId; }

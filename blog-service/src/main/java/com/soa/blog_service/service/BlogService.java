@@ -27,7 +27,7 @@ public class BlogService {
         blog.setTitle(request.getTitle());
         blog.setDescription(request.getDescription());
         blog.setAuthorId(authorId);
-        blog.setImageUrl(request.getImageUrl());
+        blog.setImageUrls(request.getImageUrls());
 
         blogRepository.save(blog);
 
@@ -122,7 +122,7 @@ public class BlogService {
         response.setTitle(blog.getTitle());
         response.setDescription(blog.getDescription());
         response.setCreatedAt(blog.getCreatedAt());
-        response.setImageUrl(blog.getImageUrl());
+        response.setImageUrls(blog.getImageUrls());
         response.setAuthorId(blog.getAuthorId());
         response.setLikesCount((int) blogLikeRepository.countByBlogId(blog.getId()));
         return response;

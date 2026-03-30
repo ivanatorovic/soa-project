@@ -1,10 +1,12 @@
 package com.soa.blog_service.dto;
 
+import java.util.List;
+
 public class CreateBlogRequest {
 
     private String title;
     private String description;
-    private String imageUrl;
+    private List<String> imageUrls;
 
     public String getTitle() {
         return title;
@@ -22,11 +24,11 @@ public class CreateBlogRequest {
         this.description = description;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public List<String> getImageUrls() {
+        return imageUrls;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }

@@ -22,8 +22,10 @@ public class Blog {
 
     private LocalDateTime createdAt;
 
-    private String imageUrl;
-
+    @ElementCollection
+    @CollectionTable(name = "blog_images", joinColumns = @JoinColumn(name = "blog_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls = new ArrayList<>();
     private Long authorId;
 
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -47,8 +49,11 @@ public class Blog {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public List<String> getImageUrls() { return imageUrls; }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
 
     public Long getAuthorId() { return authorId; }
     public void setAuthorId(Long authorId) { this.authorId = authorId; }
