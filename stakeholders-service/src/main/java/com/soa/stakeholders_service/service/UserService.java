@@ -9,8 +9,10 @@ import com.soa.stakeholders_service.exception.ResourceNotFoundException;
 import com.soa.stakeholders_service.model.User;
 import com.soa.stakeholders_service.model.UserRole;
 import com.soa.stakeholders_service.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Map;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,15 +21,18 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     public List<AdminUserOverviewResponse> getAll() {
         return userRepository.findAll()
                 .stream()
+                .filter(user -> user.getRole() == UserRole.GUIDE || user.getRole() == UserRole.TOURIST)
                 .map(this::mapToAdminUserOverviewResponse)
                 .collect(Collectors.toList());
     }
@@ -87,59 +92,69 @@ public class UserService {
         return mapToResponse(savedUser);
     }
 
-    public AdminUserOverviewResponse getMyProfile(String username) {
+    public ProfileResponse getMyProfile(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User with username " + username + " not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with username " + username + " not found."
+                ));
 
-        return mapToAdminUserOverviewResponse(user);
+        return mapToProfileResponse(user);
     }
 
-
-    public ProfileResponse updateMyProfile(String username, Map<String, Object> request) {
+    public ProfileResponse updateMyProfile(String username, UpdateProfileRequest request) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User with username " + username + " not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with username " + username + " not found."
+                ));
 
-
-        List<String> allowedFields = List.of(
-                "firstName",
-                "lastName",
-                "profileImage",
-                "biography",
-                "motto"
-        );
-
-
-        for (String key : request.keySet()) {
-            if (!allowedFields.contains(key)) {
-                throw new BadRequestException("Ne možete da menjate ove podatke.");
+        if (request.getUsername() != null) {
+            String newUsername = request.getUsername();
+            if (!newUsername.equals(user.getUsername()) &&
+                    userRepository.existsByUsername(newUsername)) {
+                throw new BadRequestException("Username is already taken.");
             }
+            user.setUsername(newUsername);
         }
 
-
-        if (request.containsKey("firstName")) {
-            user.setFirstName((String) request.get("firstName"));
+        if (request.getEmail() != null) {
+            String newEmail = request.getEmail();
+            if (!newEmail.equals(user.getEmail()) &&
+                    userRepository.existsByEmail(newEmail)) {
+                throw new BadRequestException("Email is already taken.");
+            }
+            user.setEmail(newEmail);
         }
 
-        if (request.containsKey("lastName")) {
-            user.setLastName((String) request.get("lastName"));
+        if (request.getPassword() != null) {
+            if (request.getPassword().isBlank()) {
+                throw new BadRequestException("Password cannot be empty.");
+            }
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        if (request.containsKey("profileImage")) {
-            user.setProfileImage((String) request.get("profileImage"));
+        if (request.getFirstName() != null) {
+            user.setFirstName(request.getFirstName());
         }
 
-        if (request.containsKey("biography")) {
-            user.setBiography((String) request.get("biography"));
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
         }
 
-        if (request.containsKey("motto")) {
-            user.setMotto((String) request.get("motto"));
+        if (request.getProfileImage() != null) {
+            user.setProfileImage(request.getProfileImage());
+        }
+
+        if (request.getBiography() != null) {
+            user.setBiography(request.getBiography());
+        }
+
+        if (request.getMotto() != null) {
+            user.setMotto(request.getMotto());
         }
 
         User savedUser = userRepository.save(user);
         return mapToProfileResponse(savedUser);
     }
-
 
     private UserResponse mapToResponse(User user) {
         return new UserResponse(

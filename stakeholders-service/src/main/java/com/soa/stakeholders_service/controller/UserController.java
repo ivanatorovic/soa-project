@@ -36,14 +36,14 @@ public class UserController {
     }
 
     @GetMapping("/me/profile")
-    public AdminUserOverviewResponse getMyProfile(Authentication authentication) {
+    public ProfileResponse getMyProfile(Authentication authentication) {
         return userService.getMyProfile(authentication.getName());
     }
 
     @PatchMapping("/me/profile")
     public ProfileResponse updateMyProfile(
             Authentication authentication,
-            @RequestBody Map<String, Object> request
+            @Valid @RequestBody UpdateProfileRequest request
     ) {
         return userService.updateMyProfile(authentication.getName(), request);
     }
