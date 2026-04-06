@@ -1,0 +1,16 @@
+<div class="profile-container">
+  <h2>Moj profil</h2>
+
+  <p *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </p>
+
+  <div *ngIf="profile">
+    <p><strong>Korisničko ime:</strong> {{ profile.username }}</p>
+    <p><strong>Uloga:</strong> {{ profile.role }}</p>
+    <p><strong>Ime:</strong> {{ profile.firstName }}</p>
+    <p><strong>Prezime:</strong> {{ profile.lastName }}</p>
+    <p><strong>Biografija:</strong> {{ profile.biography }}</p>
+    <p><strong>Moto:</strong> {{ profile.motto }}</p>
+  </div>
+</div>

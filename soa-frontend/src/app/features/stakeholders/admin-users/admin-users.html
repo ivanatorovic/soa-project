@@ -1,0 +1,51 @@
+<div class="admin-users-container">
+  <h2>Svi korisnici</h2>
+
+  <p *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </p>
+
+  <table *ngIf="users.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Korisničko ime</th>
+        <th>Uloga</th>
+        <th>Blokiran</th>
+        <th>Ime</th>
+        <th>Prezime</th>
+        <th>Biografija</th>
+        <th>Moto</th>
+        <th>Akcija</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.id }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ user.blocked ? 'Da' : 'Ne' }}</td>
+        <td>{{ user.firstName || '-' }}</td>
+        <td>{{ user.lastName || '-' }}</td>
+        <td>{{ user.biography || '-' }}</td>
+        <td>{{ user.motto || '-' }}</td>
+        <td>
+  <button 
+    *ngIf="!user.blocked"
+    (click)="blockUser(user.id)"
+  >
+    Blokiraj
+  </button>
+
+  <span *ngIf="user.blocked">
+    Blokiran
+  </span>
+</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!errorMessage && users.length === 0">
+    Nema korisnika za prikaz.
+  </p>
+</div>
