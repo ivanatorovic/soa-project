@@ -1,16 +1,66 @@
-<div class="profile-container">
-  <h2>Moj profil</h2>
+<div class="profile-page">
 
-  <p *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </p>
+  <section class="profile-hero">
+    <div class="hero-overlay"></div>
 
-  <div *ngIf="profile">
-    <p><strong>Korisničko ime:</strong> {{ profile.username }}</p>
-    <p><strong>Uloga:</strong> {{ profile.role }}</p>
-    <p><strong>Ime:</strong> {{ profile.firstName }}</p>
-    <p><strong>Prezime:</strong> {{ profile.lastName }}</p>
-    <p><strong>Biografija:</strong> {{ profile.biography }}</p>
-    <p><strong>Moto:</strong> {{ profile.motto }}</p>
-  </div>
+    <div class="hero-content">
+      <p class="hero-subtitle">Korisnički nalog</p>
+      <h1>Moj profil</h1>
+      <p class="hero-text">
+        Pregled osnovnih informacija o vašem nalogu i ličnim podacima.
+      </p>
+    </div>
+  </section>
+
+  <section class="profile-content">
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-circle">
+          {{ profile?.username?.charAt(0) | uppercase }}
+        </div>
+
+        <div class="profile-title">
+          <p class="profile-subtitle">Korisnički nalog</p>
+          <h2>Moj profil</h2>
+        </div>
+      </div>
+
+      <p *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </p>
+
+      <div *ngIf="profile" class="profile-info">
+        <div class="info-row">
+          <span class="label">Korisničko ime</span>
+          <span class="value">{{ profile.username }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Uloga</span>
+          <span class="value role-badge">{{ profile.role }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Ime</span>
+          <span class="value">{{ profile.firstName || 'Nije uneto' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Prezime</span>
+          <span class="value">{{ profile.lastName || 'Nije uneto' }}</span>
+        </div>
+
+        <div class="info-row full">
+          <span class="label">Biografija</span>
+          <span class="value">{{ profile.biography || 'Biografija nije uneta.' }}</span>
+        </div>
+
+        <div class="info-row full">
+          <span class="label">Moto</span>
+          <span class="value">{{ profile.motto || 'Moto nije unet.' }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>

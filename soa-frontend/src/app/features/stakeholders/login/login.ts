@@ -32,7 +32,7 @@ export class Login {
       next: (response) => {
         this.authService.saveToken(response.token);
         console.log('Uspešan login:', response);
-        this.router.navigate(['/profile']);
+        this.router.navigate(['/']);
       },
       error: (error) => {
         console.error('Greška pri logovanju:', error);

@@ -1,33 +1,40 @@
-<div class="login-container">
-  <h2>Prijava</h2>
+<div class="login-page">
+  <div class="overlay"></div>
 
-  <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-    <div class="form-group">
-      <label for="username">Korisničko ime</label>
-      <input
-        type="text"
-        id="username"
-        name="username"
-        [(ngModel)]="username"
-        required
-      />
-    </div>
+  <div class="login-card">
+    <p class="login-subtitle">Dobrodošli nazad</p>
+    <h2>Prijava</h2>
 
-    <div class="form-group">
-      <label for="password">Lozinka</label>
-      <input
-        type="password"
-        id="password"
-        name="password"
-        [(ngModel)]="password"
-        required
-      />
-    </div>
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="form-group">
+        <label for="username">Korisničko ime</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="username"
+          required
+          placeholder="Unesite korisničko ime"
+        />
+      </div>
 
-    <button type="submit">Prijavi se</button>
+      <div class="form-group">
+        <label for="password">Lozinka</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+          placeholder="Unesite lozinku"
+        />
+      </div>
 
-    <p *ngIf="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </p>
-  </form>
+      <button type="submit" class="login-btn">Prijavi se</button>
+
+      <p *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </p>
+    </form>
+  </div>
 </div>

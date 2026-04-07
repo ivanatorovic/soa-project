@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { UserService, ProfileResponse } from '../../../core/services/user';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-profile',
-  imports: [NgIf],
+  imports: [NgIf,CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css'
 })

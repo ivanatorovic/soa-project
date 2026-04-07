@@ -1,51 +1,115 @@
-<div class="admin-users-container">
-  <h2>Svi korisnici</h2>
+<div class="admin-users-page">
 
-  <p *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </p>
+  <div class="top-bar">
+    <span>Administratorski panel</span>
+  </div>
 
-  <table *ngIf="users.length > 0">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Korisničko ime</th>
-        <th>Uloga</th>
-        <th>Blokiran</th>
-        <th>Ime</th>
-        <th>Prezime</th>
-        <th>Biografija</th>
-        <th>Moto</th>
-        <th>Akcija</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user.id }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.role }}</td>
-        <td>{{ user.blocked ? 'Da' : 'Ne' }}</td>
-        <td>{{ user.firstName || '-' }}</td>
-        <td>{{ user.lastName || '-' }}</td>
-        <td>{{ user.biography || '-' }}</td>
-        <td>{{ user.motto || '-' }}</td>
-        <td>
-  <button 
-    *ngIf="!user.blocked"
-    (click)="blockUser(user.id)"
-  >
-    Blokiraj
-  </button>
+  <nav class="navbar">
+    <div class="logo">MyApp</div>
 
-  <span *ngIf="user.blocked">
-    Blokiran
-  </span>
-</td>
-      </tr>
-    </tbody>
-  </table>
+    <div class="nav-links">
+      <a routerLink="/">Početna</a>
+      <a routerLink="/profile">Moj profil</a>
+      <a routerLink="/admin/users" class="active">Korisnici</a>
+      <a routerLink="/blog">Blog</a>
+    </div>
+  </nav>
 
-  <p *ngIf="!errorMessage && users.length === 0">
-    Nema korisnika za prikaz.
-  </p>
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <h1>Pregled korisnika</h1>
+      <p>
+        Administratorski pregled svih registrovanih naloga, njihovih uloga,
+        statusa i osnovnih informacija.
+      </p>
+
+      <div class="breadcrumb">
+        <span routerLink="/" class="crumb-link">Početna</span>
+        <span class="separator">›</span>
+        <span>Korisnici</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="cards-section">
+    <p *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </p>
+
+    <div *ngIf="!errorMessage && users.length === 0" class="empty-state">
+      Nema korisnika za prikaz.
+    </div>
+
+    <div class="users-grid" *ngIf="users.length > 0">
+      <div class="user-card" *ngFor="let user of users">
+        <div class="card-top">
+          <div class="avatar-circle">
+            {{ user.username?.charAt(0) | uppercase }}
+          </div>
+
+          <div class="user-main-info">
+            <h3>{{ user.username }}</h3>
+            <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
+              {{ user.role }}
+            </span>
+          </div>
+        </div>
+
+        <div class="user-details">
+          <div class="detail-item">
+            <span class="label">ID</span>
+            <span class="value">{{ user.id }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="label">Status</span>
+            <span
+              class="status-badge"
+              [class.blocked]="user.blocked"
+              [class.active]="!user.blocked"
+            >
+              {{ user.blocked ? 'Blokiran' : 'Aktivan' }}
+            </span>
+          </div>
+
+          <div class="detail-item">
+            <span class="label">Ime</span>
+            <span class="value">{{ user.firstName || 'Nije uneto' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="label">Prezime</span>
+            <span class="value">{{ user.lastName || 'Nije uneto' }}</span>
+          </div>
+
+          <div class="detail-item full-width">
+            <span class="label">Biografija</span>
+            <span class="value">{{ user.biography || 'Nema biografije.' }}</span>
+          </div>
+
+          <div class="detail-item full-width">
+            <span class="label">Moto</span>
+            <span class="value">{{ user.motto || 'Nema mota.' }}</span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button
+            *ngIf="!user.blocked"
+            class="block-btn"
+            (click)="blockUser(user.id)"
+          >
+            Blokiraj korisnika
+          </button>
+
+          <span *ngIf="user.blocked" class="blocked-text">
+            Korisnik je već blokiran
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>

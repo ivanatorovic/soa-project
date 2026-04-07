@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { UserService, AdminUserOverviewResponse } from '../../../core/services/user';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-admin-users',
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf,CommonModule],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.css'
 })
