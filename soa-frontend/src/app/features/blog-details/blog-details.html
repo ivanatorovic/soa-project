@@ -1,0 +1,78 @@
+<div class="blog-page">
+  <div class="top-bar">
+    <span>Železnička br. 46, 21000 Novi Sad</span>
+    <div class="social-links">
+      <span>Facebook</span>
+      <span>Email</span>
+      <span>Twitter</span>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo">MyApp</div>
+
+    <div class="nav-links">
+      <a routerLink="/">Početna</a>
+      <a href="#">O nama</a>
+      <a routerLink="/blog" class="active">Blog</a>
+      <a href="#">Kontakt</a>
+    </div>
+  </nav>
+
+  <section class="blog-hero">
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <h1>Detalji bloga</h1>
+      <p>Pročitaj kompletan tekst bloga, pogledaj slike, komentare i reakcije korisnika.</p>
+    </div>
+  </section>
+
+  <section class="blog-details-content">
+    <div *ngIf="loading" class="status-message">Učitavanje bloga...</div>
+
+    <div *ngIf="errorMessage" class="status-message error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && blog" class="blog-details-card">
+      <h2 class="blog-title">{{ blog.title }}</h2>
+
+      <div class="blog-meta">
+        <span>👤 {{ blog.authorUsername }}</span>
+        <span>📅 {{ blog.createdAt | date: 'dd.MM.yyyy' }}</span>
+        <span>👍 {{ blog.likesCount }}</span>
+      </div>
+
+      <div class="blog-description">
+        <h3>Opis</h3>
+        <p>{{ blog.description }}</p>
+      </div>
+
+      <div *ngIf="blog.imageUrls?.length" class="blog-images">
+        <h3>Slike</h3>
+
+        <div class="image-grid">
+          <img *ngFor="let image of blog.imageUrls" [src]="getImageUrl(image)" [alt]="blog.title" />
+        </div>
+      </div>
+
+      <div class="blog-comments">
+        <h3>Komentari</h3>
+
+        <div *ngIf="commentsLoading" class="status-message">Učitavanje komentara...</div>
+
+        <div *ngIf="!commentsLoading && comments.length === 0" class="status-message">
+          Nema komentara.
+        </div>
+
+        <div *ngIf="!commentsLoading && comments.length > 0" class="comments-list">
+          <div class="comment-card" *ngFor="let comment of comments">
+            <p class="comment-author">👤 {{ comment.authorUsername }}</p>
+            <p class="comment-text">{{ comment.text }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

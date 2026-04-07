@@ -1,5 +1,4 @@
 <div class="blog-page">
-
   <div class="top-bar">
     <span>Železnička br. 46, 21000 Novi Sad</span>
     <div class="social-links">
@@ -26,58 +25,42 @@
     <div class="hero-content">
       <h1>Saveti i Članci</h1>
       <p>
-        Proputujte svetom, obogatite iskustvo i doživite sjajne uspomene!
-        Pronađite idealnu destinaciju za sledeće letovanje, zimovanje ili odmor tokom godine.
+        Proputujte svetom, obogatite iskustvo i doživite sjajne uspomene! Pronađite idealnu
+        destinaciju za sledeće letovanje, zimovanje ili odmor tokom godine.
       </p>
-
-      <div class="breadcrumb">
-        <span routerLink="/" class="crumb-link">Početna</span>
-        <span class="separator">›</span>
-        <span>Blog</span>
-      </div>
     </div>
   </section>
 
   <section class="blog-content">
-    <div class="blog-grid">
+    <div class="blog-content-header">
+      <h2>Najpopularniji blogovi</h2>
+      <button class="add-blog-btn" (click)="goToCreateBlog()">Dodaj svoj blog</button>
+    </div>
 
-      <div class="blog-card">
-        <img src="assets/putovanje.jpg" alt="Blog 1">
+    <div *ngIf="loading" class="status-message">Učitavanje blogova...</div>
+
+    <div *ngIf="errorMessage" class="status-message error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && blogs.length === 0" class="status-message">
+      Trenutno nema dostupnih blogova.
+    </div>
+
+    <div class="blog-grid" *ngIf="!loading && !errorMessage && blogs.length > 0">
+      <div class="blog-card" *ngFor="let blog of blogs">
         <div class="blog-card-body">
-          <span class="tag">Putovanja</span>
-          <h3>Najlepše destinacije za letovanje</h3>
-          <p>
-            Izdvojili smo nekoliko destinacija koje su savršen izbor za odmor i opuštanje.
-          </p>
-          <button>Pročitaj više</button>
+          <h3>{{ blog.title }}</h3>
+
+          <div class="blog-info">
+            <p><strong>Autor:</strong> {{ getAuthor(blog) }}</p>
+            <p><strong>Objavljeno:</strong> {{ blog.createdAt | date: 'dd.MM.yyyy' }}</p>
+            <p>👍 {{ blog.likesCount }}</p>
+          </div>
+
+          <button (click)="goToBlogDetails(blog.id)">Prikaži više</button>
         </div>
       </div>
-
-      <div class="blog-card">
-        <img src="assets/putovanje1.jpg" alt="Blog 2">
-        <div class="blog-card-body">
-          <span class="tag">Saveti</span>
-          <h3>Kako se pripremiti za putovanje</h3>
-          <p>
-            Nekoliko korisnih saveta koji će vam pomoći da bez stresa isplanirate put.
-          </p>
-          <button>Pročitaj više</button>
-        </div>
-      </div>
-
-      <div class="blog-card">
-        <img src="assets/putovanje.jpg" alt="Blog 3">
-        <div class="blog-card-body">
-          <span class="tag">Evropa</span>
-          <h3>Top evropski gradovi za vikend</h3>
-          <p>
-            Ako želite kraći odmor, ovo su odlične destinacije za vikend putovanje.
-          </p>
-          <button>Pročitaj više</button>
-        </div>
-      </div>
-
     </div>
   </section>
-
 </div>

@@ -10,7 +10,7 @@ public class BlogResponse {
     private String description;
     private LocalDateTime createdAt;
     private List<String> imageUrls;
-    private Long authorId;
+    private String authorUsername;
     private int likesCount;
 
     public Long getId() { return id; }
@@ -28,8 +28,8 @@ public class BlogResponse {
     public List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 
-    public Long getAuthorId() { return authorId; }
-    public void setAuthorId(Long authorId) { this.authorId = authorId; }
+    public String getAuthorUsername() { return authorUsername; }
+    public void setAuthorUsername(String authorUsername) { this.authorUsername = authorUsername; }
 
     public int getLikesCount() { return likesCount; }
     public void setLikesCount(int likesCount) { this.likesCount = likesCount; }

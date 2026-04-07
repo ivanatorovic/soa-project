@@ -22,7 +22,11 @@ public class BlogController {
             @RequestBody CreateBlogRequest request,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.createBlog(request, principal.getUserId());
+        return blogService.createBlog(
+                request,
+                principal.getUserId(),
+                principal.getUsername()
+        );
     }
 
     @GetMapping
@@ -35,24 +39,24 @@ public class BlogController {
         return blogService.getBlogById(id);
     }
 
-    @PostMapping("/{blogId}/like")
+    @PostMapping("/{id}/like")
     public ResponseEntity<?> likeBlog(
-            @PathVariable Long blogId,
+            @PathVariable Long id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.likeBlog(blogId, principal.getUserId());
+        return blogService.likeBlog(id, principal.getUserId());
     }
 
-    @DeleteMapping("/{blogId}/like")
+    @DeleteMapping("/{id}/like")
     public ResponseEntity<?> unlikeBlog(
-            @PathVariable Long blogId,
+            @PathVariable Long id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.unlikeBlog(blogId, principal.getUserId());
+        return blogService.unlikeBlog(id, principal.getUserId());
     }
 
-    @GetMapping("/{blogId}/likes/count")
-    public ResponseEntity<?> getLikesCount(@PathVariable Long blogId) {
-        return blogService.getLikesCount(blogId);
+    @GetMapping("/{id}/likes")
+    public ResponseEntity<?> getLikesCount(@PathVariable Long id) {
+        return blogService.getLikesCount(id);
     }
 }

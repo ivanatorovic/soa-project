@@ -26,7 +26,11 @@ public class Blog {
     @CollectionTable(name = "blog_images", joinColumns = @JoinColumn(name = "blog_id"))
     @Column(name = "image_url")
     private List<String> imageUrls = new ArrayList<>();
+
     private Long authorId;
+
+    @Column(nullable = false)
+    private String authorUsername;
 
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
@@ -57,6 +61,14 @@ public class Blog {
 
     public Long getAuthorId() { return authorId; }
     public void setAuthorId(Long authorId) { this.authorId = authorId; }
+
+    public String getAuthorUsername() {
+        return authorUsername;
+    }
+
+    public void setAuthorUsername(String authorUsername) {
+        this.authorUsername = authorUsername;
+    }
 
     public List<Comment> getComments() { return comments; }
     public void setComments(List<Comment> comments) { this.comments = comments; }

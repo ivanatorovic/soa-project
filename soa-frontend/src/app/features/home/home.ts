@@ -1,44 +1,55 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { AuthService } from '../../core/services/auth';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
-  imports: [NgIf,RouterLink],
+  standalone: true,
+  imports: [NgIf, RouterLink],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrl: './home.css',
 })
 export class Home {
-
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   isLoggedIn(): boolean {
-    return this.authService.getToken() !== null;
+    return this.authService.isLoggedIn();
   }
 
-  logout() {
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  getUsername(): string {
+    return this.authService.getUsername() || 'korisniče';
+  }
+
+  logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
   }
 
-  goToLogin() {
+  goToLogin(): void {
     this.router.navigate(['/login']);
   }
 
-  goToRegister() {
+  goToRegister(): void {
     this.router.navigate(['/register']);
   }
 
-  goToProfile() {
+  goToProfile(): void {
     this.router.navigate(['/profile']);
-
   }
-  goToAdminUsers() {
-  this.router.navigate(['/admin/users']);
-}
+
+  goToAdminUsers(): void {
+    this.router.navigate(['/admin/users']);
+  }
+
+  goToBlog(): void {
+    this.router.navigate(['/blog']);
+  }
 }

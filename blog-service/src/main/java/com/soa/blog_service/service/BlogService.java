@@ -22,11 +22,12 @@ public class BlogService {
         this.blogLikeRepository = blogLikeRepository;
     }
 
-    public ResponseEntity<?> createBlog(CreateBlogRequest request, Long authorId) {
+    public ResponseEntity<?> createBlog(CreateBlogRequest request, Long authorId, String authorUsername) {
         Blog blog = new Blog();
         blog.setTitle(request.getTitle());
         blog.setDescription(request.getDescription());
         blog.setAuthorId(authorId);
+        blog.setAuthorUsername(authorUsername);
         blog.setImageUrls(request.getImageUrls());
 
         blogRepository.save(blog);
@@ -123,7 +124,7 @@ public class BlogService {
         response.setDescription(blog.getDescription());
         response.setCreatedAt(blog.getCreatedAt());
         response.setImageUrls(blog.getImageUrls());
-        response.setAuthorId(blog.getAuthorId());
+        response.setAuthorUsername(blog.getAuthorUsername());
         response.setLikesCount((int) blogLikeRepository.countByBlogId(blog.getId()));
         return response;
     }
