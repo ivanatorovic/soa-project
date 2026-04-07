@@ -1,0 +1,45 @@
+<div class="home-page">
+
+  <!-- Gornja traka -->
+  <div class="top-bar">
+    <span>Dobrodošli u aplikaciju</span>
+  </div>
+
+  <!-- Navigacija -->
+  <nav class="navbar">
+    <div class="logo">MyApp</div>
+
+    <div class="nav-links">
+  <a routerLink="/">Početna</a>
+  <a href="#">O nama</a>
+  <a routerLink="/blog">Blog</a>
+  <a href="#">Kontakt</a>
+</div>
+  </nav>
+
+  <!-- Hero sekcija -->
+  <section class="hero">
+    <div class="overlay"></div>
+   
+  
+
+    <div class="hero-content">
+      <p class="subtitle">Dobrodošli</p>
+      <h1>VAŠA APLIKACIJA, <br> VAŠE MESTO ZA POČETAK</h1>
+
+      <!-- Ako NIJE ulogovan -->
+      <div *ngIf="!isLoggedIn()" class="button-group">
+        <button class="btn primary" (click)="goToLogin()">Prijava</button>
+        <button class="btn secondary" (click)="goToRegister()">Registracija</button>
+      </div>
+
+      <!-- Ako JESTE ulogovan -->
+      <div *ngIf="isLoggedIn()" class="button-group">
+        <button class="btn primary" (click)="goToProfile()">Moj profil</button>
+        <button class="btn secondary" (click)="goToAdminUsers()">Svi korisnici</button>
+        <button class="btn danger" (click)="logout()">Odjava</button>
+      </div>
+    </div>
+  </section>
+
+</div>

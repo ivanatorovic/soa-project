@@ -167,17 +167,32 @@ public class UserService {
     }
 
     private ProfileResponse mapToProfileResponse(User user) {
+        if (user.getRole() == UserRole.ADMIN) {
+            return new ProfileResponse(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getRole(),
+                    user.isBlocked(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        }
+
         return new ProfileResponse(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getRole(),
                 user.isBlocked(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getProfileImage(),
-                user.getBiography(),
-                user.getMotto()
+                user.getFirstName() != null ? user.getFirstName() : "",
+                user.getLastName() != null ? user.getLastName() : "",
+                user.getProfileImage() != null ? user.getProfileImage() : "",
+                user.getBiography() != null ? user.getBiography() : "",
+                user.getMotto() != null ? user.getMotto() : ""
         );
     }
 }

@@ -1,7 +1,8 @@
 package com.soa.stakeholders_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.soa.stakeholders_service.model.UserRole;
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProfileResponse {
 
     private Long id;
