@@ -73,7 +73,10 @@
               {{ user.blocked ? 'Blokiran' : 'Aktivan' }}
             </span>
           </div>
-
+        <div class="detail-item">
+            <span class="label">Email</span>
+            <span class="value">{{ user.email }}</span>
+          </div>
           <div class="detail-item">
             <span class="label">Ime</span>
             <span class="value">{{ user.firstName || 'Nije uneto' }}</span>

@@ -34,12 +34,15 @@
           <span class="label">Korisničko ime</span>
           <span class="value">{{ profile.username }}</span>
         </div>
-
+      <div class="info-row">
+          <span class="label">Email</span>
+          <span class="value role-badge">{{ profile.email }}</span>
+        </div>
         <div class="info-row">
           <span class="label">Uloga</span>
           <span class="value role-badge">{{ profile.role }}</span>
         </div>
-
+<ng-container *ngIf="profile.role !== 'ADMIN'">
         <div class="info-row">
           <span class="label">Ime</span>
           <span class="value">{{ profile.firstName || 'Nije uneto' }}</span>
@@ -59,6 +62,7 @@
           <span class="label">Moto</span>
           <span class="value">{{ profile.motto || 'Moto nije unet.' }}</span>
         </div>
+        </ng-container>
       </div>
     </div>
   </section>

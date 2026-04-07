@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 export interface ProfileResponse {
   id: number;
   username: string;
+  email : string;
   role: string;
   firstName: string;
   lastName: string;
@@ -16,6 +17,7 @@ export interface ProfileResponse {
 export interface AdminUserOverviewResponse {
   id: number;
   username: string;
+  email : string;
   role: string;
   blocked: boolean;
   firstName?: string;
