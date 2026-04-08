@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CommentService {
@@ -26,11 +27,11 @@ public class CommentService {
         Blog blog = blogRepository.findById(request.getBlogId()).orElse(null);
 
         if (blog == null) {
-            return ResponseEntity.status(404).body("Ne postoji blog sa ID: " + request.getBlogId());
+            return ResponseEntity.status(404).body(Map.of("message", "Ne postoji blog sa ID: " + request.getBlogId()));
         }
 
         if (request.getText() == null || request.getText().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Tekst komentara ne sme biti prazan");
+            return ResponseEntity.badRequest().body(Map.of("message", "Tekst komentara ne sme biti prazan"));
         }
 
         Comment comment = new Comment();
@@ -45,7 +46,8 @@ public class CommentService {
                 savedComment.getId(),
                 savedComment.getBlog().getId(),
                 savedComment.getAuthorUsername(),
-                savedComment.getText()
+                savedComment.getText(),
+                savedComment.getCreatedAt()
         );
 
         return ResponseEntity.ok(response);
@@ -55,13 +57,12 @@ public class CommentService {
         Blog blog = blogRepository.findById(blogId).orElse(null);
 
         if (blog == null) {
-            return ResponseEntity.status(404).body("Ne postoji blog sa ID: " + blogId);
+            return ResponseEntity.status(404).body(Map.of("message", "Ne postoji blog sa ID: " + blogId));
         }
 
-        List<Comment> comments = commentRepository.findByBlogId(blogId);
-
+        List<Comment> comments = commentRepository.findByBlogIdOrderByCreatedAtDesc(blogId);
         if (comments.isEmpty()) {
-            return ResponseEntity.status(404).body("Nema komentara za ovaj blog");
+            return ResponseEntity.status(404).body(Map.of("message", "Nema komentara za ovaj blog"));
         }
 
         List<CommentResponse> response = comments.stream()
@@ -69,7 +70,8 @@ public class CommentService {
                         comment.getId(),
                         comment.getBlog().getId(),
                         comment.getAuthorUsername(),
-                        comment.getText()
+                        comment.getText(),
+                        comment.getCreatedAt()
                 ))
                 .toList();
 
@@ -80,15 +82,15 @@ public class CommentService {
         Comment comment = commentRepository.findById(id).orElse(null);
 
         if (comment == null) {
-            return ResponseEntity.status(404).body("Ne postoji komentar sa ID: " + id);
+            return ResponseEntity.status(404).body(Map.of("message", "Ne postoji komentar sa ID: " + id));
         }
 
         if (!comment.getAuthorId().equals(currentUserId)) {
-            return ResponseEntity.status(403).body("Mozete menjati samo svoj komentar");
+            return ResponseEntity.status(403).body(Map.of("message", "Mozete menjati samo svoj komentar"));
         }
 
         if (newText == null || newText.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Tekst komentara ne sme biti prazan");
+            return ResponseEntity.badRequest().body(Map.of("message", "Tekst komentara ne sme biti prazan"));
         }
 
         comment.setText(newText);
@@ -98,7 +100,8 @@ public class CommentService {
                 updatedComment.getId(),
                 updatedComment.getBlog().getId(),
                 updatedComment.getAuthorUsername(),
-                updatedComment.getText()
+                updatedComment.getText(),
+                updatedComment.getCreatedAt()
         );
 
         return ResponseEntity.ok(response);

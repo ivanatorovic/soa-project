@@ -1,1 +1,97 @@
-<p>create-blog.component works!</p>
+<div class="create-blog-page">
+  <div class="top-bar">
+    <span>Železnička br. 46, 21000 Novi Sad</span>
+    <div class="social-links">
+      <span>Facebook</span>
+      <span>Email</span>
+      <span>Twitter</span>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo">MyApp</div>
+
+    <div class="nav-links">
+      <a routerLink="/">Početna</a>
+      <a href="#">O nama</a>
+      <a routerLink="/blog" class="active">Blog</a>
+      <a href="#">Kontakt</a>
+    </div>
+  </nav>
+
+  <section class="create-blog-content">
+    <div class="create-blog-wrapper">
+      <div class="create-blog-header">
+        <h1>Kreiraj novi blog</h1>
+        <p>Unesi naslov, opis i po želji dodaj jednu ili više slika ručnim unosom putanje.</p>
+      </div>
+
+      <form [formGroup]="createBlogForm" (ngSubmit)="onSubmit()" class="create-blog-form">
+        <div class="form-group">
+          <label for="title">Naslov bloga</label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            placeholder="Unesite naslov bloga"
+          />
+          <small *ngIf="isFieldInvalid('title')">Naslov je obavezan.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Opis bloga</label>
+          <textarea
+            id="description"
+            rows="7"
+            formControlName="description"
+            placeholder="Unesite opis bloga"
+          ></textarea>
+          <small *ngIf="isFieldInvalid('description')">Opis je obavezan.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="imageUpload">Izaberi slike</label>
+
+          <div class="image-input-row">
+            <input
+              #imageInput
+              id="imageUpload"
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              (change)="onImagesSelected($event)"
+            />
+
+            <button type="button" class="add-image-btn" (click)="imageInput.click()">
+              Izaberi slike
+            </button>
+          </div>
+
+          <small class="helper-text">
+            Slike nisu obavezne. Možeš izabrati jednu ili više slika sa računara.
+          </small>
+        </div>
+
+        <div class="images-list" *ngIf="selectedFiles.length > 0">
+          <h3>Dodate slike</h3>
+
+          <div class="image-tag" *ngFor="let file of selectedFiles; let i = index">
+            <span>{{ file.name }}</span>
+            <button type="button" (click)="removeImage(i)">Ukloni</button>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="status-message error">
+          {{ errorMessage }}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-btn" [disabled]="submitting">
+            {{ submitting ? 'Objavljivanje...' : 'Objavi blog' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>

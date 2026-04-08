@@ -1,20 +1,32 @@
 package com.soa.blog_service.dto;
 
+import java.time.LocalDateTime;
+
 public class CommentResponse {
 
     private Long id;
     private Long blogId;
     private String authorUsername;
     private String text;
+    private LocalDateTime createdAt;
 
     public CommentResponse() {
     }
 
-    public CommentResponse(Long id, Long blogId, String authorUsername, String text) {
+    public CommentResponse(Long id, Long blogId, String authorUsername, String text, LocalDateTime createdAt) {
         this.id = id;
         this.blogId = blogId;
         this.authorUsername = authorUsername;
         this.text = text;
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Long getId() {

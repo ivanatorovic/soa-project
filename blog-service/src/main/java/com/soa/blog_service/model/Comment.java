@@ -2,6 +2,8 @@ package com.soa.blog_service.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class Comment {
 
@@ -15,9 +17,24 @@ public class Comment {
 
     private String text;
 
+    private LocalDateTime createdAt;
+
     @ManyToOne
     @JoinColumn(name = "blog_id", nullable = false)
     private Blog blog;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public Long getId() {
         return id;

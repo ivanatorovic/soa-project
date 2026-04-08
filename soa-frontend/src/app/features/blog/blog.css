@@ -191,7 +191,7 @@
   line-height: 1.5;
 }
 
-.blog-card button {
+.blog-card button:not(.like-btn) {
   background: #0d4d8b;
   color: white;
   border: none;
@@ -201,7 +201,7 @@
   font-size: 15px;
 }
 
-.blog-card button:hover {
+.blog-card button:not(.like-btn):hover {
   background: #0a3d6e;
 }
 
@@ -274,4 +274,60 @@
   .add-blog-btn {
     width: 100%;
   }
+}
+
+.like-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dugme potpuno neutralno */
+.like-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Ikonica - BEZ DIRANJA */
+.like-btn .thumb {
+  font-size: 18px;
+  color: inherit;
+}
+
+/* ❌ nema hover efekta kad nije lajkovano */
+.like-btn:hover {
+  background: transparent;
+}
+
+.like-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+/* stanje */
+.like-btn.liked {
+  background: rgba(73, 147, 220, 0.2) !important;
+}
+
+/* opcionalno: jos malo lepse */
+.like-btn.liked:hover {
+  background: rgba(13, 77, 139, 0.2);
+}
+
+/* disable */
+.like-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.likes-count {
+  font-size: 14px;
+  color: #6b7c93;
+  font-weight: 500;
 }

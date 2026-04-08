@@ -54,8 +54,20 @@
 
           <div class="blog-info">
             <p><strong>Autor:</strong> {{ getAuthor(blog) }}</p>
-            <p><strong>Objavljeno:</strong> {{ blog.createdAt | date: 'dd.MM.yyyy' }}</p>
-            <p>👍 {{ blog.likesCount }}</p>
+            <p><strong>Objavljeno:</strong> {{ blog.createdAt | timeAgo }}</p>
+
+            <div class="like-section">
+              <button
+                class="like-btn"
+                [class.liked]="blog.likedByCurrentUser"
+                [disabled]="blog.likeLoading"
+                (click)="toggleLike(blog)"
+              >
+                <span class="thumb">👍</span>
+              </button>
+
+              <span class="likes-count">{{ blog.likesCount }}</span>
+            </div>
           </div>
 
           <button (click)="goToBlogDetails(blog.id)">Prikaži više</button>

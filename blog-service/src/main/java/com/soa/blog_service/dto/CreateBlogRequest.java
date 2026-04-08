@@ -6,7 +6,6 @@ public class CreateBlogRequest {
 
     private String title;
     private String description;
-    private List<String> imageUrls;
 
     public String getTitle() {
         return title;
@@ -24,11 +23,5 @@ public class CreateBlogRequest {
         this.description = description;
     }
 
-    public List<String> getImageUrls() {
-        return imageUrls;
-    }
 
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
-    }
 }

@@ -8,26 +8,6 @@
     </div>
   </div>
 
-  <nav class="navbar">
-    <div class="logo">MyApp</div>
-
-    <div class="nav-links">
-      <a routerLink="/">Početna</a>
-      <a href="#">O nama</a>
-      <a routerLink="/blog" class="active">Blog</a>
-      <a href="#">Kontakt</a>
-    </div>
-  </nav>
-
-  <section class="blog-hero">
-    <div class="hero-overlay"></div>
-
-    <div class="hero-content">
-      <h1>Detalji bloga</h1>
-      <p>Pročitaj kompletan tekst bloga, pogledaj slike, komentare i reakcije korisnika.</p>
-    </div>
-  </section>
-
   <section class="blog-details-content">
     <div *ngIf="loading" class="status-message">Učitavanje bloga...</div>
 
@@ -40,20 +20,56 @@
 
       <div class="blog-meta">
         <span>👤 {{ blog.authorUsername }}</span>
-        <span>📅 {{ blog.createdAt | date: 'dd.MM.yyyy' }}</span>
-        <span>👍 {{ blog.likesCount }}</span>
+        <span>📅 {{ blog.createdAt | timeAgo }}</span>
+        <div class="like-section">
+          <button
+            class="like-btn"
+            [class.liked]="blog.likedByCurrentUser"
+            [disabled]="blog.likeLoading"
+            (click)="toggleLike()"
+            type="button"
+          >
+            <span class="thumb">👍</span>
+          </button>
+
+          <span class="likes-count">{{ blog.likesCount }}</span>
+        </div>
       </div>
 
       <div class="blog-description">
         <h3>Opis</h3>
-        <p>{{ blog.description }}</p>
+        <div [innerHTML]="getFormattedDescription()"></div>
       </div>
 
       <div *ngIf="blog.imageUrls?.length" class="blog-images">
-        <h3>Slike</h3>
+        <div class="blog-slider">
+          <button
+            *ngIf="blog.imageUrls.length > 1"
+            class="slider-btn prev"
+            type="button"
+            (click)="prevImage()"
+            aria-label="Prethodna slika"
+          >
+            ‹
+          </button>
 
-        <div class="image-grid">
-          <img *ngFor="let image of blog.imageUrls" [src]="getImageUrl(image)" [alt]="blog.title" />
+          <div class="slider-image-wrapper">
+            <img
+              class="slider-image"
+              [src]="getImageUrl(blog.imageUrls[currentImageIndex])"
+              [alt]="blog.title"
+            />
+          </div>
+
+          <button
+            *ngIf="blog.imageUrls.length > 1"
+            class="slider-btn next"
+            type="button"
+            (click)="nextImage()"
+            aria-label="Sledeća slika"
+          >
+            ›
+          </button>
         </div>
       </div>
 
@@ -68,10 +84,19 @@
 
         <div *ngIf="!commentsLoading && comments.length > 0" class="comments-list">
           <div class="comment-card" *ngFor="let comment of comments">
-            <p class="comment-author">👤 {{ comment.authorUsername }}</p>
+            <p class="comment-author">
+              👤 {{ comment.authorUsername }} · {{ comment.createdAt | timeAgo }}
+            </p>
             <p class="comment-text">{{ comment.text }}</p>
           </div>
         </div>
+      </div>
+      <div class="comment-form">
+        <textarea [(ngModel)]="newCommentText" placeholder="Napiši komentar..." rows="3"></textarea>
+
+        <button (click)="submitComment()" [disabled]="commentSubmitting">
+          {{ commentSubmitting ? 'Slanje...' : 'Pošalji komentar' }}
+        </button>
       </div>
     </div>
   </section>

@@ -7,8 +7,8 @@ import { Home } from './features/home/home';
 import { BlogComponent } from './features/blog/blog';
 
 import { authGuard } from './core/guards/auth-guard';
-import { CreateBlog } from './features/create-blog/create-blog';
 import { BlogDetails } from './features/blog-details/blog-details';
+import { CreateBlogComponent } from './features/create-blog/create-blog';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -17,6 +17,6 @@ export const routes: Routes = [
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'admin/users', component: AdminUsers, canActivate: [authGuard] },
   { path: 'blog', component: BlogComponent },
-  { path: 'blog/create', component: CreateBlog, canActivate: [authGuard] },
+  { path: 'blog/create', component: CreateBlogComponent, canActivate: [authGuard] },
   { path: 'blog/:id', component: BlogDetails },
 ];

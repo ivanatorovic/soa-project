@@ -7,6 +7,7 @@ export interface Comment {
   blogId: number;
   authorUsername: string;
   text: string;
+  createdAt: string;
 }
 
 @Injectable({
@@ -19,5 +20,9 @@ export class CommentService {
 
   getCommentsByBlogId(blogId: number): Observable<Comment[]> {
     return this.http.get<Comment[]>(`${this.apiUrl}/blog/${blogId}`);
+  }
+
+  createComment(request: { blogId: number; text: string }) {
+    return this.http.post<Comment>('http://localhost:8082/api/comments', request);
   }
 }

@@ -10,6 +10,15 @@ export interface Blog {
   likesCount: number;
   authorUsername: string;
   imageUrls: string[];
+
+  likedByCurrentUser: boolean;
+  likeLoading?: boolean;
+}
+
+export interface CreateBlogRequest {
+  title: string;
+  description: string;
+  imageUrls: string[];
 }
 
 @Injectable({
@@ -26,5 +35,17 @@ export class BlogService {
 
   getBlogById(id: number): Observable<Blog> {
     return this.http.get<Blog>(`${this.apiUrl}/${id}`);
+  }
+
+  likeBlog(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/like`, {});
+  }
+
+  unlikeBlog(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}/like`);
+  }
+
+  createBlog(formData: FormData): Observable<any> {
+    return this.http.post(this.apiUrl, formData);
   }
 }
