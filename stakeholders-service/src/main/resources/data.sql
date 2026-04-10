@@ -7,7 +7,7 @@ VALUES ('admin2', '$2a$12$hBwGbA96F8LgSpDuDIb1ieZ/sxARP399AexVao29gwohVQFpDpd5u'
     ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO users (username, password, email, role, blocked)
-VALUES ('ivana', '$2a$12$g5o1C.i0GWatn4eopDyFO.Ft5hC1/V2qJjJ47vxca55MCNUPEgPqK', 'ivana@gmail.com', 'GUIDE', false)
+VALUES ('ivana', '$2a$12$g5o1C.i0GWatn4eopDyFO.Ft5hC1/V2qJjJ47vxca55MCNUPEgPqK', 'ivana1@gmail.com', 'GUIDE', false)
     ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO users (username, password, email, role, blocked)

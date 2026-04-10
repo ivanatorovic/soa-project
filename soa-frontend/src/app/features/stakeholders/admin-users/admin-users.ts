@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { UserService, AdminUserOverviewResponse } from '../../../core/services/user';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 
 @Component({
   selector: 'app-admin-users',
-  imports: [NgFor, NgIf,CommonModule],
+  imports: [NgFor, NgIf,CommonModule,RouterModule],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.css'
 })
@@ -40,5 +41,25 @@ export class AdminUsers implements OnInit {
       this.errorMessage = 'Blokiranje nije uspelo.';
     }
   });
+}
+
+showModal: boolean = false;
+selectedUser: any = null;
+
+openModal(user: any): void {
+  this.selectedUser = user;
+  this.showModal = true;
+}
+
+closeModal(): void {
+  this.showModal = false;
+  this.selectedUser = null;
+}
+
+confirmBlock(): void {
+  if (this.selectedUser) {
+    this.blockUser(this.selectedUser.id);
+  }
+  this.closeModal();
 }
 }
