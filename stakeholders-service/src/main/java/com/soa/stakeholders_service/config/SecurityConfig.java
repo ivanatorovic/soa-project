@@ -46,6 +46,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/profile-images/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/users/me/profile").hasAnyRole("GUIDE", "TOURIST")
                         .requestMatchers(HttpMethod.GET, "/api/users/me/profile").authenticated()
                         .requestMatchers("/api/users").hasRole("ADMIN")
