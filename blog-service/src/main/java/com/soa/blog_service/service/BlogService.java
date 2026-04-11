@@ -47,9 +47,15 @@ public class BlogService {
             List<MultipartFile> images,
             Long authorId,
             String authorUsername,
+            String role,
             HttpServletRequest request
     ) {
         try {
+            if ("ADMIN".equalsIgnoreCase(role)) {
+                return ResponseEntity.status(403)
+                        .body(Map.of("message", "Admin ne može da objavljuje blogove"));
+            }
+
             CreateBlogRequest req = objectMapper.readValue(infoJson, CreateBlogRequest.class);
 
             Blog blog = new Blog();
@@ -124,9 +130,14 @@ public class BlogService {
         return ResponseEntity.ok(mapToResponse(blog, userId));
     }
 
-    public ResponseEntity<?> likeBlog(Long blogId, Long userId) {
+    public ResponseEntity<?> likeBlog(Long blogId, Long userId, String role) {
         if (userId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Morate proslediti userId"));
+        }
+
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("message", "Admin ne može da lajkuje blogove"));
         }
 
         Blog blog = blogRepository.findById(blogId).orElse(null);
@@ -150,9 +161,14 @@ public class BlogService {
         return ResponseEntity.ok(Map.of("message", "Blog je uspesno lajkovan"));
     }
 
-    public ResponseEntity<?> unlikeBlog(Long blogId, Long userId) {
+    public ResponseEntity<?> unlikeBlog(Long blogId, Long userId, String role) {
         if (userId == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Morate proslediti userId"));
+        }
+
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("message", "Admin ne može da uklanja lajk sa blogova"));
         }
 
         Blog blog = blogRepository.findById(blogId).orElse(null);

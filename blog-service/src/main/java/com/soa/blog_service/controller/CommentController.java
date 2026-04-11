@@ -23,7 +23,12 @@ public class CommentController {
             @RequestBody CreateCommentRequest request,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return commentService.createComment(request, principal.getUserId(), principal.getUsername());
+        return commentService.createComment(
+                request,
+                principal.getUserId(),
+                principal.getUsername(),
+                principal.getRole()
+        );
     }
 
     @GetMapping("/blog/{blogId}")
@@ -37,6 +42,11 @@ public class CommentController {
             @RequestBody UpdateCommentRequest request,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return commentService.updateComment(id, request.getText(), principal.getUserId());
+        return commentService.updateComment(
+                id,
+                request.getText(),
+                principal.getUserId(),
+                principal.getRole()
+        );
     }
 }
