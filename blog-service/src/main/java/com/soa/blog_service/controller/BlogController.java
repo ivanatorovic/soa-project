@@ -33,8 +33,7 @@ public class BlogController {
                 images,
                 principal.getUserId(),
                 principal.getUsername(),
-                principal.getRole(),
-                request
+                principal.getRole()
         );
     }
 
@@ -74,5 +73,13 @@ public class BlogController {
     @GetMapping("/{id}/likes")
     public ResponseEntity<?> getLikesCount(@PathVariable Long id) {
         return blogService.getLikesCount(id);
+    }
+
+    @GetMapping("/{blogId}/images/{imageIndex}")
+    public ResponseEntity<byte[]> getBlogImage(
+            @PathVariable Long blogId,
+            @PathVariable int imageIndex
+    ) {
+        return blogService.getBlogImage(blogId, imageIndex);
     }
 }

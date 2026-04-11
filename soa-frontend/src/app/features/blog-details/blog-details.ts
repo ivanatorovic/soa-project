@@ -20,7 +20,7 @@ export class BlogDetails implements OnInit, OnDestroy {
   loading = true;
   commentsLoading = true;
   errorMessage = '';
-  newCommentText: string = '';
+  newCommentText = '';
   commentSubmitting = false;
   commentErrorMessage = '';
 
@@ -36,6 +36,7 @@ export class BlogDetails implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     void this.viewportScroller.scrollToPosition([0, 0]);
+
     const blogId = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!blogId) {
@@ -131,7 +132,7 @@ export class BlogDetails implements OnInit, OnDestroy {
   }
 
   getImageUrl(image: string): string {
-    return `http://localhost:8082${image}`;
+    return this.blogService.resolveImageUrl(image);
   }
 
   submitComment(): void {
@@ -181,7 +182,6 @@ export class BlogDetails implements OnInit, OnDestroy {
     if (!this.blog?.imageUrls?.length) return;
 
     this.currentImageIndex = (this.currentImageIndex + 1) % this.blog.imageUrls.length;
-
     this.restartAutoSlide();
   }
 
