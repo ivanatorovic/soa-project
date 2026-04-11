@@ -1,5 +1,6 @@
 package com.soa.tour_service.controller;
 
+import com.soa.tour_service.dto.CreateKeyPointRequest;
 import com.soa.tour_service.dto.CreateTourRequest;
 import com.soa.tour_service.dto.TourResponse;
 import com.soa.tour_service.security.AuthenticatedUser;
@@ -34,5 +35,21 @@ public class TourController {
             @AuthenticationPrincipal AuthenticatedUser user
     ) {
         return ResponseEntity.ok(tourService.getMyTours(user.getId()));
+    }
+
+
+    @PostMapping("/{tourId}/key-points")
+    public ResponseEntity<?> addKeyPoint(
+            @PathVariable Long tourId,
+            @RequestBody CreateKeyPointRequest request,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        tourService.addKeyPoint(tourId, request, user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{tourId}")
+    public ResponseEntity<TourResponse> getTourById(@PathVariable Long tourId) {
+        return ResponseEntity.ok(tourService.getTourById(tourId));
     }
 }

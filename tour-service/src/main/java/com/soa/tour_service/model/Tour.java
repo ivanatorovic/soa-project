@@ -2,7 +2,10 @@ package com.soa.tour_service.model;
 
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,7 +44,18 @@ public class Tour {
     )
     private Set<Tag> tags = new HashSet<>();
 
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
+    private List<KeyPoint> keyPoints = new ArrayList<>();
+
     public Tour() {
+    }
+
+    public void setKeyPoints(List<KeyPoint> keyPoints) {
+        this.keyPoints = keyPoints;
+    }
+
+    public List<KeyPoint> getKeyPoints() {
+        return keyPoints;
     }
 
     public Long getId() {

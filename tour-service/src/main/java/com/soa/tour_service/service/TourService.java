@@ -2,11 +2,15 @@ package com.soa.tour_service.service;
 
 
 
+import com.soa.tour_service.dto.CreateKeyPointRequest;
 import com.soa.tour_service.dto.CreateTourRequest;
+import com.soa.tour_service.dto.KeyPointResponse;
 import com.soa.tour_service.dto.TourResponse;
+import com.soa.tour_service.model.KeyPoint;
 import com.soa.tour_service.model.Tag;
 import com.soa.tour_service.model.Tour;
 import com.soa.tour_service.model.TourStatus;
+import com.soa.tour_service.repository.KeyPointRepository;
 import com.soa.tour_service.repository.TagRepository;
 import com.soa.tour_service.repository.TourRepository;
 import org.springframework.stereotype.Service;
@@ -21,10 +25,12 @@ public class TourService {
 
     private final TourRepository tourRepository;
     private final TagRepository tagRepository;
+    private final KeyPointRepository keyPointRepository;
 
-    public TourService(TourRepository tourRepository, TagRepository tagRepository) {
+    public TourService(TourRepository tourRepository, TagRepository tagRepository,KeyPointRepository keyPointRepository) {
         this.tourRepository = tourRepository;
         this.tagRepository = tagRepository;
+        this.keyPointRepository = keyPointRepository;
     }
 
     public TourResponse createTour(CreateTourRequest request, Long authorId) {
@@ -71,6 +77,18 @@ public class TourService {
                 .map(Tag::getName)
                 .toList();
 
+        List<KeyPointResponse> keyPointResponses = tour.getKeyPoints()
+                .stream()
+                .map(kp -> new KeyPointResponse(
+                        kp.getId(),
+                        kp.getName(),
+                        kp.getDescription(),
+                        kp.getLatitude(),
+                        kp.getLongitude(),
+                        kp.getImageUrl()
+                ))
+                .toList();
+
         return new TourResponse(
                 tour.getId(),
                 tour.getName(),
@@ -79,7 +97,36 @@ public class TourService {
                 tour.getPrice(),
                 tour.getStatus(),
                 tour.getAuthorId(),
-                tagNames
+                tagNames,
+                keyPointResponses
         );
+    }
+
+    public void addKeyPoint(Long tourId, CreateKeyPointRequest request, Long userId) {
+
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tour not found"));
+
+        // PROVERA: da li je to autor
+        if (!tour.getAuthorId().equals(userId)) {
+            throw new RuntimeException("You are not the owner of this tour");
+        }
+
+        KeyPoint kp = new KeyPoint();
+        kp.setName(request.name);
+        kp.setDescription(request.description);
+        kp.setLatitude(request.latitude);
+        kp.setLongitude(request.longitude);
+        kp.setImageUrl(request.imageUrl);
+        kp.setTour(tour);
+
+        keyPointRepository.save(kp);
+    }
+
+    public TourResponse getTourById(Long tourId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tour not found"));
+
+        return mapToResponse(tour);
     }
 }
