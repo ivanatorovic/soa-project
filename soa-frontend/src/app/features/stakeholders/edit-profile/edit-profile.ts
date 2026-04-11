@@ -14,6 +14,7 @@ import { UserService, ProfileResponse } from '../../../core/services/user';
 export class EditProfileComponent implements OnInit {
 
   profile: ProfileResponse | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
 
   formData = {
     username: '',
@@ -50,6 +51,10 @@ export class EditProfileComponent implements OnInit {
           biography: res.biography || '',
           motto: res.motto || ''
         };
+
+        if (res.profileImage) {
+          this.imagePreview = 'http://localhost:8081' + res.profileImage;
+        }
       },
       error: () => {
         this.errorMessage = 'Greška pri učitavanju profila.';
@@ -57,35 +62,56 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      this.selectedFile = undefined;
+      this.imagePreview = this.profile?.profileImage || null;
+      return;
+    }
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result;
+    };
+    reader.readAsDataURL(file);
   }
 
-saveChanges() {
-  this.errorMessage = '';
-  this.passwordError = '';
+  saveChanges() {
+    this.errorMessage = '';
+    this.passwordError = '';
 
-  this.userService.updateMyProfile(this.formData, this.selectedFile).subscribe({
-    next: () => {
-      this.router.navigate(['/profile']);
-    },
-    error: (err) => {
-      console.log(err);
+    this.userService.updateMyProfile(this.formData, this.selectedFile).subscribe({
+      next: () => {
+        this.router.navigate(['/profile'], { replaceUrl: true });
+      },
+      error: (err) => {
+        console.log(err);
 
-      if (
-        err.error?.message === 'Username is already taken.' ||
-        err.error?.message === 'Username already exists.' ||
-        err.error === 'Username is already taken.'
-      ) {
-        this.errorMessage = 'Već postoji korisnik ovim username-om.';
-      } else if (err.error?.message === 'Current password is incorrect.') {
-        this.passwordError = 'Stara lozinka nije tačna.';
-      } else if (err.error?.message === 'Both current password and new password are required.') {
-        this.passwordError = 'Morate uneti i staru i novu lozinku.';
-      } else {
-        this.errorMessage = 'Greška pri čuvanju.';
+        if (
+          err.error?.message === 'Username is already taken.' ||
+          err.error?.message === 'Username already exists.' ||
+          err.error === 'Username is already taken.'
+        ) {
+          this.errorMessage = 'Već postoji korisnik sa ovim korisničkim imenom.';
+        } else if (
+          err.error?.message === 'Email is already taken.' ||
+          err.error?.message === 'Email already exists.' ||
+          err.error === 'Email is already taken.'
+        ) {
+          this.errorMessage = 'Već postoji korisnik sa ovim email-om.';
+        } else if (err.error?.message === 'Current password is incorrect.') {
+          this.passwordError = 'Stara lozinka nije tačna.';
+        } else if (err.error?.message === 'Both current password and new password are required.') {
+          this.passwordError = 'Morate uneti i staru i novu lozinku.';
+        } else {
+          this.errorMessage = 'Greška pri čuvanju.';
+        }
       }
-    }
-  });
-}
+    });
+  }
 }

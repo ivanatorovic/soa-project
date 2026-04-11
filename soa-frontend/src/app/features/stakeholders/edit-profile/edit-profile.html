@@ -1,57 +1,116 @@
-<div class="edit-profile-page" *ngIf="profile">
+<div class="edit-profile-wrapper" *ngIf="profile">
+  <div class="edit-profile-card">
+    <div class="edit-profile-header">
+      <h2>Uredi profil</h2>
+    </div>
 
-  <h2>Uredi profil</h2>
+    <form class="edit-profile-form">
+      <div class="form-group image-group">
+        <label>Profilna slika</label>
 
+        <div class="image-preview-section">
+          <div class="image-preview-circle">
+            <img
+              *ngIf="imagePreview; else noImage"
+              [src]="imagePreview"
+              alt="Preview profilne slike"
+              class="preview-image"
+            />
 
-  <form>
+            <ng-template #noImage>
+              <div class="preview-placeholder">
+                {{ formData.username?.charAt(0) | uppercase }}
+              </div>
+            </ng-template>
+          </div>
 
-    <label>Korisničko ime</label>
-    <input [(ngModel)]="formData.username" name="username" />
+          <div class="file-upload">
+            <label class="file-label">
+              Izaberi sliku
+              <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+            </label>
 
-    <p *ngIf="errorMessage" class="error">
-      {{ errorMessage }}
-    </p>
+            <span *ngIf="selectedFile" class="file-name">
+              {{ selectedFile.name }}
+            </span>
 
-    <label>Email</label>
-    <input [(ngModel)]="formData.email" name="email" />
+            <span *ngIf="!selectedFile" class="file-placeholder">
+              Nije izabrana nijedna datoteka
+            </span>
+          </div>
+        </div>
+      </div>
 
-    <label>Stara lozinka</label>
-    <input type="password" [(ngModel)]="formData.currentPassword" name="currentPassword" />
+      <div class="form-group">
+        <label for="username">Korisničko ime</label>
+        <input id="username" [(ngModel)]="formData.username" name="username" />
+      </div>
 
-    <label>Nova lozinka</label>
-    <input type="password" [(ngModel)]="formData.newPassword" name="newPassword" />
+      <p *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </p>
 
-    <p *ngIf="passwordError" class="error">
-      {{ passwordError }}
-    </p>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" [(ngModel)]="formData.email" name="email" />
+      </div>
 
-    <label>Ime</label>
-    <input [(ngModel)]="formData.firstName" name="firstName" />
+      <div class="form-row">
+        <div class="form-group">
+          <label for="currentPassword">Stara lozinka</label>
+          <input
+            id="currentPassword"
+            type="password"
+            [(ngModel)]="formData.currentPassword"
+            name="currentPassword"
+          />
+        </div>
 
-    <label>Prezime</label>
-    <input [(ngModel)]="formData.lastName" name="lastName" />
+        <div class="form-group">
+          <label for="newPassword">Nova lozinka</label>
+          <input
+            id="newPassword"
+            type="password"
+            [(ngModel)]="formData.newPassword"
+            name="newPassword"
+          />
+        </div>
+      </div>
 
-    <label>Biografija</label>
-    <textarea [(ngModel)]="formData.biography" name="biography"></textarea>
+      <p *ngIf="passwordError" class="error-message">
+        {{ passwordError }}
+      </p>
 
-    <label>Moto</label>
-    <input [(ngModel)]="formData.motto" name="motto" />
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Ime</label>
+          <input id="firstName" [(ngModel)]="formData.firstName" name="firstName" />
+        </div>
 
-    <label>Profilna slika</label>
-    <div class="file-upload">
-  <label class="file-label">
-    Izaberi sliku
-    <input type="file" (change)="onFileSelected($event)" hidden />
-  </label>
+        <div class="form-group">
+          <label for="lastName">Prezime</label>
+          <input id="lastName" [(ngModel)]="formData.lastName" name="lastName" />
+        </div>
+      </div>
 
-  <span *ngIf="selectedFile" class="file-name">
-    {{ selectedFile.name }}
-  </span>
-</div>
+      <div class="form-group">
+        <label for="biography">Biografija</label>
+        <textarea
+          id="biography"
+          rows="4"
+          [(ngModel)]="formData.biography"
+          name="biography"
+        ></textarea>
+      </div>
 
-    <button type="button" (click)="saveChanges()">
-      Sačuvaj
-    </button>
+      <div class="form-group">
+        <label for="motto">Moto</label>
+        <input id="motto" [(ngModel)]="formData.motto" name="motto" />
+      </div>
 
-  </form>
+      <button type="button" class="save-btn" (click)="saveChanges()">
+        Sačuvaj izmene
+      </button>
+    </form>
+  </div>
 </div>
