@@ -13,6 +13,7 @@ export interface Blog {
 
   likedByCurrentUser: boolean;
   likeLoading?: boolean;
+  likeErrorMessage?: string;
 }
 
 export interface CreateBlogRequest {

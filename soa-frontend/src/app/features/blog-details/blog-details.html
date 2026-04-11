@@ -21,6 +21,7 @@
       <div class="blog-meta">
         <span>👤 {{ blog.authorUsername }}</span>
         <span>📅 {{ blog.createdAt | timeAgo }}</span>
+
         <div class="like-section">
           <button
             class="like-btn"
@@ -34,6 +35,10 @@
 
           <span class="likes-count">{{ blog.likesCount }}</span>
         </div>
+      </div>
+
+      <div *ngIf="blog.likeErrorMessage" class="like-error-message below-meta-error">
+        {{ blog.likeErrorMessage }}
       </div>
 
       <div class="blog-description">
@@ -97,6 +102,10 @@
         <button (click)="submitComment()" [disabled]="commentSubmitting">
           {{ commentSubmitting ? 'Slanje...' : 'Pošalji komentar' }}
         </button>
+
+        <div *ngIf="commentErrorMessage" class="comment-error-message">
+          {{ commentErrorMessage }}
+        </div>
       </div>
     </div>
   </section>

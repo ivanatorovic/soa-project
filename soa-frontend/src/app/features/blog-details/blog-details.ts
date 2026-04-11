@@ -22,6 +22,7 @@ export class BlogDetails implements OnInit, OnDestroy {
   errorMessage = '';
   newCommentText: string = '';
   commentSubmitting = false;
+  commentErrorMessage = '';
 
   currentImageIndex = 0;
   private sliderInterval: ReturnType<typeof setInterval> | null = null;
@@ -58,6 +59,7 @@ export class BlogDetails implements OnInit, OnDestroy {
         this.blog = {
           ...response,
           likeLoading: false,
+          likeErrorMessage: '',
         };
         this.currentImageIndex = 0;
         this.startAutoSlide();
@@ -89,6 +91,7 @@ export class BlogDetails implements OnInit, OnDestroy {
     if (!this.blog || this.blog.likeLoading) return;
 
     this.blog.likeLoading = true;
+    this.blog.likeErrorMessage = '';
 
     if (this.blog.likedByCurrentUser) {
       this.blogService.unlikeBlog(this.blog.id).subscribe({
@@ -101,6 +104,8 @@ export class BlogDetails implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Greška pri uklanjanju lajka:', error);
           if (this.blog) {
+            this.blog.likeErrorMessage =
+              error?.error?.message || 'Došlo je do greške pri uklanjanju lajka.';
             this.blog.likeLoading = false;
           }
         },
@@ -116,6 +121,8 @@ export class BlogDetails implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Greška pri lajkovanju:', error);
           if (this.blog) {
+            this.blog.likeErrorMessage =
+              error?.error?.message || 'Došlo je do greške pri lajkovanju.';
             this.blog.likeLoading = false;
           }
         },
@@ -131,6 +138,7 @@ export class BlogDetails implements OnInit, OnDestroy {
     if (!this.blog || !this.newCommentText.trim()) return;
 
     this.commentSubmitting = true;
+    this.commentErrorMessage = '';
 
     this.commentService
       .createComment({
@@ -145,6 +153,8 @@ export class BlogDetails implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Greška pri slanju komentara:', error);
+          this.commentErrorMessage =
+            error?.error?.message || 'Došlo je do greške pri slanju komentara.';
           this.commentSubmitting = false;
         },
       });

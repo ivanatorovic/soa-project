@@ -31,6 +31,7 @@ export class BlogComponent implements OnInit {
         this.blogs = response.map((blog) => ({
           ...blog,
           likeLoading: false,
+          likeErrorMessage: '',
         }));
         this.loading = false;
       },
@@ -46,6 +47,7 @@ export class BlogComponent implements OnInit {
     if (blog.likeLoading) return;
 
     blog.likeLoading = true;
+    blog.likeErrorMessage = '';
 
     if (blog.likedByCurrentUser) {
       this.blogService.unlikeBlog(blog.id).subscribe({
@@ -56,6 +58,8 @@ export class BlogComponent implements OnInit {
         },
         error: (error) => {
           console.error('Greška pri uklanjanju lajka:', error);
+          blog.likeErrorMessage =
+            error?.error?.message || 'Došlo je do greške pri uklanjanju lajka.';
           blog.likeLoading = false;
         },
       });
@@ -68,6 +72,7 @@ export class BlogComponent implements OnInit {
         },
         error: (error) => {
           console.error('Greška pri lajkovanju:', error);
+          blog.likeErrorMessage = error?.error?.message || 'Došlo je do greške pri lajkovanju.';
           blog.likeLoading = false;
         },
       });

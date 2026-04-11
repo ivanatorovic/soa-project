@@ -56,17 +56,23 @@
             <p><strong>Autor:</strong> {{ getAuthor(blog) }}</p>
             <p><strong>Objavljeno:</strong> {{ blog.createdAt | timeAgo }}</p>
 
-            <div class="like-section">
-              <button
-                class="like-btn"
-                [class.liked]="blog.likedByCurrentUser"
-                [disabled]="blog.likeLoading"
-                (click)="toggleLike(blog)"
-              >
-                <span class="thumb">👍</span>
-              </button>
+            <div class="like-section-wrapper">
+              <div class="like-section">
+                <button
+                  class="like-btn"
+                  [class.liked]="blog.likedByCurrentUser"
+                  [disabled]="blog.likeLoading"
+                  (click)="toggleLike(blog)"
+                >
+                  <span class="thumb">👍</span>
+                </button>
 
-              <span class="likes-count">{{ blog.likesCount }}</span>
+                <span class="likes-count">{{ blog.likesCount }}</span>
+              </div>
+
+              <div *ngIf="blog.likeErrorMessage" class="like-error-message">
+                {{ blog.likeErrorMessage }}
+              </div>
             </div>
           </div>
 
