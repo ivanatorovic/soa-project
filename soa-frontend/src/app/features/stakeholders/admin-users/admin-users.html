@@ -46,8 +46,17 @@
       <div class="user-card" *ngFor="let user of users">
         <div class="card-top">
           <div class="avatar-circle">
-            {{ user.username?.charAt(0) | uppercase }}
-          </div>
+  <img
+    *ngIf="user.profileImage; else userInitials"
+    [src]="userService.getProfileImageUrl(user.profileImage)"
+    alt="Profilna slika"
+    class="profile-image"
+  />
+
+  <ng-template #userInitials>
+    {{ user.username?.charAt(0) | uppercase }}
+  </ng-template>
+</div>
 
           <div class="user-main-info">
             <h3>{{ user.username }}</h3>
@@ -79,22 +88,22 @@
           </div>
           <div class="detail-item">
             <span class="label">Ime</span>
-            <span class="value">{{ user.firstName || 'Nije uneto' }}</span>
+            <span class="value">{{ user.firstName || '' }}</span>
           </div>
 
           <div class="detail-item">
             <span class="label">Prezime</span>
-            <span class="value">{{ user.lastName || 'Nije uneto' }}</span>
+            <span class="value">{{ user.lastName || '' }}</span>
           </div>
 
           <div class="detail-item full-width">
             <span class="label">Biografija</span>
-            <span class="value">{{ user.biography || 'Nema biografije.' }}</span>
+            <span class="value">{{ user.biography || '' }}</span>
           </div>
 
           <div class="detail-item full-width">
             <span class="label">Moto</span>
-            <span class="value">{{ user.motto || 'Nema mota.' }}</span>
+            <span class="value">{{ user.motto || '' }}</span>
           </div>
           
         </div>

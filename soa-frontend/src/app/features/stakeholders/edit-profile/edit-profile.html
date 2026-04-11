@@ -1,0 +1,57 @@
+<div class="edit-profile-page" *ngIf="profile">
+
+  <h2>Uredi profil</h2>
+
+
+  <form>
+
+    <label>Korisničko ime</label>
+    <input [(ngModel)]="formData.username" name="username" />
+
+    <p *ngIf="errorMessage" class="error">
+      {{ errorMessage }}
+    </p>
+
+    <label>Email</label>
+    <input [(ngModel)]="formData.email" name="email" />
+
+    <label>Stara lozinka</label>
+    <input type="password" [(ngModel)]="formData.currentPassword" name="currentPassword" />
+
+    <label>Nova lozinka</label>
+    <input type="password" [(ngModel)]="formData.newPassword" name="newPassword" />
+
+    <p *ngIf="passwordError" class="error">
+      {{ passwordError }}
+    </p>
+
+    <label>Ime</label>
+    <input [(ngModel)]="formData.firstName" name="firstName" />
+
+    <label>Prezime</label>
+    <input [(ngModel)]="formData.lastName" name="lastName" />
+
+    <label>Biografija</label>
+    <textarea [(ngModel)]="formData.biography" name="biography"></textarea>
+
+    <label>Moto</label>
+    <input [(ngModel)]="formData.motto" name="motto" />
+
+    <label>Profilna slika</label>
+    <div class="file-upload">
+  <label class="file-label">
+    Izaberi sliku
+    <input type="file" (change)="onFileSelected($event)" hidden />
+  </label>
+
+  <span *ngIf="selectedFile" class="file-name">
+    {{ selectedFile.name }}
+  </span>
+</div>
+
+    <button type="button" (click)="saveChanges()">
+      Sačuvaj
+    </button>
+
+  </form>
+</div>

@@ -15,7 +15,7 @@ export class AdminUsers implements OnInit {
   users: AdminUserOverviewResponse[] = [];
   errorMessage: string = '';
 
-  constructor(private userService: UserService) {}
+  constructor(public userService: UserService) {}
 
   ngOnInit(): void {
     this.userService.getAllUsers().subscribe({

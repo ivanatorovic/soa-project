@@ -14,16 +14,37 @@
 
   <section class="profile-content">
     <div class="profile-card">
-      <div class="profile-header">
-        <div class="avatar-circle">
-          {{ profile?.username?.charAt(0) | uppercase }}
-        </div>
+<div class="profile-header">
+  <div class="profile-avatar-wrapper">
+    <div class="avatar-circle">
+      <img
+        *ngIf="profileImageUrl; else initials"
+        [src]="profileImageUrl"
+        alt="Profilna slika"
+        class="profile-image"
+      />
 
-        <div class="profile-title">
-          <p class="profile-subtitle">Korisnički nalog</p>
-          <h2>Moj profil</h2>
-        </div>
+      <ng-template #initials>
+        {{ profile?.username?.charAt(0) | uppercase }}
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="profile-main">
+    <div class="profile-header-top">
+      <div class="profile-title">
+        <p class="profile-subtitle">Korisnički nalog</p>
+        <h2>Moj profil</h2>
       </div>
+
+      <div class="profile-actions" *ngIf="canEditProfile()">
+        <button class="edit-profile-btn" (click)="goToEditProfile()">
+          Uredi profil
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
       <p *ngIf="errorMessage" class="error-message">
         {{ errorMessage }}
@@ -45,22 +66,22 @@
 <ng-container *ngIf="profile.role !== 'ADMIN'">
         <div class="info-row">
           <span class="label">Ime</span>
-          <span class="value">{{ profile.firstName || 'Nije uneto' }}</span>
+          <span class="value">{{ profile.firstName || '' }}</span>
         </div>
 
         <div class="info-row">
           <span class="label">Prezime</span>
-          <span class="value">{{ profile.lastName || 'Nije uneto' }}</span>
+          <span class="value">{{ profile.lastName || '' }}</span>
         </div>
 
         <div class="info-row full">
           <span class="label">Biografija</span>
-          <span class="value">{{ profile.biography || 'Biografija nije uneta.' }}</span>
+          <span class="value">{{ profile.biography || '' }}</span>
         </div>
 
         <div class="info-row full">
           <span class="label">Moto</span>
-          <span class="value">{{ profile.motto || 'Moto nije unet.' }}</span>
+          <span class="value">{{ profile.motto || '' }}</span>
         </div>
         </ng-container>
       </div>

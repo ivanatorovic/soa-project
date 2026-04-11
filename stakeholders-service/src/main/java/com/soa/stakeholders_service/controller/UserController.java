@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import com.soa.stakeholders_service.dto.UpdateProfileRequest;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -40,12 +42,13 @@ public class UserController {
         return userService.getMyProfile(authentication.getName());
     }
 
-    @PatchMapping("/me/profile")
+    @PatchMapping(value = "/me/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProfileResponse updateMyProfile(
             Authentication authentication,
-            @Valid @RequestBody UpdateProfileRequest request
+            @RequestPart("info") String infoJson,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
-        return userService.updateMyProfile(authentication.getName(), request);
+        return userService.updateMyProfile(authentication.getName(), infoJson, profileImage);
     }
 
 }
