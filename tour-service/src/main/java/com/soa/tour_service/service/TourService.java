@@ -129,4 +129,10 @@ public class TourService {
 
         return mapToResponse(tour);
     }
+    public List<TourResponse> getAllTours() {
+        return tourRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 }

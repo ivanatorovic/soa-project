@@ -1,0 +1,73 @@
+<div class="tours-page">
+
+  <div class="hero-slider">
+    <div
+      class="slide"
+      *ngFor="let image of heroImages; let i = index"
+      [class.active]="i === currentSlide"
+      [style.backgroundImage]="'url(' + image + ')'"
+    >
+      <div class="overlay"></div>
+
+      <div class="hero-content">
+        <h1>{{ isTourist() ? 'Sve ture' : 'Moje ture' }}</h1>
+        <p>
+          {{ isTourist() ? 'Pregled svih dostupnih tura.' : 'Pregled tura koje ste kreirali.' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tours-header">
+    <div>
+      <h2>{{ isTourist() ? 'Dostupne ture' : 'Vaše ture' }}</h2>
+      <p>
+        {{ isTourist()
+          ? 'Istražite ponudu i pronađite turu po svojoj meri.'
+          : 'Ovde možete pregledati ture koje ste kreirali.' }}
+      </p>
+    </div>
+
+    <button *ngIf="!isTourist()" (click)="goToCreateTour()" class="create-btn">
+      + Kreiraj turu
+    </button>
+  </div>
+
+  <p *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </p>
+
+  <div *ngIf="tours.length === 0" class="empty-state">
+    Nema dostupnih tura.
+  </div>
+
+  <div class="tours-grid" *ngIf="tours.length > 0">
+    <div class="tour-card" *ngFor="let tour of tours">
+      <div class="tour-icon">
+        {{ getTourIcon(tour.difficulty) }}
+      </div>
+
+      <h2>{{ tour.name }}</h2>
+
+      <p class="description">
+        {{ tour.description }}
+      </p>
+
+      <div class="info">
+        <span><b>Težina:</b> {{ tour.difficulty }}</span>
+        <span><b>Status:</b> {{ tour.status }}</span>
+      </div>
+
+      <div class="tags" *ngIf="tour.tags && tour.tags.length > 0">
+        <span *ngFor="let tag of tour.tags" class="tag">
+          {{ tag }}
+        </span>
+      </div>
+
+      <div class="price">
+        Cena: {{ tour.price }} RSD
+      </div>
+    </div>
+  </div>
+
+</div>

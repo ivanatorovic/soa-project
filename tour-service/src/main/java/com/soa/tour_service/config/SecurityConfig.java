@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/tours").hasAnyRole( "GUIDE", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/tours/my").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/tours").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
