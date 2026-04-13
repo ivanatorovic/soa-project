@@ -1,0 +1,32 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.rsuser
+
+# Build
+bin/
+obj/
+
+# Logs
+*.log
+
+# Database / cache
+*.db
+*.db-shm
+*.db-wal
+
+# Node (Angular)
+node_modules/
+dist/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Docker
+*.tar

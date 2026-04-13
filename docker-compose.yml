@@ -78,7 +78,20 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
+  follower-db:
+    image: neo4j:5
+    container_name: follower-db
+    restart: always
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password123
+    volumes:
+      - follower-neo4j-data:/data
+
 volumes:
   blog-db-data:
   stakeholders-db-data:
   pgadmin-data:
+  follower-neo4j-data:  
