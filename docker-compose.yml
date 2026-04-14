@@ -5,6 +5,8 @@ services:
     image: postgres:15
     container_name: blog-db
     restart: always
+    networks:
+      - app-network
     environment:
       POSTGRES_DB: blogdb
       POSTGRES_USER: postgres
@@ -22,6 +24,8 @@ services:
     restart: on-failure
     depends_on:
       - blog-db
+    networks:
+      - app-network
     ports:
       - "8082:8082"
     environment:
@@ -30,6 +34,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
       SERVER_PORT: 8082
+      UPLOAD_DIR: /app/uploads
     volumes:
       - ./blog-service/uploads:/app/uploads
 
@@ -37,6 +42,8 @@ services:
     image: postgres:15
     container_name: stakeholders-db
     restart: always
+    networks:
+      - app-network
     environment:
       POSTGRES_DB: stakeholdersdb
       POSTGRES_USER: postgres
@@ -45,6 +52,7 @@ services:
       - "5433:5432"
     volumes:
       - stakeholders-db-data:/var/lib/postgresql/data
+
   stakeholders-service:
     build:
       context: ./stakeholders-service
@@ -53,6 +61,8 @@ services:
     restart: on-failure
     depends_on:
       - stakeholders-db
+    networks:
+      - app-network
     ports:
       - "8081:8081"
     environment:
@@ -66,6 +76,8 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin
     restart: always
+    networks:
+      - app-network
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -81,3 +93,7 @@ volumes:
   blog-db-data:
   stakeholders-db-data:
   pgadmin-data:
+
+networks:
+  app-network:
+    driver: bridge

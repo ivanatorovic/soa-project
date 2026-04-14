@@ -13,7 +13,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // minimum 256-bit secret za HS256
+
     private static final String SECRET_KEY =
             "1234567890123456789012345678901212345678901234567890123456789012";
 
@@ -23,7 +23,7 @@ public class JwtService {
                 .claim("id", userId)
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(getSignInKey())
                 .compact();
     }

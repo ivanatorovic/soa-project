@@ -13,6 +13,7 @@ export interface Blog {
 
   likedByCurrentUser: boolean;
   likeLoading?: boolean;
+  likeErrorMessage?: string;
 }
 
 export interface CreateBlogRequest {
@@ -26,6 +27,7 @@ export interface CreateBlogRequest {
 })
 export class BlogService {
   private apiUrl = 'http://localhost:8082/api/blogs';
+  private baseUrl = 'http://localhost:8082';
 
   constructor(private http: HttpClient) {}
 
@@ -47,5 +49,17 @@ export class BlogService {
 
   createBlog(formData: FormData): Observable<any> {
     return this.http.post(this.apiUrl, formData);
+  }
+
+  resolveImageUrl(imageUrl: string): string {
+    if (!imageUrl) {
+      return '';
+    }
+
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+
+    return `${this.baseUrl}${imageUrl}`;
   }
 }

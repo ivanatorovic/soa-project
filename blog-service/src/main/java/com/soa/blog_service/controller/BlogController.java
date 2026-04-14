@@ -33,7 +33,7 @@ public class BlogController {
                 images,
                 principal.getUserId(),
                 principal.getUsername(),
-                request
+                principal.getRole()
         );
     }
 
@@ -59,7 +59,7 @@ public class BlogController {
             @PathVariable Long id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.likeBlog(id, principal.getUserId());
+        return blogService.likeBlog(id, principal.getUserId(), principal.getRole());
     }
 
     @DeleteMapping("/{id}/like")
@@ -67,11 +67,19 @@ public class BlogController {
             @PathVariable Long id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.unlikeBlog(id, principal.getUserId());
+        return blogService.unlikeBlog(id, principal.getUserId(), principal.getRole());
     }
 
     @GetMapping("/{id}/likes")
     public ResponseEntity<?> getLikesCount(@PathVariable Long id) {
         return blogService.getLikesCount(id);
+    }
+
+    @GetMapping("/{blogId}/images/{imageIndex}")
+    public ResponseEntity<byte[]> getBlogImage(
+            @PathVariable Long blogId,
+            @PathVariable int imageIndex
+    ) {
+        return blogService.getBlogImage(blogId, imageIndex);
     }
 }

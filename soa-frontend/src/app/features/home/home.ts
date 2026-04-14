@@ -52,4 +52,12 @@ export class Home {
   goToBlog(): void {
     this.router.navigate(['/blog']);
   }
+
+  goToCreateTour(): void {
+  this.router.navigate(['/create-tour']);
+}
+
+goToTours(): void {
+  this.router.navigate(['/tours']);
+}
 }

@@ -10,6 +10,8 @@ import { authGuard } from './core/guards/auth-guard';
 import { BlogDetails } from './features/blog-details/blog-details';
 import { CreateBlogComponent } from './features/create-blog/create-blog';
 import { EditProfileComponent } from './features/stakeholders/edit-profile/edit-profile';
+import { CreateTour } from './features/ture/create-tour/create-tour';
+import { Tours } from './features/ture/tours/tours';
 
 
 export const routes: Routes = [
@@ -22,6 +24,14 @@ export const routes: Routes = [
   { path: 'blog/create', component: CreateBlogComponent, canActivate: [authGuard] },
   { path: 'blog/:id', component: BlogDetails },
   { path: 'profile', component: Profile },
+  {
+    path: 'create-tour',
+    component: CreateTour
+  }, {
+    path: 'tours',
+    component: Tours
+  },
+  
   { path: 'edit-profile', component: EditProfileComponent }
 
 ];

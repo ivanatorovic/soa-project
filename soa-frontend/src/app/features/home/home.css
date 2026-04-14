@@ -193,3 +193,122 @@
     font-size: 18px;
   }
 }
+.top-destinations {
+  padding: 90px 40px 100px;
+  background-color: #f1f1f1;
+}
+
+.section-header {
+  text-align: center;
+  max-width: 950px;
+  margin: 0 auto 50px;
+}
+
+.section-header h2 {
+  font-size: 52px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.section-header p {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #333;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.destinations-grid {
+  width: 85%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  overflow: hidden;
+}
+
+.destination-card {
+  position: relative;
+  height: 650px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 60px;
+  cursor: pointer;
+  transition: transform 0.4s ease;
+}
+
+.destination-card:hover {
+  transform: scale(1.02);
+}
+
+.destination-card h3 {
+  position: relative;
+  z-index: 2;
+  color: white;
+  font-size: 34px;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.destination-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.destination-card.summer {
+  background-image: url('../../../assets/letovanje.jpg');
+}
+
+.destination-card.winter {
+  background-image: url('../../../assets/skijanje.jpg');
+}
+
+.destination-card.exotic {
+  background-image: url('../../../assets/daleke-destinacije.jpg');
+}
+
+@media (max-width: 1100px) {
+  .destinations-grid {
+    width: 92%;
+    grid-template-columns: 1fr;
+  }
+
+  .destination-card {
+    height: 420px;
+  }
+
+  .section-header h2 {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-destinations {
+    padding: 70px 20px 80px;
+  }
+
+  .section-header h2 {
+    font-size: 30px;
+  }
+
+  .section-header p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .destination-card {
+    height: 300px;
+    padding-top: 40px;
+  }
+
+  .destination-card h3 {
+    font-size: 26px;
+  }
+}
