@@ -8,6 +8,8 @@ import com.soa.tour_service.service.TourService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -38,13 +40,17 @@ public class TourController {
     }
 
 
-    @PostMapping("/{tourId}/key-points")
-    public ResponseEntity<?> addKeyPoint(
+    @PostMapping(value = "/{tourId}/key-points", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> addKeyPoint(
             @PathVariable Long tourId,
-            @RequestBody CreateKeyPointRequest request,
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam Double latitude,
+            @RequestParam Double longitude,
+            @RequestParam(required = false) MultipartFile image,
             @AuthenticationPrincipal AuthenticatedUser user
     ) {
-        tourService.addKeyPoint(tourId, request, user.getId());
+        tourService.addKeyPoint(tourId, name, description, latitude, longitude, image, user.getId());
         return ResponseEntity.ok().build();
     }
 

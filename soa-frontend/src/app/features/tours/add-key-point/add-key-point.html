@@ -1,0 +1,109 @@
+<div class="keypoint-page">
+  <ng-container *ngIf="tour; else loadingBlock">
+    <div class="top-bar">
+      <button class="back-btn" (click)="goBack()">← Nazad</button>
+
+      <div class="top-text">
+        <h1>Dodavanje ključnih tačaka</h1>
+        <p>Za turu: <b>{{ tour.name }}</b></p>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="form-card">
+        <h2>Nova ključna tačka</h2>
+
+        <label>Izaberite lokaciju na mapi</label>
+        <div id="map" class="map-box"></div>
+
+        <p class="map-hint">
+          Kliknite na mapu da izaberete lokaciju. Koordinate će se automatski popuniti.
+        </p>
+
+        <label for="name">Naziv</label>
+        <input
+          id="name"
+          [(ngModel)]="formData.name"
+          type="text"
+          placeholder="npr. Petrovaradinska tvrđava"
+        />
+
+        <label for="description">Opis</label>
+        <textarea
+          id="description"
+          [(ngModel)]="formData.description"
+          rows="4"
+          placeholder="Unesite opis lokacije"
+        ></textarea>
+
+        <label for="latitude">Geografska širina (latitude)</label>
+        <input
+          id="latitude"
+          [(ngModel)]="formData.latitude"
+          type="number"
+          step="any"
+          (change)="updateMarkerFromInputs()"
+        />
+
+        <label for="longitude">Geografska dužina (longitude)</label>
+        <input
+          id="longitude"
+          [(ngModel)]="formData.longitude"
+          type="number"
+          step="any"
+          (change)="updateMarkerFromInputs()"
+        />
+
+        <label for="image">Izaberite sliku</label>
+<input
+  id="image"
+  type="file"
+  accept="image/*"
+  (change)="onImageSelected($event)"
+/>
+
+<img *ngIf="previewImageUrl" [src]="previewImageUrl" alt="Preview" class="preview-image" />
+
+        <div class="button-row">
+          <button class="secondary-btn" type="button" (click)="fillDemoCoordinates()">
+            Unesi probne koordinate
+          </button>
+
+          <button class="save-btn" type="button" (click)="saveKeyPoint()">
+            Sačuvaj ključnu tačku
+          </button>
+        </div>
+
+        <p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      </div>
+
+      <div class="preview-card">
+        <h2>Pregled postojećih tačaka</h2>
+
+        <div *ngIf="tour.keyPoints && tour.keyPoints.length === 0" class="empty-state">
+          Ova tura još nema ključne tačke.
+        </div>
+
+        <div *ngFor="let kp of tour.keyPoints" class="keypoint-item" (click)="focusKeyPoint(kp)">
+          <img *ngIf="kp.imageUrl" [src]="getImageUrl(kp.imageUrl)" alt="Slika ključne tačke" />
+
+          <div class="keypoint-content">
+            <h3>{{ kp.name }}</h3>
+            <p>{{ kp.description }}</p>
+
+            <div class="coordinates">
+              <span>Lat: {{ kp.latitude }}</span>
+              <span>Lng: {{ kp.longitude }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loadingBlock>
+    <div class="loading-state" *ngIf="!errorMessage">Učitavanje ture...</div>
+    <p *ngIf="errorMessage" class="global-error">{{ errorMessage }}</p>
+  </ng-template>
+</div>
