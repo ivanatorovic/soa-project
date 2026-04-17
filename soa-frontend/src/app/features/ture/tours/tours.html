@@ -42,7 +42,7 @@
   </div>
 
   <div class="tours-grid" *ngIf="tours.length > 0">
-    <div class="tour-card" *ngFor="let tour of tours">
+    <div class="tour-card" *ngFor="let tour of tours" [routerLink]="['/tours', tour.id]">
       <div class="tour-icon">
         {{ getTourIcon(tour.difficulty) }}
       </div>
@@ -67,6 +67,14 @@
       <div class="price">
         Cena: {{ tour.price }} RSD
       </div>
+      <button
+  *ngIf="!isTourist()"
+  class="details-btn"
+  [routerLink]="['/tours', tour.id, 'key-points']"
+  (click)="$event.stopPropagation()"
+>
+  Dodaj ključne tačke
+</button>
     </div>
   </div>
 

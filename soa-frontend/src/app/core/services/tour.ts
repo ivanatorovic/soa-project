@@ -9,6 +9,14 @@ export interface CreateTourRequest {
   tags: string[];
 }
 
+export interface CreateKeyPointRequest {
+  name: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  imageUrl: string;
+}
+
 export interface KeyPointResponse {
   id: number;
   name: string;
@@ -38,32 +46,62 @@ export class TourService {
 
   constructor(private http: HttpClient) {}
 
-  createTour(request: CreateTourRequest): Observable<TourResponse> {
-    const token = localStorage.getItem('jwt');
-
-    const headers = new HttpHeaders({
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('jwt'); // koristi svuda isto ime
+    return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
+  }
 
-    return this.http.post<TourResponse>(this.apiUrl, request, { headers });
+  createTour(request: CreateTourRequest): Observable<TourResponse> {
+    return this.http.post<TourResponse>(this.apiUrl, request, {
+      headers: this.getAuthHeaders()
+    });
   }
 
   getMyTours(): Observable<TourResponse[]> {
-    const token = localStorage.getItem('jwt');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
+    return this.http.get<TourResponse[]>(`${this.apiUrl}/my`, {
+      headers: this.getAuthHeaders()
     });
-
-    return this.http.get<TourResponse[]>(`${this.apiUrl}/my`, { headers });
   }
+
   getAllTours(): Observable<TourResponse[]> {
-  const token = localStorage.getItem('token');
+    return this.http.get<TourResponse[]>(this.apiUrl, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+ getTourById(tourId: number): Observable<TourResponse> {
+  const token = localStorage.getItem('jwt');
 
   const headers = new HttpHeaders({
     Authorization: `Bearer ${token}`
   });
 
-  return this.http.get<TourResponse[]>(this.apiUrl, { headers });
+  return this.http.get<TourResponse>(`${this.apiUrl}/${tourId}`, { headers });
+}
+
+  addKeyPoint(
+  tourId: number,
+  request: CreateKeyPointRequest,
+  imageFile?: File | null
+): Observable<void> {
+  const token = localStorage.getItem('jwt');
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  const formData = new FormData();
+  formData.append('name', request.name);
+  formData.append('description', request.description);
+  formData.append('latitude', request.latitude.toString());
+  formData.append('longitude', request.longitude.toString());
+
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+
+  return this.http.post<void>(`${this.apiUrl}/${tourId}/key-points`, formData, { headers });
 }
 }

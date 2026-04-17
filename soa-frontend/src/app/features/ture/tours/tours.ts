@@ -2,11 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { TourService, TourResponse } from '../../../core/services/tour';
+import {  RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-tours',
   standalone: true,
-  imports: [CommonModule, NgFor, NgIf],
+  imports: [CommonModule, NgFor, NgIf, RouterModule],
   templateUrl: './tours.html',
   styleUrl: './tours.css'
 })

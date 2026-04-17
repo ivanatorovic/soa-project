@@ -12,6 +12,8 @@ import { CreateBlogComponent } from './features/create-blog/create-blog';
 import { EditProfileComponent } from './features/stakeholders/edit-profile/edit-profile';
 import { CreateTour } from './features/ture/create-tour/create-tour';
 import { Tours } from './features/ture/tours/tours';
+import { AddKeyPoint } from './features/tours/add-key-point/add-key-point';
+import { TourDetails } from './features/tours/tour-details/tour-details';
 
 
 export const routes: Routes = [
@@ -24,6 +26,8 @@ export const routes: Routes = [
   { path: 'blog/create', component: CreateBlogComponent, canActivate: [authGuard] },
   { path: 'blog/:id', component: BlogDetails },
   { path: 'profile', component: Profile },
+  { path: 'tours/:id', component: TourDetails },
+  { path: 'tours/:id/key-points', component: AddKeyPoint },
   {
     path: 'create-tour',
     component: CreateTour

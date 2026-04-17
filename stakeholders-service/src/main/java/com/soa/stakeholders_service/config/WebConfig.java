@@ -6,6 +6,9 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Configuration
 public class WebConfig {
 
@@ -23,8 +26,13 @@ public class WebConfig {
 
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                registry.addResourceHandler("/profile-images/**");
+                Path uploadPath = Paths.get(System.getProperty("user.dir"), "storage", "profile-images")
+                        .toAbsolutePath()
+                        .normalize();
+
                 registry.addResourceHandler("/profile-images/**")
-                        .addResourceLocations("file:storage/profile-images/");
+                        .addResourceLocations("file:" + uploadPath.toString() + "/");
             }
         };
     }

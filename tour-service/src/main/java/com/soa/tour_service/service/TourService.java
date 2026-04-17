@@ -14,9 +14,16 @@ import com.soa.tour_service.repository.KeyPointRepository;
 import com.soa.tour_service.repository.TagRepository;
 import com.soa.tour_service.repository.TourRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 
@@ -102,25 +109,64 @@ public class TourService {
         );
     }
 
-    public void addKeyPoint(Long tourId, CreateKeyPointRequest request, Long userId) {
-
+    public void addKeyPoint(
+            Long tourId,
+            String name,
+            String description,
+            Double latitude,
+            Double longitude,
+            MultipartFile image,
+            Long userId
+    ) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new RuntimeException("Tour not found"));
 
-        // PROVERA: da li je to autor
         if (!tour.getAuthorId().equals(userId)) {
             throw new RuntimeException("You are not the owner of this tour");
         }
 
+        String imageUrl = null;
+
+        if (image != null && !image.isEmpty()) {
+            imageUrl = saveImage(image);
+        }
+
         KeyPoint kp = new KeyPoint();
-        kp.setName(request.name);
-        kp.setDescription(request.description);
-        kp.setLatitude(request.latitude);
-        kp.setLongitude(request.longitude);
-        kp.setImageUrl(request.imageUrl);
+        kp.setName(name);
+        kp.setDescription(description);
+        kp.setLatitude(latitude);
+        kp.setLongitude(longitude);
+        kp.setImageUrl(imageUrl);
         kp.setTour(tour);
 
         keyPointRepository.save(kp);
+    }
+
+    private String saveImage(MultipartFile image) {
+        try {
+            String uploadDir = System.getProperty("user.dir") + "/uploads/keypoints";
+            Path uploadPath = Paths.get(uploadDir);
+
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            String originalName = image.getOriginalFilename();
+            String extension = "";
+
+            if (originalName != null && originalName.contains(".")) {
+                extension = originalName.substring(originalName.lastIndexOf("."));
+            }
+
+            String fileName = UUID.randomUUID() + extension;
+            Path filePath = uploadPath.resolve(fileName);
+
+            Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return "/uploads/keypoints/" + fileName;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save image", e);
+        }
     }
 
     public TourResponse getTourById(Long tourId) {

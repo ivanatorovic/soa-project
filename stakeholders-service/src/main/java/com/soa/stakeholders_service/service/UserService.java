@@ -279,7 +279,9 @@ public class UserService {
     }
 
     private String saveProfileImage(MultipartFile file) throws IOException {
-        Path dirPath = Paths.get(PROFILE_IMAGE_DIR);
+        Path dirPath = Paths.get(System.getProperty("user.dir"), "storage", "profile-images")
+                .toAbsolutePath()
+                .normalize();
         Files.createDirectories(dirPath);
 
         String extension = "";
