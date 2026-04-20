@@ -4,14 +4,14 @@
       <button class="back-btn" (click)="goBack()">← Nazad</button>
 
       <div class="top-text">
-        <h1>Dodavanje ključnih tačaka</h1>
+        <h1>{{ editMode ? 'Izmena ključne tačke' : 'Dodavanje ključnih tačaka' }}</h1>
         <p>Za turu: <b>{{ tour.name }}</b></p>
       </div>
     </div>
 
     <div class="content-grid">
       <div class="form-card">
-        <h2>Nova ključna tačka</h2>
+        <h2>{{ editMode ? 'Izmeni ključnu tačku' : 'Nova ključna tačka' }}</h2>
 
         <label>Izaberite lokaciju na mapi</label>
         <div id="map" class="map-box"></div>
@@ -55,14 +55,19 @@
         />
 
         <label for="image">Izaberite sliku</label>
-<input
-  id="image"
-  type="file"
-  accept="image/*"
-  (change)="onImageSelected($event)"
-/>
+        <input
+          id="image"
+          type="file"
+          accept="image/*"
+          (change)="onImageSelected($event)"
+        />
 
-<img *ngIf="previewImageUrl" [src]="previewImageUrl" alt="Preview" class="preview-image" />
+        <img
+          *ngIf="previewImageUrl"
+          [src]="previewImageUrl"
+          alt="Preview"
+          class="preview-image"
+        />
 
         <div class="button-row">
           <button class="secondary-btn" type="button" (click)="fillDemoCoordinates()">
@@ -70,7 +75,16 @@
           </button>
 
           <button class="save-btn" type="button" (click)="saveKeyPoint()">
-            Sačuvaj ključnu tačku
+            {{ editMode ? 'Sačuvaj izmene' : 'Sačuvaj ključnu tačku' }}
+          </button>
+
+          <button
+            *ngIf="editMode"
+            class="cancel-btn"
+            type="button"
+            (click)="resetForm()"
+          >
+            Otkaži izmenu
           </button>
         </div>
 
@@ -95,6 +109,24 @@
             <div class="coordinates">
               <span>Lat: {{ kp.latitude }}</span>
               <span>Lng: {{ kp.longitude }}</span>
+            </div>
+
+            <div class="actions-row">
+              <button
+                class="edit-btn"
+                type="button"
+                (click)="startEdit(kp); $event.stopPropagation()"
+              >
+                Izmeni
+              </button>
+
+              <button
+                class="delete-btn"
+                type="button"
+                (click)="deleteKeyPoint(kp); $event.stopPropagation()"
+              >
+                Obriši
+              </button>
             </div>
           </div>
         </div>

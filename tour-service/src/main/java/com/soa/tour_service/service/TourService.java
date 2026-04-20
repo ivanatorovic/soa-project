@@ -181,4 +181,59 @@ public class TourService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+    public void updateKeyPoint(
+            Long tourId,
+            Long keyPointId,
+            String name,
+            String description,
+            Double latitude,
+            Double longitude,
+            MultipartFile image,
+            Long userId
+    ) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tour not found"));
+
+        if (!tour.getAuthorId().equals(userId)) {
+            throw new RuntimeException("You are not the owner of this tour");
+        }
+
+        KeyPoint keyPoint = keyPointRepository.findById(keyPointId)
+                .orElseThrow(() -> new RuntimeException("Key point not found"));
+
+        if (keyPoint.getTour() == null || !keyPoint.getTour().getId().equals(tourId)) {
+            throw new RuntimeException("Key point does not belong to this tour");
+        }
+
+        keyPoint.setName(name);
+        keyPoint.setDescription(description);
+        keyPoint.setLatitude(latitude);
+        keyPoint.setLongitude(longitude);
+
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = saveImage(image);
+            keyPoint.setImageUrl(imageUrl);
+        }
+
+        keyPointRepository.save(keyPoint);
+    }
+
+    public void deleteKeyPoint(Long tourId, Long keyPointId, Long userId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tour not found"));
+
+        if (!tour.getAuthorId().equals(userId)) {
+            throw new RuntimeException("You are not the owner of this tour");
+        }
+
+        KeyPoint keyPoint = keyPointRepository.findById(keyPointId)
+                .orElseThrow(() -> new RuntimeException("Key point not found"));
+
+        if (keyPoint.getTour() == null || !keyPoint.getTour().getId().equals(tourId)) {
+            throw new RuntimeException("Key point does not belong to this tour");
+        }
+
+        keyPointRepository.delete(keyPoint);
+    }
 }

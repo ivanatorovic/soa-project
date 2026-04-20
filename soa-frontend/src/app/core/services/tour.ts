@@ -104,4 +104,35 @@ export class TourService {
 
   return this.http.post<void>(`${this.apiUrl}/${tourId}/key-points`, formData, { headers });
 }
+updateKeyPoint(
+  tourId: number,
+  keyPointId: number,
+  request: CreateKeyPointRequest,
+  imageFile?: File | null
+): Observable<void> {
+  const headers = this.getAuthHeaders();
+
+  const formData = new FormData();
+  formData.append('name', request.name);
+  formData.append('description', request.description);
+  formData.append('latitude', request.latitude.toString());
+  formData.append('longitude', request.longitude.toString());
+
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+
+  return this.http.put<void>(
+    `${this.apiUrl}/${tourId}/key-points/${keyPointId}`,
+    formData,
+    { headers }
+  );
+}
+
+deleteKeyPoint(tourId: number, keyPointId: number): Observable<void> {
+  return this.http.delete<void>(
+    `${this.apiUrl}/${tourId}/key-points/${keyPointId}`,
+    { headers: this.getAuthHeaders() }
+  );
+}
 }

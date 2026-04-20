@@ -31,7 +31,12 @@
 
     <div class="details-grid">
       <div class="map-card">
-        <h2>Mapa ture</h2>
+        <div class="map-header">
+  <h2>Mapa ture</h2>
+  <button class="route-btn" (click)="toggleRoute()">
+    {{ showRoute ? 'Sakrij turu' : 'Prikaži turu' }}
+  </button>
+</div>
         <div id="tour-details-map" class="map-box"></div>
       </div>
 
