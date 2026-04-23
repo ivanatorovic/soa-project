@@ -235,3 +235,24 @@
     height: 180px;
   }
 }
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.route-btn {
+  border: none;
+  background: #0d4d8b;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.route-btn:hover {
+  background: #0a3c6d;
+}

@@ -63,4 +63,29 @@ public class TourController {
     public ResponseEntity<List<TourResponse>> getAllTours() {
         return ResponseEntity.ok(tourService.getAllTours());
     }
+
+    @PutMapping(value = "/{tourId}/key-points/{keyPointId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updateKeyPoint(
+            @PathVariable Long tourId,
+            @PathVariable Long keyPointId,
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam Double latitude,
+            @RequestParam Double longitude,
+            @RequestParam(required = false) MultipartFile image,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        tourService.updateKeyPoint(tourId, keyPointId, name, description, latitude, longitude, image, user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{tourId}/key-points/{keyPointId}")
+    public ResponseEntity<Void> deleteKeyPoint(
+            @PathVariable Long tourId,
+            @PathVariable Long keyPointId,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        tourService.deleteKeyPoint(tourId, keyPointId, user.getId());
+        return ResponseEntity.ok().build();
+    }
 }

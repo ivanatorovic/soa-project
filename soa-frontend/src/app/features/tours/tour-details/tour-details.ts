@@ -18,6 +18,8 @@ export class TourDetails implements OnInit, OnDestroy {
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
   private activeMarker: L.Marker | null = null;
+  private routeLine: L.Polyline | null = null;
+showRoute = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -80,11 +82,16 @@ export class TourDetails implements OnInit, OnDestroy {
     }, 300);
   }
 
-  renderMarkers(): void {
+ renderMarkers(): void {
   if (!this.map || !this.tour) return;
 
   this.markers.forEach(marker => this.map?.removeLayer(marker));
   this.markers = [];
+
+  if (this.routeLine) {
+    this.map.removeLayer(this.routeLine);
+    this.routeLine = null;
+  }
 
   const validPoints = this.tour.keyPoints?.filter(
     kp => kp.latitude !== null && kp.longitude !== null
@@ -109,6 +116,17 @@ export class TourDetails implements OnInit, OnDestroy {
     this.markers.push(marker);
     bounds.push([kp.latitude, kp.longitude]);
   });
+
+  if (this.showRoute && bounds.length >= 2) {
+   this.routeLine = L.polyline(bounds, {
+  color: '#d62828',
+  weight: 5,
+  opacity: 0.95,
+  dashArray: '12, 8',
+  lineCap: 'round',
+  lineJoin: 'round'
+}).addTo(this.map);
+  }
 
   if (bounds.length === 1) {
     this.map.setView(bounds[0], 15);
@@ -157,4 +175,8 @@ export class TourDetails implements OnInit, OnDestroy {
   goBack(): void {
     this.router.navigate(['/tours']);
   }
+  toggleRoute(): void {
+  this.showRoute = !this.showRoute;
+  this.renderMarkers();
+}
 }
