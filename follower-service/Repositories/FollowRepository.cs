@@ -13,6 +13,37 @@ namespace follower_service.Repositories
             _neo4jContext = neo4jContext;
         }
 
+        public async Task<bool> UserNodeExistsAsync(long userId)
+        {
+            await using var session = _neo4jContext.GetSession();
+
+            var cursor = await session.RunAsync(@"
+                MATCH (u:User {userId: $userId})
+                RETURN COUNT(u) AS count
+            ", new
+            {
+                userId
+            });
+
+            var record = await cursor.SingleAsync();
+            var count = record["count"].As<long>();
+
+            return count > 0;
+        }
+
+        public async Task CreateUserNodeAsync(long userId, string username)
+        {
+            await using var session = _neo4jContext.GetSession();
+
+            await session.RunAsync(@"
+                CREATE (u:User {userId: $userId, username: $username})
+            ", new
+            {
+                userId,
+                username
+            });
+        }
+
         public async Task<bool> ExistsAsync(long followerId, long followedId)
         {
             await using var session = _neo4jContext.GetSession();
@@ -30,6 +61,38 @@ namespace follower_service.Repositories
             var count = record["count"].As<long>();
 
             return count > 0;
+        }
+
+        public async Task<List<FollowUserDto>> GetFollowRecommendationsAsync(long userId)
+        {
+            await using var session = _neo4jContext.GetSession();
+
+            var cursor = await session.RunAsync(@"
+        MATCH (:User {userId: $userId})-[:FOLLOWS]->(middle:User)-[:FOLLOWS]->(recommended:User)
+        WHERE recommended.userId <> $userId
+          AND NOT EXISTS {
+              MATCH (:User {userId: $userId})-[:FOLLOWS]->(recommended)
+          }
+        RETURN DISTINCT recommended.userId AS userId, recommended.username AS username
+    ", new
+            {
+                userId
+            });
+
+            var records = await cursor.ToListAsync();
+
+            var result = new List<FollowUserDto>();
+
+            foreach (var record in records)
+            {
+                result.Add(new FollowUserDto
+                {
+                    UserId = record["userId"].As<long>(),
+                    Username = record["username"].As<string>()
+                });
+            }
+
+            return result;
         }
 
         public async Task<bool> FollowAsync(long followerId, long followedId)
@@ -51,14 +114,34 @@ namespace follower_service.Repositories
             return records.Count > 0;
         }
 
+        public async Task<bool> UnfollowAsync(long followerId, long followedId)
+        {
+            await using var session = _neo4jContext.GetSession();
+
+            var cursor = await session.RunAsync(@"
+        MATCH (:User {userId: $followerId})-[r:FOLLOWS]->(:User {userId: $followedId})
+        DELETE r
+        RETURN COUNT(r) AS deletedCount
+    ", new
+            {
+                followerId,
+                followedId
+            });
+
+            var record = await cursor.SingleAsync();
+            var deletedCount = record["deletedCount"].As<long>();
+
+            return deletedCount > 0;
+        }
+
         public async Task<List<FollowUserDto>> GetFollowedUsersAsync(long followerId)
         {
             await using var session = _neo4jContext.GetSession();
 
             var cursor = await session.RunAsync(@"
-        MATCH (:User {userId: $followerId})-[:FOLLOWS]->(b:User)
-        RETURN b.userId AS userId, b.username AS username
-    ", new
+                MATCH (:User {userId: $followerId})-[:FOLLOWS]->(b:User)
+                RETURN b.userId AS userId, b.username AS username
+            ", new
             {
                 followerId
             });
@@ -78,5 +161,65 @@ namespace follower_service.Repositories
 
             return result;
         }
+        public async Task<List<FollowUserDto>> GetFollowersAsync(long followedId)
+        {
+            await using var session = _neo4jContext.GetSession();
+
+            var cursor = await session.RunAsync(@"
+        MATCH (a:User)-[:FOLLOWS]->(:User {userId: $followedId})
+        RETURN a.userId AS userId, a.username AS username
+    ", new
+            {
+                followedId
+            });
+
+            var records = await cursor.ToListAsync();
+
+            var result = new List<FollowUserDto>();
+
+            foreach (var record in records)
+            {
+                result.Add(new FollowUserDto
+                {
+                    UserId = record["userId"].As<long>(),
+                    Username = record["username"].As<string>()
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<int> GetFollowersCountAsync(long followedId)
+        {
+            await using var session = _neo4jContext.GetSession();
+
+            var cursor = await session.RunAsync(@"
+        MATCH (:User)-[:FOLLOWS]->(:User {userId: $followedId})
+        RETURN COUNT(*) AS count
+    ", new
+            {
+                followedId
+            });
+
+            var record = await cursor.SingleAsync();
+            return (int)record["count"].As<long>();
+        }
+
+        public async Task<int> GetFollowingCountAsync(long followerId)
+        {
+            await using var session = _neo4jContext.GetSession();
+
+            var cursor = await session.RunAsync(@"
+        MATCH (:User {userId: $followerId})-[:FOLLOWS]->(:User)
+        RETURN COUNT(*) AS count
+    ", new
+            {
+                followerId
+            });
+
+            var record = await cursor.SingleAsync();
+            return (int)record["count"].As<long>();
+        }
     }
+
 }

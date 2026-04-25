@@ -14,7 +14,7 @@ import { CreateTour } from './features/ture/create-tour/create-tour';
 import { Tours } from './features/ture/tours/tours';
 import { AddKeyPoint } from './features/tours/add-key-point/add-key-point';
 import { TourDetails } from './features/tours/tour-details/tour-details';
-
+import { UserList } from './features/stakeholders/user-list/user-list';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -30,12 +30,14 @@ export const routes: Routes = [
   { path: 'tours/:id/key-points', component: AddKeyPoint },
   {
     path: 'create-tour',
-    component: CreateTour
-  }, {
-    path: 'tours',
-    component: Tours
+    component: CreateTour,
   },
-  
-  { path: 'edit-profile', component: EditProfileComponent }
+  {
+    path: 'tours',
+    component: Tours,
+  },
 
+  { path: 'edit-profile', component: EditProfileComponent },
+  { path: 'users', component: UserList, canActivate: [authGuard] },
+  { path: 'users/:type/:id', component: UserList, canActivate: [authGuard] },
 ];

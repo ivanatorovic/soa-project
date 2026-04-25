@@ -45,7 +45,6 @@ public class UserService {
     public List<AdminUserOverviewResponse> getAll() {
         return userRepository.findAll()
                 .stream()
-                .filter(user -> user.getRole() == UserRole.GUIDE || user.getRole() == UserRole.TOURIST)
                 .map(this::mapToAdminUserOverviewResponse)
                 .collect(Collectors.toList());
     }

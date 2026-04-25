@@ -57,7 +57,7 @@
 .hero-section {
   position: relative;
   height: 520px;
-  background: url('../../../../assets/putovanje1.jpg') center center/cover no-repeat;
+  background: ('../../../..url/assets/putovanje1.jpg') center center/cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -155,7 +155,9 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 430px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .user-card:hover {
@@ -441,8 +443,6 @@
     opacity: 1;
     transform: scale(1);
   }
-
-  
 }
 
 .profile-image {

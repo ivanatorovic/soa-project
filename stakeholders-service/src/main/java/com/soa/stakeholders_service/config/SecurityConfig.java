@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/profile-images/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/users/me/profile").hasAnyRole("GUIDE", "TOURIST")
                         .requestMatchers(HttpMethod.GET, "/api/users/me/profile").authenticated()
-                        .requestMatchers("/api/users").hasRole("ADMIN")
+                        .requestMatchers("/api/users").permitAll()
                         .requestMatchers("/api/users/*/block").hasRole("ADMIN")
                         .requestMatchers("/api/users/*").hasRole("ADMIN")
                         .anyRequest().authenticated()

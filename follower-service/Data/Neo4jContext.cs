@@ -8,9 +8,14 @@ namespace follower_service.Data
 
         public Neo4jContext(IConfiguration configuration)
         {
-            var uri = configuration["Neo4j:Uri"];
-            var username = configuration["Neo4j:Username"];
-            var password = configuration["Neo4j:Password"];
+            var uri = configuration["NEO4J_URI"]
+                      ?? configuration["Neo4j:Uri"];
+
+            var username = configuration["NEO4J_USERNAME"]
+                           ?? configuration["Neo4j:Username"];
+
+            var password = configuration["NEO4J_PASSWORD"]
+                           ?? configuration["Neo4j:Password"];
 
             if (string.IsNullOrWhiteSpace(uri) ||
                 string.IsNullOrWhiteSpace(username) ||

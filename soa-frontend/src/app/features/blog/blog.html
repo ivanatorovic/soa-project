@@ -43,6 +43,10 @@
       {{ errorMessage }}
     </div>
 
+    <div *ngIf="accessErrorMessage" class="status-message error">
+      {{ accessErrorMessage }}
+    </div>
+
     <div *ngIf="!loading && !errorMessage && blogs.length === 0" class="status-message">
       Trenutno nema dostupnih blogova.
     </div>

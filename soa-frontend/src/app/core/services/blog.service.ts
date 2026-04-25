@@ -22,6 +22,10 @@ export interface CreateBlogRequest {
   imageUrls: string[];
 }
 
+export interface FeedMessageResponse {
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -33,6 +37,10 @@ export class BlogService {
 
   getAllBlogs(): Observable<Blog[]> {
     return this.http.get<Blog[]>(this.apiUrl);
+  }
+
+  getFollowedUsersBlogs(): Observable<Blog[] | FeedMessageResponse> {
+    return this.http.get<Blog[] | FeedMessageResponse>(`${this.apiUrl}/feed`);
   }
 
   getBlogById(id: number): Observable<Blog> {

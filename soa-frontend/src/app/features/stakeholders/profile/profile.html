@@ -5,9 +5,7 @@
     <div class="hero-content">
       <p class="hero-subtitle">Korisnički nalog</p>
       <h1>Moj profil</h1>
-      <p class="hero-text">
-        Pregled osnovnih informacija o vašem nalogu i ličnim podacima.
-      </p>
+      <p class="hero-text">Pregled osnovnih informacija o vašem nalogu i ličnim podacima.</p>
     </div>
   </section>
 
@@ -45,10 +43,21 @@
               <h2>{{ isEditing ? 'Uredi profil' : 'Moj profil' }}</h2>
             </div>
 
+            <!-- 🔥 NOVO: stats u sredini -->
+            <div class="profile-stats-inline" *ngIf="profile && !isEditing">
+              <div class="profile-stat clickable-stat" (click)="goToFollowing()">
+                <span class="profile-stat-number">{{ followingCount }}</span>
+                <span class="profile-stat-label">Pratim</span>
+              </div>
+
+              <div class="profile-stat clickable-stat" (click)="goToFollowers()">
+                <span class="profile-stat-number">{{ followersCount }}</span>
+                <span class="profile-stat-label">Pratioci</span>
+              </div>
+            </div>
+
             <div class="profile-actions" *ngIf="canEditProfile() && !isEditing">
-              <button class="edit-profile-btn" (click)="goToEditProfile()">
-                Uredi profil
-              </button>
+              <button class="edit-profile-btn" (click)="goToEditProfile()">Uredi profil</button>
             </div>
           </div>
         </div>
@@ -191,12 +200,8 @@
           </div>
 
           <div class="edit-actions">
-            <button type="button" class="cancel-btn" (click)="cancelEdit()">
-              Otkaži
-            </button>
-            <button type="button" class="save-btn" (click)="saveChanges()">
-              Sačuvaj izmene
-            </button>
+            <button type="button" class="cancel-btn" (click)="cancelEdit()">Otkaži</button>
+            <button type="button" class="save-btn" (click)="saveChanges()">Sačuvaj izmene</button>
           </div>
         </form>
       </ng-container>

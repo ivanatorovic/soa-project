@@ -3,15 +3,19 @@ package com.soa.blog_service.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soa.blog_service.dto.BlogResponse;
 import com.soa.blog_service.dto.CreateBlogRequest;
+import com.soa.blog_service.dto.FollowUserDto;
 import com.soa.blog_service.model.Blog;
 import com.soa.blog_service.model.BlogLike;
 import com.soa.blog_service.repository.BlogLikeRepository;
 import com.soa.blog_service.repository.BlogRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.ParameterizedTypeReference;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,15 +36,21 @@ public class BlogService {
     private final BlogRepository blogRepository;
     private final BlogLikeRepository blogLikeRepository;
     private final ObjectMapper objectMapper;
+    @Value("${follower.service.url}")
+    private String followerServiceUrl;
+
+    private final RestTemplate restTemplate;
 
     public BlogService(
             BlogRepository blogRepository,
             BlogLikeRepository blogLikeRepository,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            RestTemplate restTemplate
     ) {
         this.blogRepository = blogRepository;
         this.blogLikeRepository = blogLikeRepository;
         this.objectMapper = objectMapper;
+        this.restTemplate = restTemplate;
     }
 
     public ResponseEntity<?> createBlog(
@@ -305,5 +315,52 @@ public class BlogService {
             return "";
         }
         return filename.substring(filename.lastIndexOf("."));
+    }
+
+    public ResponseEntity<?> getFollowedUsersBlogs(Long userId) {
+        if (userId == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Morate proslediti userId"));
+        }
+
+        try {
+            String url = followerServiceUrl + "/api/follows/" + userId + "/following";
+            ResponseEntity<List<FollowUserDto>> followResponse = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<FollowUserDto>>() {}
+            );
+
+            List<FollowUserDto> followedUsers = followResponse.getBody();
+
+            if (followedUsers == null || followedUsers.isEmpty()) {
+                return ResponseEntity.ok(
+                        Map.of("message", "Ne pratite nijednog korisnika")
+                );
+            }
+
+            List<Long> followedIds = followedUsers.stream()
+                    .map(FollowUserDto::getUserId)
+                    .toList();
+
+            List<Blog> blogs = blogRepository.findByAuthorIdIn(followedIds);
+
+            if (blogs.isEmpty()) {
+                return ResponseEntity.ok(
+                        Map.of("message", "Korisnici koje pratite nemaju blogove")
+                );
+            }
+
+            List<BlogResponse> response = blogs.stream()
+                    .map(blog -> mapToResponse(blog, userId))
+                    .toList();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("message", "Greska pri pozivu follower servisa: " + e.getMessage()));
+        }
     }
 }

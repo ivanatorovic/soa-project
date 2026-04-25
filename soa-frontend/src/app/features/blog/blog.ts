@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { Blog, BlogService } from '../../core/services/blog.service';
 import { TimeAgoPipe } from '../../core/time-ago.pipe';
 
@@ -13,8 +14,11 @@ import { TimeAgoPipe } from '../../core/time-ago.pipe';
 })
 export class BlogComponent implements OnInit {
   blogs: Blog[] = [];
+  followedBlogIds = new Set<number>();
+
   loading = true;
   errorMessage = '';
+  accessErrorMessage = '';
 
   constructor(
     private blogService: BlogService,
@@ -26,18 +30,30 @@ export class BlogComponent implements OnInit {
   }
 
   loadBlogs(): void {
-    this.blogService.getAllBlogs().subscribe({
-      next: (response) => {
-        this.blogs = response.map((blog) => ({
+    forkJoin({
+      allBlogs: this.blogService.getAllBlogs(),
+      followedBlogs: this.blogService.getFollowedUsersBlogs(),
+    }).subscribe({
+      next: ({ allBlogs, followedBlogs }) => {
+        this.blogs = allBlogs.map((blog) => ({
           ...blog,
           likeLoading: false,
           likeErrorMessage: '',
         }));
+
+        this.followedBlogIds.clear();
+
+        if (Array.isArray(followedBlogs)) {
+          followedBlogs.forEach((blog) => this.followedBlogIds.add(blog.id));
+        }
+
+        this.errorMessage = '';
+        this.accessErrorMessage = '';
         this.loading = false;
       },
       error: (error) => {
         console.error('Greška pri učitavanju blogova:', error);
-        this.errorMessage = 'Neuspešno učitavanje blogova.';
+        this.errorMessage = error?.error?.message || 'Neuspešno učitavanje blogova.';
         this.loading = false;
       },
     });
@@ -84,6 +100,13 @@ export class BlogComponent implements OnInit {
   }
 
   goToBlogDetails(blogId: number): void {
+    this.accessErrorMessage = '';
+
+    if (!this.followedBlogIds.has(blogId)) {
+      this.accessErrorMessage = 'Morate zapratiti korisnika da biste mogli da čitate blog.';
+      return;
+    }
+
     this.router.navigate(['/blog', blogId]);
   }
 

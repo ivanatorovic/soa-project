@@ -82,4 +82,11 @@ public class BlogController {
     ) {
         return blogService.getBlogImage(blogId, imageIndex);
     }
+
+    @GetMapping("/feed")
+    public ResponseEntity<?> getFeed(
+            @AuthenticationPrincipal JwtUserPrincipal principal
+    ) {
+        return blogService.getFollowedUsersBlogs(principal.getUserId());
+    }
 }

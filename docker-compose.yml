@@ -32,9 +32,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://blog-db:5432/blogdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
       SERVER_PORT: 8082
       UPLOAD_DIR: /app/uploads
+      FOLLOWER_SERVICE_URL: http://follower-service:5000
     volumes:
       - ./blog-service/uploads:/app/uploads
 
@@ -69,8 +70,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stakeholders-db:5432/stakeholdersdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
       SERVER_PORT: 8081
+      FOLLOWER_SERVICE_URL: http://follower-service:5000
     volumes:
       - ./stakeholders-service/storage:/app/storage
 
@@ -95,13 +97,33 @@ services:
     image: neo4j:5
     container_name: follower-db
     restart: always
+    networks:
+      - app-network
     ports:
       - "7474:7474"
       - "7687:7687"
     environment:
-      NEO4J_AUTH: neo4j/password123
+      NEO4J_AUTH: neo4j/password
     volumes:
       - follower-neo4j-data:/data
+
+  follower-service:
+    build:
+      context: ./follower-service
+      dockerfile: Dockerfile
+    container_name: follower-service
+    restart: on-failure
+    depends_on:
+      - follower-db
+    networks:
+      - app-network
+    ports:
+      - "5000:5000"
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      NEO4J_URI: bolt://follower-db:7687
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: password
 
 volumes:
   blog-db-data:

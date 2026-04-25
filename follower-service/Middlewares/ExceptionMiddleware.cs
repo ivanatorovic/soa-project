@@ -2,45 +2,52 @@ using System.Text.Json;
 
 namespace follower_service.Middlewares
 {
-	public class ExceptionMiddleware
-	{
-		private readonly RequestDelegate _next;
+    public class ExceptionMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionMiddleware> _logger;
 
-		public ExceptionMiddleware(RequestDelegate next)
-		{
-			_next = next;
-		}
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+        {
+            _next = next;
+            _logger = logger;
+        }
 
-		public async Task InvokeAsync(HttpContext context)
-		{
-			try
-			{
-				await _next(context);
-			}
-			catch (InvalidOperationException ex)
-			{
-				context.Response.StatusCode = StatusCodes.Status400BadRequest;
-				context.Response.ContentType = "application/json";
+        public async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await _next(context);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "InvalidOperationException");
 
-				var response = new
-				{
-					message = ex.Message
-				};
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = "application/json";
 
-				await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-			}
-			catch (Exception)
-			{
-				context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-				context.Response.ContentType = "application/json";
+                var response = new
+                {
+                    message = ex.Message
+                };
 
-				var response = new
-				{
-					message = "Doslo je do neocekivane greske na serveru."
-				};
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception");
 
-				await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-			}
-		}
-	}
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                context.Response.ContentType = "application/json";
+
+                var response = new
+                {
+                    message = ex.Message,
+                    type = ex.GetType().Name
+                };
+
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            }
+        }
+    }
 }

@@ -1,0 +1,328 @@
+* {
+  box-sizing: border-box;
+}
+
+.user-list-page {
+  min-height: 100vh;
+  background: #f6f8fc;
+  font-family: Arial, sans-serif;
+}
+
+.top-bar {
+  background-color: #0d4d8b;
+  color: white;
+  padding: 12px 40px;
+  font-size: 14px;
+}
+
+.navbar {
+  width: 85%;
+  margin: 20px auto;
+  background: white;
+  border-radius: 18px;
+  padding: 18px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #0d4d8b;
+  cursor: pointer;
+}
+
+.nav-links a {
+  margin-left: 28px;
+  text-decoration: none;
+  color: #22324a;
+  font-size: 17px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: #f4a000;
+}
+
+.hero-section {
+  position: relative;
+  height: 520px;
+  background: url('../../../../assets/putovanje1.jpg') center center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 49, 98, 0.58);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  margin-top: 80px;
+  text-align: center;
+  color: white;
+  max-width: 850px;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+.hero-content p {
+  font-size: 21px;
+  line-height: 1.6;
+}
+
+.breadcrumb {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 18px;
+}
+
+.crumb-link {
+  cursor: pointer;
+}
+
+.separator {
+  color: #f4a000;
+}
+
+.cards-section {
+  max-width: 1200px;
+  margin: -90px auto 0 auto;
+  position: relative;
+  z-index: 5;
+  padding: 0 20px 50px;
+}
+
+.error-message,
+.empty-state {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+  text-align: center;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.error-message {
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.empty-state {
+  color: #627389;
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.user-card {
+  background: white;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #edf2f7;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: 0.25s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d4d8b, #3b82c4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-main-info h3 {
+  margin: 0 0 8px 0;
+  color: #16345c;
+  font-size: 22px;
+  word-break: break-word;
+}
+
+.user-subtitle {
+  color: #7a8b9d;
+  font-size: 14px;
+}
+
+.card-actions {
+  margin-top: 24px;
+}
+
+.follow-btn,
+.unfollow-btn {
+  width: 100%;
+  padding: 13px 16px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.follow-btn {
+  background: #0d4d8b;
+}
+
+.follow-btn:hover {
+  background: #083c70;
+}
+
+.unfollow-btn {
+  background: #d9534f;
+}
+
+.unfollow-btn:hover {
+  background: #bf3f3b;
+}
+
+.own-profile-text {
+  display: block;
+  text-align: center;
+  padding: 13px 16px;
+  border-radius: 12px;
+  background: #f3f5f8;
+  color: #7a8b9d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 1000px) {
+  .users-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-content h1 {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 650px) {
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    width: 92%;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .nav-links a {
+    margin: 0 8px;
+    font-size: 15px;
+  }
+
+  .hero-content h1 {
+    font-size: 34px;
+  }
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #e8f1fb;
+  color: #0d4d8b;
+}
+
+.role-badge.admin {
+  background: #efe8ff;
+  color: #6f42c1;
+}
+
+.role-badge.guide {
+  background: #e8f7ee;
+  color: #2e8b57;
+}
+
+.role-badge.tourist {
+  background: #fff3e0;
+  color: #d9831f;
+}
+
+.recommendations-section {
+  margin-top: 50px;
+}
+
+.recommendations-section h2 {
+  margin: 0 0 8px 0;
+  color: #16345c;
+  font-size: 34px;
+  text-align: center;
+}
+
+.recommendations-section p {
+  margin: 0 0 28px 0;
+  color: #627389;
+  text-align: center;
+  font-size: 17px;
+}
+
+.nav-btn {
+  padding: 10px 18px;
+  border-radius: 22px;
+  font-weight: 600;
+  transition: 0.25s ease;
+}
+
+.nav-btn.logout {
+  background-color: #d9534f;
+  color: white !important;
+}
+
+.nav-btn.logout:hover {
+  background-color: #bf3f3b;
+}

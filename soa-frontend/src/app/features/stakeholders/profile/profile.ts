@@ -1,30 +1,32 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService, ProfileResponse } from '../../../core/services/user';
-import { CommonModule } from '@angular/common';
-
-
-
+import { Router } from '@angular/router';
+import { ProfileResponse, UpdateProfileInfo, UserService } from '../../../core/services/user';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, UpperCasePipe],
   templateUrl: './profile.html',
-  styleUrl: './profile.css'
+  styleUrl: './profile.css',
 })
 export class Profile implements OnInit {
   profile: ProfileResponse | null = null;
+
   profileImageUrl: string | null = null;
-  errorMessage: string = '';
-  usernameError: string = '';
-
-  isEditing: boolean = false;
+  imagePreview: string | null = null;
   selectedFile: File | undefined;
-  imagePreview: string | ArrayBuffer | null = null;
-  passwordError: string = '';
 
-  formData = {
+  followingCount = 0;
+  followersCount = 0;
+
+  isEditing = false;
+  errorMessage = '';
+  usernameError = '';
+  passwordError = '';
+
+  formData: UpdateProfileInfo = {
     username: '',
     email: '',
     currentPassword: '',
@@ -32,10 +34,13 @@ export class Profile implements OnInit {
     firstName: '',
     lastName: '',
     biography: '',
-    motto: ''
+    motto: '',
   };
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.loadProfile();
@@ -43,122 +48,137 @@ export class Profile implements OnInit {
 
   loadProfile(): void {
     this.userService.getMyProfile().subscribe({
-      next: (response) => {
-        this.profile = response;
-        this.profileImageUrl = this.userService.getProfileImageUrl(response.profileImage);
+      next: (profile) => {
+        this.profile = profile;
+        this.profileImageUrl = this.userService.getProfileImageUrl(profile.profileImage);
 
         this.formData = {
-          username: response.username || '',
-          email: response.email || '',
+          username: profile.username,
+          email: profile.email,
           currentPassword: '',
           newPassword: '',
-          firstName: response.firstName || '',
-          lastName: response.lastName || '',
-          biography: response.biography || '',
-          motto: response.motto || ''
+          firstName: profile.firstName || '',
+          lastName: profile.lastName || '',
+          biography: profile.biography || '',
+          motto: profile.motto || '',
         };
 
-        this.imagePreview = this.profileImageUrl;
+        this.loadFollowCounts(profile.id);
       },
-      error: (error) => {
-        console.error('Greška pri učitavanju profila:', error);
-        this.errorMessage = 'Profil nije moguće učitati.';
-      }
+      error: () => {
+        this.errorMessage = 'Greska prilikom ucitavanja profila.';
+      },
     });
   }
 
-  canEditProfile(): boolean {
-    return this.profile?.role === 'TOURIST' || this.profile?.role === 'GUIDE';
+  loadFollowCounts(userId: number): void {
+    this.userService.getFollowingCount(userId).subscribe({
+      next: (response) => {
+        this.followingCount = response.count;
+      },
+      error: () => {
+        this.followingCount = 0;
+      },
+    });
+
+    this.userService.getFollowersCount(userId).subscribe({
+      next: (response) => {
+        this.followersCount = response.count;
+      },
+      error: () => {
+        this.followersCount = 0;
+      },
+    });
+  }
+
+  goToFollowing(): void {
+    if (!this.profile?.id) return;
+
+    this.router.navigate(['/users', 'following', this.profile.id]);
+  }
+
+  goToFollowers(): void {
+    if (!this.profile?.id) return;
+
+    this.router.navigate(['/users', 'followers', this.profile.id]);
   }
 
   goToEditProfile(): void {
-    if (!this.profile) return;
-
-    this.isEditing = true;
-    this.errorMessage = '';
-    this.passwordError = '';
-
-    this.formData = {
-      username: this.profile.username || '',
-      email: this.profile.email || '',
-      currentPassword: '',
-      newPassword: '',
-      firstName: this.profile.firstName || '',
-      lastName: this.profile.lastName || '',
-      biography: this.profile.biography || '',
-      motto: this.profile.motto || ''
-    };
-
-    this.imagePreview = this.profileImageUrl;
-    this.selectedFile = undefined;
+    this.router.navigate(['/edit-profile']);
   }
 
-  cancelEdit(): void {
-    this.isEditing = false;
-    this.errorMessage = '';
-    this.passwordError = '';
-    this.selectedFile = undefined;
-    this.imagePreview = this.profileImageUrl;
+  canEditProfile(): boolean {
+    return !!this.profile;
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
 
-    if (!file) {
-      this.selectedFile = undefined;
-      this.imagePreview = this.profileImageUrl;
+    if (!input.files || input.files.length === 0) {
       return;
     }
 
-    this.selectedFile = file;
+    this.selectedFile = input.files[0];
 
     const reader = new FileReader();
     reader.onload = () => {
-      this.imagePreview = reader.result;
+      this.imagePreview = reader.result as string;
     };
-    reader.readAsDataURL(file);
+
+    reader.readAsDataURL(this.selectedFile);
   }
 
   saveChanges(): void {
     this.errorMessage = '';
-    this.passwordError = '';
     this.usernameError = '';
+    this.passwordError = '';
+
+    if (!this.formData.username.trim()) {
+      this.usernameError = 'Korisnicko ime je obavezno.';
+      return;
+    }
+
+    if (this.formData.newPassword && !this.formData.currentPassword) {
+      this.passwordError = 'Morate uneti staru lozinku.';
+      return;
+    }
 
     this.userService.updateMyProfile(this.formData, this.selectedFile).subscribe({
       next: (updatedProfile) => {
         this.profile = updatedProfile;
         this.profileImageUrl = this.userService.getProfileImageUrl(updatedProfile.profileImage);
-        this.imagePreview = this.profileImageUrl;
+
         this.isEditing = false;
         this.selectedFile = undefined;
+        this.imagePreview = null;
 
-        this.formData.currentPassword = '';
-        this.formData.newPassword = '';
+        this.loadFollowCounts(updatedProfile.id);
       },
-      error: (err) => {
-        console.log(err);
-
-        if (
-          err.error?.message === 'Username is already taken.' ||
-          err.error?.message === 'Username already exists.' ||
-          err.error === 'Username is already taken.'
-        ) {
-          this.usernameError = 'Već postoji korisnik sa ovim korisničkim imenom.';
-        } else if (
-          err.error?.message === 'Email is already taken.' ||
-          err.error?.message === 'Email already exists.' ||
-          err.error === 'Email is already taken.'
-        ) {
-          this.errorMessage = 'Već postoji korisnik sa ovim email-om.';
-        } else if (err.error?.message === 'Current password is incorrect.') {
-          this.passwordError = 'Stara lozinka nije tačna.';
-        } else if (err.error?.message === 'Both current password and new password are required.') {
-          this.passwordError = 'Morate uneti i staru i novu lozinku.';
-        } else {
-          this.errorMessage = 'Greška pri čuvanju.';
-        }
-      }
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'Greska prilikom cuvanja izmena profila.';
+      },
     });
+  }
+
+  cancelEdit(): void {
+    if (!this.profile) return;
+
+    this.isEditing = false;
+    this.selectedFile = undefined;
+    this.imagePreview = null;
+    this.errorMessage = '';
+    this.usernameError = '';
+    this.passwordError = '';
+
+    this.formData = {
+      username: this.profile.username,
+      email: this.profile.email,
+      currentPassword: '',
+      newPassword: '',
+      firstName: this.profile.firstName || '',
+      lastName: this.profile.lastName || '',
+      biography: this.profile.biography || '',
+      motto: this.profile.motto || '',
+    };
   }
 }

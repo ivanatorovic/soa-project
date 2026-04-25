@@ -319,6 +319,36 @@
   margin-top: 6px;
 }
 
+.profile-stats-inline {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+/* 🔥 OVO JE KLJUČ */
+.profile-stat {
+  display: flex;
+  flex-direction: row; /* ⬅️ bilo column → sad row */
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #16345c;
+  line-height: 1;
+}
+
+.profile-stat-label {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #6b7b8d;
+  font-weight: 500;
+}
+
 @media (max-width: 768px) {
   .profile-hero {
     height: 360px;
@@ -360,6 +390,16 @@
     font-size: 28px;
   }
 
+  .profile-stats {
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .profile-stat {
+    min-width: 90px;
+  }
+
   .info-row {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -386,12 +426,31 @@
   .cancel-btn {
     width: 100%;
   }
-
-
 }
 
- .field-error {
+.field-error {
   color: #dc2626;
   font-size: 16px;
   margin-top: 4px;
+}
+/* klikabilni stat blok */
+.clickable-stat {
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg, #e8f1fb, #dbeafe);
+  border: 1px solid #b6d4ff;
+
+  transition: all 0.2s ease;
+}
+
+/* broj neka bude jači */
+.clickable-stat .profile-stat-number {
+  color: #0d4d8b;
+}
+
+/* label malo tamniji */
+.clickable-stat .profile-stat-label {
+  color: #3b5b7a;
 }
