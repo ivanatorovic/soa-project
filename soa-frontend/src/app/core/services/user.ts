@@ -84,6 +84,10 @@ export class UserService {
     return `${this.baseUrl}${profileImage}`;
   }
 
+  getUserProfile(userId: number): Observable<ProfileResponse> {
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/${userId}`);
+  }
+
   updateMyProfile(info: UpdateProfileInfo, imageFile?: File): Observable<ProfileResponse> {
     const formData = new FormData();
 

@@ -345,3 +345,15 @@
   font-weight: 500;
   line-height: 1.4;
 }
+
+.author-link {
+  color: #0d4d8b;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.author-link:hover {
+  color: #f4a000;
+  text-decoration: underline;
+}

@@ -454,3 +454,35 @@
 .clickable-stat .profile-stat-label {
   color: #3b5b7a;
 }
+
+.follow-btn,
+.unfollow-btn {
+  border: none;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.follow-btn {
+  background: #0d4d8b;
+}
+
+.follow-btn:hover {
+  background: #083c70;
+}
+
+.unfollow-btn {
+  background: #d9534f;
+}
+
+.unfollow-btn:hover {
+  background: #bf3f3b;
+}
+
+.profile-follow-btn {
+  min-width: 140px;
+  padding: 12px 18px;
+  border-radius: 12px;
+}

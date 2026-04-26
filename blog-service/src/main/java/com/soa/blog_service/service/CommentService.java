@@ -58,6 +58,7 @@ public class CommentService {
                 savedComment.getId(),
                 savedComment.getBlog().getId(),
                 savedComment.getAuthorUsername(),
+                savedComment.getAuthorId(),
                 savedComment.getText(),
                 savedComment.getCreatedAt()
         );
@@ -85,6 +86,7 @@ public class CommentService {
                         comment.getId(),
                         comment.getBlog().getId(),
                         comment.getAuthorUsername(),
+                        comment.getAuthorId(),
                         comment.getText(),
                         comment.getCreatedAt()
                 ))
@@ -128,6 +130,7 @@ public class CommentService {
                 updatedComment.getId(),
                 updatedComment.getBlog().getId(),
                 updatedComment.getAuthorUsername(),
+                updatedComment.getAuthorId(),
                 updatedComment.getText(),
                 updatedComment.getCreatedAt()
         );

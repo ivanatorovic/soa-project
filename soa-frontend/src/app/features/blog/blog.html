@@ -57,7 +57,12 @@
           <h3>{{ blog.title }}</h3>
 
           <div class="blog-info">
-            <p><strong>Autor:</strong> {{ getAuthor(blog) }}</p>
+            <p>
+              <strong>Autor:</strong>
+              <span class="author-link" (click)="goToAuthorProfile(blog.authorId)">
+                {{ getAuthor(blog) }}
+              </span>
+            </p>
             <p><strong>Objavljeno:</strong> {{ blog.createdAt | timeAgo }}</p>
 
             <div class="like-section-wrapper">
@@ -80,7 +85,7 @@
             </div>
           </div>
 
-          <button (click)="goToBlogDetails(blog.id)">Prikaži više</button>
+          <button (click)="goToBlogDetails(blog)">Prikaži više</button>
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ export class UserList implements OnInit {
   loading = true;
   type: 'followers' | 'following' | 'all' = 'all';
   pageTitle = 'Pratioci';
-  pageDescription = 'Pregled korisnika koji prate izabranog korisnika.';
+  pageDescription = 'Pregled vasih pratioca.';
 
   currentUserId?: number;
 
@@ -46,15 +46,15 @@ export class UserList implements OnInit {
     if (type === 'followers' && userId) {
       usersRequest = this.userService.getFollowers(userId);
       this.pageTitle = 'Pratioci';
-      this.pageDescription = 'Korisnici koji prate izabranog korisnika.';
+      this.pageDescription = 'Pregled vasih pratioca.';
     } else if (type === 'following' && userId) {
       usersRequest = this.userService.getFollowing(userId);
-      this.pageTitle = 'Korisnici koje pratiš';
-      this.pageDescription = 'Lista korisnika koje trenutno pratiš.';
+      this.pageTitle = 'Korisnici koje pratite';
+      this.pageDescription = 'Lista korisnika koje trenutno pratite.';
     } else {
       usersRequest = null;
       this.pageTitle = 'Svi korisnici';
-      this.pageDescription = 'Pregled svih korisnika aplikacije.';
+      this.pageDescription = 'Pregled svih korisnika.';
     }
 
     forkJoin({
@@ -147,6 +147,10 @@ export class UserList implements OnInit {
         this.errorMessage = 'Otpraćivanje korisnika nije uspelo.';
       },
     });
+  }
+
+  goToUserProfile(userId: number): void {
+    this.router.navigate(['/profile', userId]);
   }
 
   private mapAllUsersWithRecommendationsFirst(

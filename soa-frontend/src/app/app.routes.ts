@@ -21,11 +21,11 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { path: 'profile/:id', component: Profile, canActivate: [authGuard] },
   { path: 'admin/users', component: AdminUsers, canActivate: [authGuard] },
   { path: 'blog', component: BlogComponent },
   { path: 'blog/create', component: CreateBlogComponent, canActivate: [authGuard] },
   { path: 'blog/:id', component: BlogDetails },
-  { path: 'profile', component: Profile },
   { path: 'tours/:id', component: TourDetails },
   { path: 'tours/:id/key-points', component: AddKeyPoint },
   {

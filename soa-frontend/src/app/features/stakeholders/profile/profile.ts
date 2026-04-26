@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ProfileResponse, UpdateProfileInfo, UserService } from '../../../core/services/user';
 
 @Component({
@@ -21,6 +21,9 @@ export class Profile implements OnInit {
   followingCount = 0;
   followersCount = 0;
 
+  isFollowedByMe = false;
+  currentUserId: number | null = null;
+  isMyProfile = true;
   isEditing = false;
   errorMessage = '';
   usernameError = '';
@@ -40,10 +43,35 @@ export class Profile implements OnInit {
   constructor(
     private userService: UserService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    this.loadProfile();
+    this.route.paramMap.subscribe((params) => {
+      const userId = params.get('id');
+
+      if (userId) {
+        this.isMyProfile = false;
+        this.loadUserProfile(+userId);
+      } else {
+        this.isMyProfile = true;
+        this.loadProfile();
+      }
+    });
+  }
+
+  loadUserProfile(userId: number): void {
+    this.userService.getUserProfile(userId).subscribe({
+      next: (profile) => {
+        this.profile = profile as ProfileResponse;
+        this.profileImageUrl = this.userService.getProfileImageUrl(profile.profileImage);
+        this.loadFollowCounts(profile.id);
+        this.checkIfFollowed(profile.id);
+      },
+      error: () => {
+        this.errorMessage = 'Greska prilikom ucitavanja profila korisnika.';
+      },
+    });
   }
 
   loadProfile(): void {
@@ -51,6 +79,7 @@ export class Profile implements OnInit {
       next: (profile) => {
         this.profile = profile;
         this.profileImageUrl = this.userService.getProfileImageUrl(profile.profileImage);
+        this.currentUserId = profile.id;
 
         this.formData = {
           username: profile.username,
@@ -91,6 +120,56 @@ export class Profile implements OnInit {
     });
   }
 
+  checkIfFollowed(userId: number): void {
+    if (!this.currentUserId) {
+      this.userService.getMyProfile().subscribe({
+        next: (myProfile) => {
+          this.currentUserId = myProfile.id;
+          this.loadFollowingAndCheck(userId);
+        },
+      });
+
+      return;
+    }
+
+    this.loadFollowingAndCheck(userId);
+  }
+
+  loadFollowingAndCheck(userId: number): void {
+    if (!this.currentUserId) return;
+
+    this.userService.getFollowing(this.currentUserId).subscribe({
+      next: (following) => {
+        this.isFollowedByMe = following.some((user) => user.userId === userId);
+      },
+      error: () => {
+        this.isFollowedByMe = false;
+      },
+    });
+  }
+
+  followProfile(): void {
+    if (!this.profile) return;
+
+    this.userService.followUser(this.profile.id).subscribe({
+      next: () => {
+        this.isFollowedByMe = true;
+        this.loadFollowCounts(this.profile!.id);
+      },
+    });
+  }
+
+  unfollowProfile(): void {
+    if (!this.profile) return;
+
+    this.userService.unfollowUser(this.profile.id).subscribe({
+      next: () => {
+        this.isFollowedByMe = false;
+        this.loadFollowCounts(this.profile!.id);
+      },
+    });
+  }
+
   goToFollowing(): void {
     if (!this.profile?.id) return;
 
@@ -108,7 +187,7 @@ export class Profile implements OnInit {
   }
 
   canEditProfile(): boolean {
-    return !!this.profile;
+    return !!this.profile && this.isMyProfile;
   }
 
   onFileSelected(event: Event): void {
