@@ -30,8 +30,8 @@ export interface FeedMessageResponse {
   providedIn: 'root',
 })
 export class BlogService {
-  private apiUrl = 'http://localhost:8082/api/blogs';
-  private baseUrl = 'http://localhost:8082';
+  private apiUrl = 'http://localhost:8000/api/blogs';
+  private baseUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 

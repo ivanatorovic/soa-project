@@ -56,9 +56,9 @@ export interface UpdateProfileInfo {
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8081/api/users';
-  private baseUrl = 'http://localhost:8081';
-  private followerUrl = 'http://localhost:5000/api/follows';
+  private apiUrl = 'http://localhost:8000/api/users';
+  private baseUrl = 'http://localhost:8000';
+  private followerUrl = 'http://localhost:8000/api/follows';
 
   constructor(private http: HttpClient) {}
 

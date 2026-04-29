@@ -42,7 +42,7 @@ export interface TourResponse {
   providedIn: 'root'
 })
 export class TourService {
-  private apiUrl = 'http://localhost:8083/api/tours';
+  private apiUrl = 'http://localhost:8000/api/tours';
 
   constructor(private http: HttpClient) {}
 

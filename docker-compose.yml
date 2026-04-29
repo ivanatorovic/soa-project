@@ -107,6 +107,40 @@ services:
     volumes:
       - follower-neo4j-data:/data
 
+  tours-db:
+    image: postgres:15
+    container_name: tours-db
+    restart: always
+    networks:
+      - app-network
+    environment:
+      POSTGRES_DB: toursdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - tours-db-data:/var/lib/postgresql/data
+
+  tours-service:
+    build:
+      context: ./tour-service
+      dockerfile: Dockerfile
+    container_name: tours-service
+    restart: on-failure
+    depends_on:
+      - tours-db
+    networks:
+      - app-network
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://tours-db:5432/toursdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SERVER_PORT: 8083
+
   follower-service:
     build:
       context: ./follower-service
@@ -125,10 +159,34 @@ services:
       NEO4J_USERNAME: neo4j
       NEO4J_PASSWORD: password
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: on-failure
+    depends_on:
+      - stakeholders-service
+      - blog-service
+      - tours-service
+      - follower-service
+
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: 8000
+      STAKEHOLDERS_SERVICE_URL: http://stakeholders-service:8081
+      BLOG_SERVICE_URL: http://blog-service:8082
+      TOURS_SERVICE_URL: http://tours-service:8083
+      FOLLOWER_SERVICE_URL: http://follower-service:5000
+
 volumes:
   blog-db-data:
   stakeholders-db-data:
   pgadmin-data:
+  tours-db-data:
   follower-neo4j-data:
 
 networks:

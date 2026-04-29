@@ -14,7 +14,7 @@ export interface Comment {
   providedIn: 'root',
 })
 export class CommentService {
-  private apiUrl = 'http://localhost:8082/api/comments';
+  private apiUrl = 'http://localhost:8000/api/comments';
 
   constructor(private http: HttpClient) {}
 
@@ -23,6 +23,6 @@ export class CommentService {
   }
 
   createComment(request: { blogId: number; text: string }) {
-    return this.http.post<Comment>('http://localhost:8082/api/comments', request);
+     return this.http.post<Comment>(this.apiUrl, request);
   }
 }

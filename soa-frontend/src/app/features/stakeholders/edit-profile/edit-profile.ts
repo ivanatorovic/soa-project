@@ -53,7 +53,7 @@ export class EditProfileComponent implements OnInit {
         };
 
         if (res.profileImage) {
-          this.imagePreview = 'http://localhost:8081' + res.profileImage;
+          this.imagePreview = this.userService.getProfileImageUrl(res.profileImage);
         }
       },
       error: () => {
@@ -68,7 +68,7 @@ export class EditProfileComponent implements OnInit {
 
     if (!file) {
       this.selectedFile = undefined;
-      this.imagePreview = this.profile?.profileImage || null;
+      this.imagePreview = this.userService.getProfileImageUrl(this.profile?.profileImage);
       return;
     }
 
@@ -76,7 +76,7 @@ export class EditProfileComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = () => {
-      this.imagePreview = reader.result;
+      this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file);
   }
