@@ -43,7 +43,7 @@
     </div>
 
     <div class="users-grid" *ngIf="!loading && users.length > 0">
-      <div class="user-card" *ngFor="let user of users">
+      <div class="user-card" *ngFor="let user of users" (click)="goToUserProfile(user.id)">
         <div class="card-top">
           <div class="avatar-circle">
             <img
@@ -68,17 +68,25 @@
         </div>
 
         <div class="card-actions" *ngIf="user.id !== currentUserId">
-          <button *ngIf="!user.isFollowedByMe" class="follow-btn" (click)="follow(user)">
+          <button
+            *ngIf="!user.isFollowedByMe"
+            class="follow-btn"
+            (click)="follow(user); $event.stopPropagation()"
+          >
             Zaprati
           </button>
 
-          <button *ngIf="user.isFollowedByMe" class="unfollow-btn" (click)="unfollow(user)">
+          <button
+            *ngIf="user.isFollowedByMe"
+            class="unfollow-btn"
+            (click)="unfollow(user); $event.stopPropagation()"
+          >
             Otprati
           </button>
         </div>
 
         <div class="card-actions" *ngIf="user.id === currentUserId">
-          <span class="own-profile-text">Ovo si ti</span>
+          <span class="own-profile-text">Vas profil</span>
         </div>
       </div>
     </div>

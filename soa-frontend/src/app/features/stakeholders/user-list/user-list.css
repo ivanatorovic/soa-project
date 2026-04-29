@@ -326,3 +326,12 @@
 .nav-btn.logout:hover {
   background-color: #bf3f3b;
 }
+
+.user-card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-3px);
+}

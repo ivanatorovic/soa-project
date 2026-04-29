@@ -9,6 +9,7 @@ export interface Blog {
   createdAt: string;
   likesCount: number;
   authorUsername: string;
+  authorId: number;
   imageUrls: string[];
 
   likedByCurrentUser: boolean;

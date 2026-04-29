@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { Blog, BlogService } from '../../core/services/blog.service';
 import { TimeAgoPipe } from '../../core/time-ago.pipe';
+import { UserService } from '../../core/services/user';
 
 @Component({
   selector: 'app-blog',
@@ -20,13 +21,24 @@ export class BlogComponent implements OnInit {
   errorMessage = '';
   accessErrorMessage = '';
 
+  currentUserId: number | null = null;
+
   constructor(
     private blogService: BlogService,
+    private userService: UserService,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.loadBlogs();
+    this.userService.getMyProfile().subscribe({
+      next: (profile) => {
+        this.currentUserId = profile.id;
+        this.loadBlogs();
+      },
+      error: () => {
+        this.loadBlogs();
+      },
+    });
   }
 
   loadBlogs(): void {
@@ -99,15 +111,26 @@ export class BlogComponent implements OnInit {
     this.router.navigate(['/blog/create']);
   }
 
-  goToBlogDetails(blogId: number): void {
+  goToBlogDetails(blog: Blog): void {
     this.accessErrorMessage = '';
 
-    if (!this.followedBlogIds.has(blogId)) {
+    const isMyBlog = blog.authorId === this.currentUserId;
+
+    if (!isMyBlog && !this.followedBlogIds.has(blog.id)) {
       this.accessErrorMessage = 'Morate zapratiti korisnika da biste mogli da čitate blog.';
       return;
     }
 
-    this.router.navigate(['/blog', blogId]);
+    this.router.navigate(['/blog', blog.id]);
+  }
+
+  goToAuthorProfile(authorId: number): void {
+    if (authorId === this.currentUserId) {
+      this.router.navigate(['/profile']);
+      return;
+    }
+
+    this.router.navigate(['/profile', authorId]);
   }
 
   getAuthor(blog: Blog): string {

@@ -6,6 +6,7 @@ export interface Comment {
   id: number;
   blogId: number;
   authorUsername: string;
+  authorId: number;
   text: string;
   createdAt: string;
 }

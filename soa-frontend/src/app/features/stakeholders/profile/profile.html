@@ -4,7 +4,7 @@
 
     <div class="hero-content">
       <p class="hero-subtitle">Korisnički nalog</p>
-      <h1>Moj profil</h1>
+      <h1>{{ isMyProfile ? 'Moj profil' : 'Profil korisnika' }}</h1>
       <p class="hero-text">Pregled osnovnih informacija o vašem nalogu i ličnim podacima.</p>
     </div>
   </section>
@@ -40,7 +40,9 @@
           <div class="profile-header-top">
             <div class="profile-title">
               <p class="profile-subtitle">Korisnički nalog</p>
-              <h2>{{ isEditing ? 'Uredi profil' : 'Moj profil' }}</h2>
+              <h2>
+                {{ isEditing ? 'Uredi profil' : isMyProfile ? 'Moj profil' : profile?.username }}
+              </h2>
             </div>
 
             <!-- 🔥 NOVO: stats u sredini -->
@@ -58,6 +60,23 @@
 
             <div class="profile-actions" *ngIf="canEditProfile() && !isEditing">
               <button class="edit-profile-btn" (click)="goToEditProfile()">Uredi profil</button>
+            </div>
+            <div class="profile-actions" *ngIf="!isMyProfile && profile && !isEditing">
+              <button
+                *ngIf="!isFollowedByMe"
+                class="follow-btn profile-follow-btn"
+                (click)="followProfile()"
+              >
+                Zaprati
+              </button>
+
+              <button
+                *ngIf="isFollowedByMe"
+                class="unfollow-btn profile-follow-btn"
+                (click)="unfollowProfile()"
+              >
+                Otprati
+              </button>
             </div>
           </div>
         </div>

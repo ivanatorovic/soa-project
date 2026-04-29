@@ -246,6 +246,7 @@ public class BlogService {
         response.setDescription(blog.getDescription());
         response.setCreatedAt(blog.getCreatedAt());
         response.setAuthorUsername(blog.getAuthorUsername());
+        response.setAuthorId(blog.getAuthorId());
         response.setLikesCount((int) blogLikeRepository.countByBlogId(blog.getId()));
 
         List<String> imageEndpoints = new ArrayList<>();

@@ -7,18 +7,26 @@ public class CommentResponse {
     private Long id;
     private Long blogId;
     private String authorUsername;
+    private Long authorId;
     private String text;
     private LocalDateTime createdAt;
 
-    public CommentResponse() {
-    }
 
-    public CommentResponse(Long id, Long blogId, String authorUsername, String text, LocalDateTime createdAt) {
+    public CommentResponse(Long id, Long blogId, String authorUsername, Long authorId, String text, LocalDateTime createdAt) {
         this.id = id;
         this.blogId = blogId;
         this.authorUsername = authorUsername;
+        this.authorId = authorId;
         this.text = text;
         this.createdAt = createdAt;
+    }
+
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
     }
 
     public LocalDateTime getCreatedAt() {
