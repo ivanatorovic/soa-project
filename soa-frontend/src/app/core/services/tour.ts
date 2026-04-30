@@ -38,6 +38,16 @@ export interface TourResponse {
   keyPoints: KeyPointResponse[];
 }
 
+export interface TouristLocationRequest {
+  latitude: number;
+  longitude: number;
+}
+
+export interface TouristLocationResponse {
+  latitude: number;
+  longitude: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -132,6 +142,21 @@ updateKeyPoint(
 deleteKeyPoint(tourId: number, keyPointId: number): Observable<void> {
   return this.http.delete<void>(
     `${this.apiUrl}/${tourId}/key-points/${keyPointId}`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+getTouristLocation(): Observable<TouristLocationResponse> {
+  return this.http.get<TouristLocationResponse>(
+    `${this.apiUrl}/tourist-location`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+updateTouristLocation(request: TouristLocationRequest): Observable<TouristLocationResponse> {
+  return this.http.put<TouristLocationResponse>(
+    `${this.apiUrl}/tourist-location`,
+    request,
     { headers: this.getAuthHeaders() }
   );
 }

@@ -90,4 +90,8 @@ export class Tours implements OnInit, OnDestroy {
         return '🌍';
     }
   }
+
+  goToLocationSimulator(): void {
+  this.router.navigate(['/tours/tourist-location']);
+}
 }

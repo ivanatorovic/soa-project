@@ -5,6 +5,7 @@ import { Profile } from './features/stakeholders/profile/profile';
 import { AdminUsers } from './features/stakeholders/admin-users/admin-users';
 import { Home } from './features/home/home';
 import { BlogComponent } from './features/blog/blog';
+import { TouristLocationSimulator } from './features/tours/tourist-location-simulator/tourist-location-simulator';
 
 import { authGuard } from './core/guards/auth-guard';
 import { BlogDetails } from './features/blog-details/blog-details';
@@ -26,6 +27,8 @@ export const routes: Routes = [
   { path: 'blog', component: BlogComponent },
   { path: 'blog/create', component: CreateBlogComponent, canActivate: [authGuard] },
   { path: 'blog/:id', component: BlogDetails },
+  {
+  path: 'tours/tourist-location', component: TouristLocationSimulator, canActivate: [authGuard]},
   { path: 'tours/:id', component: TourDetails },
   { path: 'tours/:id/key-points', component: AddKeyPoint },
   {
@@ -40,4 +43,5 @@ export const routes: Routes = [
   { path: 'edit-profile', component: EditProfileComponent },
   { path: 'users', component: UserList, canActivate: [authGuard] },
   { path: 'users/:type/:id', component: UserList, canActivate: [authGuard] },
+  
 ];

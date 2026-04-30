@@ -1,0 +1,59 @@
+<div class="simulator-page">
+  <div class="top-bar">
+    <button class="back-btn" (click)="goBack()">← Nazad na ture</button>
+
+    <div class="top-text">
+      <h1>Simulator pozicije</h1>
+      <p>
+        Kliknite na mapu da postavite trenutnu lokaciju.
+      </p>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="map-card">
+      <h2>Mapa</h2>
+
+      <div id="tourist-location-map" class="map-box"></div>
+
+      <p class="map-hint">
+        Ako ste prethodno definisali lokaciju, ona će biti prikazana markerom.
+        Novi klik na mapu ažurira trenutnu lokaciju.
+      </p>
+
+      <p *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </p>
+
+      <p *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h2>Trenutna lokacija</h2>
+
+      <div *ngIf="latitude !== null && longitude !== null; else noLocation">
+        <div class="coordinate-box">
+          <span>Latitude</span>
+          <strong>{{ latitude }}</strong>
+        </div>
+
+        <div class="coordinate-box">
+          <span>Longitude</span>
+          <strong>{{ longitude }}</strong>
+        </div>
+
+        <p class="info-text">
+          Ove koordinate predstavljaju trenutno simuliranu poziciju.
+        </p>
+      </div>
+
+      <ng-template #noLocation>
+        <p class="empty-state">
+          Još nema definisane trenutne lokacije.
+        </p>
+      </ng-template>
+    </div>
+  </div>
+</div>

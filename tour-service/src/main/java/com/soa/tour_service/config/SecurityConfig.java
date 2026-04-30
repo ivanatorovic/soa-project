@@ -40,6 +40,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/tours/*/key-points").hasAnyRole("GUIDE", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/tours/*/key-points/*").hasAnyRole("GUIDE", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/tours/*/key-points/*").hasAnyRole("GUIDE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/tours/tourist-location").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.PUT, "/api/tours/tourist-location").hasRole("TOURIST")
                         .requestMatchers(HttpMethod.GET, "/api/tours/my").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/tours").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/tours/*").authenticated()

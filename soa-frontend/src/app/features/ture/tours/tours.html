@@ -28,6 +28,10 @@
       </p>
     </div>
 
+    <button *ngIf="isTourist()" (click)="goToLocationSimulator()" class="create-btn">
+      Simulator pozicije
+    </button>
+
     <button *ngIf="!isTourist()" (click)="goToCreateTour()" class="create-btn">
       + Kreiraj turu
     </button>
