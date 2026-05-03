@@ -23,15 +23,27 @@ public class CommentService {
         this.blogRepository = blogRepository;
     }
 
-    public ResponseEntity<?> createComment(CreateCommentRequest request, Long authorId, String authorUsername) {
+    public ResponseEntity<?> createComment(
+            CreateCommentRequest request,
+            Long authorId,
+            String authorUsername,
+            String role
+    ) {
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("message", "Admin ne može da objavljuje komentare"));
+        }
+
         Blog blog = blogRepository.findById(request.getBlogId()).orElse(null);
 
         if (blog == null) {
-            return ResponseEntity.status(404).body(Map.of("message", "Ne postoji blog sa ID: " + request.getBlogId()));
+            return ResponseEntity.status(404)
+                    .body(Map.of("message", "Ne postoji blog sa ID: " + request.getBlogId()));
         }
 
         if (request.getText() == null || request.getText().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Tekst komentara ne sme biti prazan"));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Tekst komentara ne sme biti prazan"));
         }
 
         Comment comment = new Comment();
@@ -46,6 +58,7 @@ public class CommentService {
         CommentResponse response = new CommentResponse(
                 savedComment.getId(),
                 savedComment.getBlogId(),
+                savedComment.getAuthorId(),
                 savedComment.getAuthorUsername(),
                 savedComment.getText(),
                 savedComment.getCreatedAt()
@@ -58,18 +71,22 @@ public class CommentService {
         Blog blog = blogRepository.findById(blogId).orElse(null);
 
         if (blog == null) {
-            return ResponseEntity.status(404).body(Map.of("message", "Ne postoji blog sa ID: " + blogId));
+            return ResponseEntity.status(404)
+                    .body(Map.of("message", "Ne postoji blog sa ID: " + blogId));
         }
 
         List<Comment> comments = commentRepository.findByBlogIdOrderByCreatedAtDesc(blogId);
+
         if (comments.isEmpty()) {
-            return ResponseEntity.status(404).body(Map.of("message", "Nema komentara za ovaj blog"));
+            return ResponseEntity.status(404)
+                    .body(Map.of("message", "Nema komentara za ovaj blog"));
         }
 
         List<CommentResponse> response = comments.stream()
                 .map(comment -> new CommentResponse(
                         comment.getId(),
                         comment.getBlogId(),
+                        comment.getAuthorId(),
                         comment.getAuthorUsername(),
                         comment.getText(),
                         comment.getCreatedAt()
@@ -79,20 +96,28 @@ public class CommentService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> updateComment(String id, String newText, Long currentUserId) {
+    public ResponseEntity<?> updateComment(String id, String newText, Long currentUserId,String role) {
         Comment comment = commentRepository.findById(id).orElse(null);
 
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("message", "Admin ne može da menja komentare"));
+        }
         if (comment == null) {
-            return ResponseEntity.status(404).body(Map.of("message", "Ne postoji komentar sa ID: " + id));
+            return ResponseEntity.status(404)
+                    .body(Map.of("message", "Ne postoji komentar sa ID: " + id));
         }
 
         if (!comment.getAuthorId().equals(currentUserId)) {
-            return ResponseEntity.status(403).body(Map.of("message", "Mozete menjati samo svoj komentar"));
+            return ResponseEntity.status(403)
+                    .body(Map.of("message", "Mozete menjati samo svoj komentar"));
         }
 
         if (newText == null || newText.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Tekst komentara ne sme biti prazan"));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Tekst komentara ne sme biti prazan"));
         }
+
 
         comment.setText(newText);
         comment.preUpdate();
@@ -101,6 +126,7 @@ public class CommentService {
         CommentResponse response = new CommentResponse(
                 updatedComment.getId(),
                 updatedComment.getBlogId(),
+                updatedComment.getAuthorId(),
                 updatedComment.getAuthorUsername(),
                 updatedComment.getText(),
                 updatedComment.getCreatedAt()

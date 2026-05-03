@@ -1,0 +1,141 @@
+<div class="user-list-page">
+  <div class="top-bar">
+    <span>Pregled korisnika</span>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo" routerLink="/">MyApp</div>
+
+    <div class="nav-links">
+      <a routerLink="/">Početna</a>
+      <a routerLink="/profile">Moj profil</a>
+      <a routerLink="/blog">Blog</a>
+      <a class="nav-btn logout" (click)="logout()">Odjava</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <h1>{{ pageTitle }}</h1>
+      <p>{{ pageDescription }}</p>
+
+      <div class="breadcrumb">
+        <span routerLink="/" class="crumb-link">Početna</span>
+        <span class="separator">›</span>
+        <span>{{ pageTitle }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOLLOWERS -->
+  <section class="cards-section">
+    <p *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </p>
+
+    <div *ngIf="loading && !errorMessage" class="empty-state">Učitavanje korisnika...</div>
+
+    <div *ngIf="!loading && !errorMessage && users.length === 0" class="empty-state">
+      Nema korisnika za prikaz.
+    </div>
+
+    <div class="users-grid" *ngIf="!loading && users.length > 0">
+      <div class="user-card" *ngFor="let user of users" (click)="goToUserProfile(user.id)">
+        <div class="card-top">
+          <div class="avatar-circle">
+            <img
+              *ngIf="user.profileImage; else userInitials"
+              [src]="userService.getProfileImageUrl(user.profileImage)"
+              alt="Profilna slika"
+              class="profile-image"
+            />
+
+            <ng-template #userInitials>
+              {{ user.username.charAt(0) | uppercase }}
+            </ng-template>
+          </div>
+
+          <div class="user-main-info">
+            <h3>{{ user.username }}</h3>
+
+            <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
+              {{ user.role || 'Korisnik' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-actions" *ngIf="user.id !== currentUserId">
+          <button
+            *ngIf="!user.isFollowedByMe"
+            class="follow-btn"
+            (click)="follow(user); $event.stopPropagation()"
+          >
+            Zaprati
+          </button>
+
+          <button
+            *ngIf="user.isFollowedByMe"
+            class="unfollow-btn"
+            (click)="unfollow(user); $event.stopPropagation()"
+          >
+            Otprati
+          </button>
+        </div>
+
+        <div class="card-actions" *ngIf="user.id === currentUserId">
+          <span class="own-profile-text">Vas profil</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECOMMENDATIONS -->
+  <section class="cards-section" *ngIf="!loading && type !== 'all'">
+    <div class="recommendations-section">
+      <h2>Preporučeni korisnici</h2>
+      <p>Korisnici koje bi možda želeo/la da zapratiš.</p>
+
+      <div *ngIf="recommendedUsers.length === 0" class="empty-state">Trenutno nema preporuka.</div>
+
+      <div class="users-grid" *ngIf="recommendedUsers.length > 0">
+        <div class="user-card" *ngFor="let user of recommendedUsers">
+          <div class="card-top">
+            <div class="avatar-circle">
+              <img
+                *ngIf="user.profileImage; else recInitials"
+                [src]="userService.getProfileImageUrl(user.profileImage)"
+                alt="Profilna slika"
+                class="profile-image"
+              />
+
+              <ng-template #recInitials>
+                {{ user.username.charAt(0) | uppercase }}
+              </ng-template>
+            </div>
+
+            <div class="user-main-info">
+              <h3>{{ user.username }}</h3>
+
+              <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
+                {{ user.role || 'Korisnik' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="card-actions" *ngIf="user.id !== currentUserId">
+            <button *ngIf="!user.isFollowedByMe" class="follow-btn" (click)="follow(user)">
+              Zaprati
+            </button>
+
+            <button *ngIf="user.isFollowedByMe" class="unfollow-btn" (click)="unfollow(user)">
+              Otprati
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,163 @@
+* {
+  box-sizing: border-box;
+}
+
+.create-tour-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f4f6f9, #e9eef5);
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.create-tour-card {
+  width: 100%;
+  max-width: 760px;
+  background: white;
+  border-radius: 24px;
+  padding: 35px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  margin-bottom: 25px;
+}
+
+.subtitle {
+  color: #f4a000;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.header h1 {
+  font-size: 34px;
+  margin: 0 0 12px;
+  color: #0d4d8b;
+}
+
+.description {
+  color: #5b6572;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.tour-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #d9e1ea;
+  border-radius: 14px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.25s;
+  background-color: #fbfcfe;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #0d4d8b;
+  box-shadow: 0 0 0 3px rgba(13, 77, 139, 0.12);
+}
+
+.form-group small {
+  color: #7d8794;
+  font-size: 13px;
+}
+
+.submit-btn {
+  margin-top: 10px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 16px;
+  background: #0d4d8b;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.submit-btn:hover {
+  background: #0a3c6d;
+}
+
+.submit-btn:disabled {
+  background: #a6b6c8;
+  cursor: not-allowed;
+}
+
+.success-message {
+  background: #eaf8ef;
+  color: #228b4e;
+  border: 1px solid #b7e4c7;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.error-message {
+  background: #fff1f1;
+  color: #c0392b;
+  border: 1px solid #f1b0b0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.created-tour-preview {
+  margin-top: 28px;
+  padding: 22px;
+  border-radius: 18px;
+  background: #f8fbff;
+  border: 1px solid #dde8f5;
+}
+
+.created-tour-preview h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  color: #0d4d8b;
+}
+
+.preview-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.preview-row .label {
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+@media (max-width: 768px) {
+  .create-tour-card {
+    padding: 22px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+  }
+}

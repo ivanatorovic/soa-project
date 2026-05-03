@@ -19,8 +19,14 @@
       <h2 class="blog-title">{{ blog.title }}</h2>
 
       <div class="blog-meta">
-        <span>👤 {{ blog.authorUsername }}</span>
+        <span>
+          👤
+          <span class="author-link" (click)="goToAuthorProfile(blog.authorId)">
+            {{ blog.authorUsername }}
+          </span>
+        </span>
         <span>📅 {{ blog.createdAt | timeAgo }}</span>
+
         <div class="like-section">
           <button
             class="like-btn"
@@ -34,6 +40,10 @@
 
           <span class="likes-count">{{ blog.likesCount }}</span>
         </div>
+      </div>
+
+      <div *ngIf="blog.likeErrorMessage" class="like-error-message below-meta-error">
+        {{ blog.likeErrorMessage }}
       </div>
 
       <div class="blog-description">
@@ -85,7 +95,11 @@
         <div *ngIf="!commentsLoading && comments.length > 0" class="comments-list">
           <div class="comment-card" *ngFor="let comment of comments">
             <p class="comment-author">
-              👤 {{ comment.authorUsername }} · {{ comment.createdAt | timeAgo }}
+              👤
+              <span class="author-link" (click)="goToCommentAuthor(comment.authorId)">
+                {{ comment.authorUsername }}
+              </span>
+              · {{ comment.createdAt | timeAgo }}
             </p>
             <p class="comment-text">{{ comment.text }}</p>
           </div>
@@ -97,6 +111,10 @@
         <button (click)="submitComment()" [disabled]="commentSubmitting">
           {{ commentSubmitting ? 'Slanje...' : 'Pošalji komentar' }}
         </button>
+
+        <div *ngIf="commentErrorMessage" class="comment-error-message">
+          {{ commentErrorMessage }}
+        </div>
       </div>
     </div>
   </section>

@@ -33,6 +33,10 @@ export class Home {
     this.router.navigate(['/']);
   }
 
+  goToUsers(): void {
+    this.router.navigate(['/users']);
+  }
+
   goToLogin(): void {
     this.router.navigate(['/login']);
   }
@@ -51,5 +55,13 @@ export class Home {
 
   goToBlog(): void {
     this.router.navigate(['/blog']);
+  }
+
+  goToCreateTour(): void {
+    this.router.navigate(['/create-tour']);
+  }
+
+  goToTours(): void {
+    this.router.navigate(['/tours']);
   }
 }

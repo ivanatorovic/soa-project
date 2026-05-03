@@ -1,0 +1,79 @@
+<div class="tour-details-page">
+  <ng-container *ngIf="tour; else loadingBlock">
+    <div class="top-bar">
+      <button class="back-btn" (click)="goBack()">← Nazad na ture</button>
+    </div>
+
+    <div class="hero-card">
+      <div class="tour-main-info">
+        <div class="tour-badge">
+          {{ getTourIcon(tour.difficulty) }}
+        </div>
+
+        <div class="tour-text">
+          <h1>{{ tour.name }}</h1>
+          <p class="tour-description">
+            {{ tour.description }}
+          </p>
+
+          <div class="tour-meta">
+            <span><b>Težina:</b> {{ tour.difficulty }}</span>
+            <span><b>Status:</b> {{ tour.status }}</span>
+            <span><b>Cena:</b> {{ tour.price }} RSD</span>
+          </div>
+
+          <div class="tags" *ngIf="tour.tags && tour.tags.length > 0">
+            <span *ngFor="let tag of tour.tags" class="tag">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="details-grid">
+      <div class="map-card">
+        <div class="map-header">
+  <h2>Mapa ture</h2>
+  <button class="route-btn" (click)="toggleRoute()">
+    {{ showRoute ? 'Sakrij turu' : 'Prikaži turu' }}
+  </button>
+</div>
+        <div id="tour-details-map" class="map-box"></div>
+      </div>
+
+      <div class="keypoints-card">
+        <h2>Ključne tačke</h2>
+
+        <div *ngIf="!tour.keyPoints || tour.keyPoints.length === 0" class="empty-state">
+          Ova tura još nema ključne tačke.
+        </div>
+
+        <div
+          *ngFor="let kp of tour.keyPoints"
+          class="keypoint-item"
+          (click)="focusKeyPoint(kp)"
+        >
+          <img
+            *ngIf="kp.imageUrl"
+            [src]="getImageUrl(kp.imageUrl)"
+            alt="Slika ključne tačke"
+          />
+
+          <div class="keypoint-content">
+            <h3>{{ kp.name }}</h3>
+            <p>{{ kp.description }}</p>
+
+            <div class="coordinates">
+              <span>Lat: {{ kp.latitude }}</span>
+              <span>Lng: {{ kp.longitude }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loadingBlock>
+    <div class="loading-state" *ngIf="!errorMessage">Učitavanje detalja ture...</div>
+    <p *ngIf="errorMessage" class="global-error">{{ errorMessage }}</p>
+  </ng-template>
+</div>

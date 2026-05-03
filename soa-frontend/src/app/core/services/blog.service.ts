@@ -9,9 +9,12 @@ export interface Blog {
   createdAt: string;
   likesCount: number;
   authorUsername: string;
+  authorId: number;
   imageUrls: string[];
+
   likedByCurrentUser: boolean;
   likeLoading?: boolean;
+  likeErrorMessage?: string;
 }
 
 export interface CreateBlogRequest {
@@ -20,17 +23,27 @@ export interface CreateBlogRequest {
   imageUrls: string[];
 }
 
+export interface FeedMessageResponse {
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class BlogService {
-  private apiUrl = 'http://localhost:8082/api/blogs';
+  private apiUrl = 'http://localhost:8000/api/blogs';
+  private baseUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
   getAllBlogs(): Observable<Blog[]> {
     return this.http.get<Blog[]>(this.apiUrl);
   }
+
+  getFollowedUsersBlogs(): Observable<Blog[] | FeedMessageResponse> {
+    return this.http.get<Blog[] | FeedMessageResponse>(`${this.apiUrl}/feed`);
+  }
+
 
   getBlogById(id: string): Observable<Blog> {
     return this.http.get<Blog>(`${this.apiUrl}/${id}`);
@@ -46,5 +59,17 @@ export class BlogService {
 
   createBlog(formData: FormData): Observable<any> {
     return this.http.post(this.apiUrl, formData);
+  }
+
+  resolveImageUrl(imageUrl: string): string {
+    if (!imageUrl) {
+      return '';
+    }
+
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+
+    return `${this.baseUrl}${imageUrl}`;
   }
 }

@@ -46,8 +46,17 @@
       <div class="user-card" *ngFor="let user of users">
         <div class="card-top">
           <div class="avatar-circle">
-            {{ user.username?.charAt(0) | uppercase }}
-          </div>
+  <img
+    *ngIf="user.profileImage; else userInitials"
+    [src]="userService.getProfileImageUrl(user.profileImage)"
+    alt="Profilna slika"
+    class="profile-image"
+  />
+
+  <ng-template #userInitials>
+    {{ user.username?.charAt(0) | uppercase }}
+  </ng-template>
+</div>
 
           <div class="user-main-info">
             <h3>{{ user.username }}</h3>
@@ -79,40 +88,56 @@
           </div>
           <div class="detail-item">
             <span class="label">Ime</span>
-            <span class="value">{{ user.firstName || 'Nije uneto' }}</span>
+            <span class="value">{{ user.firstName || '' }}</span>
           </div>
 
           <div class="detail-item">
             <span class="label">Prezime</span>
-            <span class="value">{{ user.lastName || 'Nije uneto' }}</span>
+            <span class="value">{{ user.lastName || '' }}</span>
           </div>
 
           <div class="detail-item full-width">
             <span class="label">Biografija</span>
-            <span class="value">{{ user.biography || 'Nema biografije.' }}</span>
+            <span class="value">{{ user.biography || '' }}</span>
           </div>
 
           <div class="detail-item full-width">
             <span class="label">Moto</span>
-            <span class="value">{{ user.motto || 'Nema mota.' }}</span>
+            <span class="value">{{ user.motto || '' }}</span>
           </div>
+          
         </div>
 
         <div class="card-actions">
           <button
-            *ngIf="!user.blocked"
-            class="block-btn"
-            (click)="blockUser(user.id)"
-          >
-            Blokiraj korisnika
-          </button>
+  *ngIf="!user.blocked"
+  class="block-btn"
+  (click)="openModal(user)"
+>
+  Blokiraj korisnika
+</button>
 
           <span *ngIf="user.blocked" class="blocked-text">
-            Korisnik je već blokiran
+            Korisnik je blokiran
           </span>
         </div>
       </div>
     </div>
   </section>
+<!-- MODAL -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-box">
+    <h2>Potvrda</h2>
 
+    <p>
+      Da li si sigurna da želiš da blokiraš korisnika
+      <strong>{{ selectedUser?.username }}</strong>?
+    </p>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeModal()">Otkaži</button>
+      <button class="confirm-btn" (click)="confirmBlock()">Blokiraj</button>
+    </div>
+  </div>
+</div>
 </div>

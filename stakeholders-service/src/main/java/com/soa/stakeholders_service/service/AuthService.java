@@ -19,15 +19,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final FollowerClientService followerClientService;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       FollowerClientService followerClientService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.followerClientService = followerClientService;
     }
 
     public UserResponse register(RegisterRequest request) {
@@ -51,6 +54,9 @@ public class AuthService {
         user.setBlocked(false);
 
         User savedUser = userRepository.save(user);
+
+        followerClientService.createUserNode(savedUser.getId(), savedUser.getUsername());
+
         return mapToResponse(savedUser);
     }
 

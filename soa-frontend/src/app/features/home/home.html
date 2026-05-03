@@ -18,6 +18,8 @@
       <a (click)="goToProfile()">Moj profil</a>
       <a (click)="goToBlog()">Blog</a>
       <a *ngIf="isAdmin()" (click)="goToAdminUsers()">Svi korisnici</a>
+      <a (click)="goToTours()">Pogledaj ture</a>
+      <a (click)="goToUsers()">Ostali korisnici</a>
       <a class="nav-btn logout" (click)="logout()">Odjava</a>
     </div>
   </nav>
@@ -38,6 +40,33 @@
       <div *ngIf="!isLoggedIn()" class="button-group">
         <button class="btn primary" (click)="goToLogin()">Prijava</button>
         <button class="btn secondary" (click)="goToRegister()">Registracija</button>
+      </div>
+    </div>
+  </section>
+  <section class="top-destinations">
+    <div class="section-header">
+      <h2>TOP DESTINACIJE</h2>
+      <p>
+        Negde biste putovali a ne možete da se odlučite jer toliko toga ima što vam je interesantno.
+        Ne volite kišu i sneg i želite da pobegnete u toplije krajeve, ili pak treba vam relax
+        vikend u luksuznom hotelu a za ljubitelje skijanja poznati ski centri.
+      </p>
+    </div>
+
+    <div class="destinations-grid">
+      <div class="destination-card summer">
+        <div class="destination-overlay"></div>
+        <h3>LETOVANJE</h3>
+      </div>
+
+      <div class="destination-card winter">
+        <div class="destination-overlay"></div>
+        <h3>ZIMOVANJE</h3>
+      </div>
+
+      <div class="destination-card exotic">
+        <div class="destination-overlay"></div>
+        <h3>DALEKE DESTINACIJE</h3>
       </div>
     </div>
   </section>

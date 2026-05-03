@@ -7,14 +7,16 @@ public class CommentResponse {
     private String id;
     private String blogId;
     private String authorUsername;
+    private Long authorId;
     private String text;
     private LocalDateTime createdAt;
 
     public CommentResponse() {}
 
-    public CommentResponse(String id, String blogId, String authorUsername, String text, LocalDateTime createdAt) {
+    public CommentResponse(String id, String blogId,Long authorId, String authorUsername, String text, LocalDateTime createdAt) {
         this.id = id;
         this.blogId = blogId;
+        this.authorId = authorId;
         this.authorUsername = authorUsername;
         this.text = text;
         this.createdAt = createdAt;
@@ -30,4 +32,12 @@ public class CommentResponse {
     public void setText(String text) { this.text = text; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
+    }
+
 }

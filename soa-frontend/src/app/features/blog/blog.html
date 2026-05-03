@@ -43,6 +43,10 @@
       {{ errorMessage }}
     </div>
 
+    <div *ngIf="accessErrorMessage" class="status-message error">
+      {{ accessErrorMessage }}
+    </div>
+
     <div *ngIf="!loading && !errorMessage && blogs.length === 0" class="status-message">
       Trenutno nema dostupnih blogova.
     </div>
@@ -53,24 +57,35 @@
           <h3>{{ blog.title }}</h3>
 
           <div class="blog-info">
-            <p><strong>Autor:</strong> {{ getAuthor(blog) }}</p>
+            <p>
+              <strong>Autor:</strong>
+              <span class="author-link" (click)="goToAuthorProfile(blog.authorId)">
+                {{ getAuthor(blog) }}
+              </span>
+            </p>
             <p><strong>Objavljeno:</strong> {{ blog.createdAt | timeAgo }}</p>
 
-            <div class="like-section">
-              <button
-                class="like-btn"
-                [class.liked]="blog.likedByCurrentUser"
-                [disabled]="blog.likeLoading"
-                (click)="toggleLike(blog)"
-              >
-                <span class="thumb">👍</span>
-              </button>
+            <div class="like-section-wrapper">
+              <div class="like-section">
+                <button
+                  class="like-btn"
+                  [class.liked]="blog.likedByCurrentUser"
+                  [disabled]="blog.likeLoading"
+                  (click)="toggleLike(blog)"
+                >
+                  <span class="thumb">👍</span>
+                </button>
 
-              <span class="likes-count">{{ blog.likesCount }}</span>
+                <span class="likes-count">{{ blog.likesCount }}</span>
+              </div>
+
+              <div *ngIf="blog.likeErrorMessage" class="like-error-message">
+                {{ blog.likeErrorMessage }}
+              </div>
             </div>
           </div>
 
-          <button (click)="goToBlogDetails(blog.id)">Prikaži više</button>
+          <button (click)="goToBlogDetails(blog)">Prikaži više</button>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ export interface Comment {
   id: string;
   blogId: string;
   authorUsername: string;
+  authorId: number;
   text: string;
   createdAt: string;
 }
@@ -14,7 +15,7 @@ export interface Comment {
   providedIn: 'root',
 })
 export class CommentService {
-  private apiUrl = 'http://localhost:8082/api/comments';
+  private apiUrl = 'http://localhost:8000/api/comments';
 
   constructor(private http: HttpClient) {}
 

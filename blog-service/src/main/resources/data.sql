@@ -31,12 +31,12 @@ VALUES
 
 INSERT INTO blog_images (blog_id, image_url)
 VALUES
-    (1, '/assets/zakintos.jpg'),
-    (2, '/assets/pakovanje.jpg'),
-    (3, '/assets/barsa.jpg'),
-    (3, '/assets/rim.jpg'),
-    (3, '/assets/pariz.jpg'),
-    (4, '/assets/jeftino.jpg');
+    (1, 'zakintos.jpg'),
+    (2, 'pakovanje.jpg'),
+    (3, 'barsa.jpg'),
+    (3, 'rim.jpg'),
+    (3, 'pariz.jpg'),
+    (4, 'jeftino.jpg');
 
 INSERT INTO comment (author_id, author_username, text, blog_id, created_at)
 VALUES

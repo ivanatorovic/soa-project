@@ -28,11 +28,19 @@ public class BlogController {
             @AuthenticationPrincipal JwtUserPrincipal principal,
             HttpServletRequest request
     ) {
-        return blogService.createBlog(infoJson, images, principal.getUserId(), principal.getUsername(), request);
+        return blogService.createBlog(
+                infoJson,
+                images,
+                principal.getUserId(),
+                principal.getUsername(),
+                principal.getRole()
+        );
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllBlogs(@AuthenticationPrincipal JwtUserPrincipal principal) {
+    public ResponseEntity<?> getAllBlogs(
+            @AuthenticationPrincipal JwtUserPrincipal principal
+    ) {
         Long userId = principal != null ? principal.getUserId() : null;
         return blogService.getAllBlogs(userId);
     }
@@ -51,7 +59,7 @@ public class BlogController {
             @PathVariable String id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.likeBlog(id, principal.getUserId());
+        return blogService.likeBlog(id, principal.getUserId(), principal.getRole());
     }
 
     @DeleteMapping("/{id}/like")
@@ -59,11 +67,26 @@ public class BlogController {
             @PathVariable String id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
-        return blogService.unlikeBlog(id, principal.getUserId());
+        return blogService.unlikeBlog(id, principal.getUserId(), principal.getRole());
     }
 
     @GetMapping("/{id}/likes")
     public ResponseEntity<?> getLikesCount(@PathVariable String id) {
         return blogService.getLikesCount(id);
+    }
+
+    @GetMapping("/{blogId}/images/{imageIndex}")
+    public ResponseEntity<byte[]> getBlogImage(
+            @PathVariable Long blogId,
+            @PathVariable int imageIndex
+    ) {
+        return blogService.getBlogImage(blogId, imageIndex);
+    }
+
+    @GetMapping("/feed")
+    public ResponseEntity<?> getFeed(
+            @AuthenticationPrincipal JwtUserPrincipal principal
+    ) {
+        return blogService.getFollowedUsersBlogs(principal.getUserId());
     }
 }

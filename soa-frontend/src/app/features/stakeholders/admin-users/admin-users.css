@@ -57,7 +57,7 @@
 .hero-section {
   position: relative;
   height: 520px;
-  background: url('../../../../assets/putovanje1.jpg') center center/cover no-repeat;
+  background: ('../../../..url/assets/putovanje1.jpg') center center/cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -155,7 +155,9 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 430px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .user-card:hover {
@@ -182,6 +184,7 @@
   font-size: 24px;
   font-weight: 700;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .user-main-info h3 {
@@ -364,4 +367,87 @@
   .user-card {
     min-height: auto;
   }
+}
+
+/* ===== MODAL ===== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-box {
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  animation: fadeInScale 0.3s ease;
+}
+
+.modal-box h2 {
+  margin-bottom: 15px;
+  color: #16345c;
+}
+
+.modal-box p {
+  margin-bottom: 25px;
+  color: #4a5c73;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cancel-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #e0e6ed;
+  cursor: pointer;
+}
+
+.confirm-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #d9534f;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-btn:hover {
+  background: #bf3f3b;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }

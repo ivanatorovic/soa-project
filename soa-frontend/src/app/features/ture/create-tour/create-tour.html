@@ -1,0 +1,110 @@
+<div class="create-tour-page">
+  <div class="create-tour-card">
+    <div class="header">
+      <p class="subtitle">Tour Service</p>
+      <h1>Kreiranje ture</h1>
+      <p class="description">
+        Unesite osnovne podatke o turi. Prilikom kreiranja, status ture će biti draft,
+        a cena će automatski biti postavljena na 0.
+      </p>
+    </div>
+
+    <p *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </p>
+
+    <p *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </p>
+
+    <form (ngSubmit)="createTour()" #tourForm="ngForm" class="tour-form">
+      <div class="form-group">
+        <label for="name">Naziv ture</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="formData.name"
+          required
+          placeholder="Unesite naziv ture"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Opis</label>
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="formData.description"
+          required
+          rows="5"
+          placeholder="Unesite opis ture"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="difficulty">Težina</label>
+        <select
+          id="difficulty"
+          name="difficulty"
+          [(ngModel)]="formData.difficulty"
+          required
+        >
+          <option value="EASY">Laka</option>
+          <option value="MEDIUM">Srednja</option>
+          <option value="HARD">Teška</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tagsInput">Tagovi</label>
+        <input
+          type="text"
+          id="tagsInput"
+          name="tagsInput"
+          [(ngModel)]="formData.tagsInput"
+          placeholder="npr. priroda, planinarenje, istorija"
+        />
+        <small>Tagove odvoj zarezom.</small>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="tourForm.invalid">
+        Kreiraj turu
+      </button>
+    </form>
+
+    <div *ngIf="createdTour" class="created-tour-preview">
+      <h2>Kreirana tura</h2>
+
+      <div class="preview-row">
+        <span class="label">Naziv:</span>
+        <span>{{ createdTour.name }}</span>
+      </div>
+
+      <div class="preview-row">
+        <span class="label">Opis:</span>
+        <span>{{ createdTour.description }}</span>
+      </div>
+
+      <div class="preview-row">
+        <span class="label">Težina:</span>
+        <span>{{ createdTour.difficulty }}</span>
+      </div>
+
+      <div class="preview-row">
+        <span class="label">Status:</span>
+        <span>{{ createdTour.status }}</span>
+      </div>
+
+      <div class="preview-row">
+        <span class="label">Cena:</span>
+        <span>{{ createdTour.price }}</span>
+      </div>
+
+      <div class="preview-row">
+        <span class="label">Tagovi:</span>
+        <span>{{ createdTour.tags.join(', ') }}</span>
+      </div>
+    </div>
+  </div>
+</div>
