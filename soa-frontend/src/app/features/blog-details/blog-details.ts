@@ -35,7 +35,7 @@ export class BlogDetails implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     void this.viewportScroller.scrollToPosition([0, 0]);
-    const blogId = Number(this.route.snapshot.paramMap.get('id'));
+    const blogId = this.route.snapshot.paramMap.get('id');
 
     if (!blogId) {
       this.errorMessage = 'Neispravan ID bloga.';
@@ -52,7 +52,7 @@ export class BlogDetails implements OnInit, OnDestroy {
     this.stopAutoSlide();
   }
 
-  loadBlog(blogId: number): void {
+  loadBlog(blogId: string): void {
     this.blogService.getBlogById(blogId).subscribe({
       next: (response) => {
         this.blog = {
@@ -71,7 +71,7 @@ export class BlogDetails implements OnInit, OnDestroy {
     });
   }
 
-  loadComments(blogId: number): void {
+  loadComments(blogId: string): void {
     this.commentService.getCommentsByBlogId(blogId).subscribe({
       next: (response) => {
         this.comments = response;
@@ -169,18 +169,14 @@ export class BlogDetails implements OnInit, OnDestroy {
 
   nextImage(): void {
     if (!this.blog?.imageUrls?.length) return;
-
     this.currentImageIndex = (this.currentImageIndex + 1) % this.blog.imageUrls.length;
-
     this.restartAutoSlide();
   }
 
   prevImage(): void {
     if (!this.blog?.imageUrls?.length) return;
-
     this.currentImageIndex =
       (this.currentImageIndex - 1 + this.blog.imageUrls.length) % this.blog.imageUrls.length;
-
     this.restartAutoSlide();
   }
 

@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Comment {
-  id: number;
-  blogId: number;
+  id: string;
+  blogId: string;
   authorUsername: string;
   text: string;
   createdAt: string;
@@ -18,11 +18,11 @@ export class CommentService {
 
   constructor(private http: HttpClient) {}
 
-  getCommentsByBlogId(blogId: number): Observable<Comment[]> {
+  getCommentsByBlogId(blogId: string): Observable<Comment[]> {
     return this.http.get<Comment[]>(`${this.apiUrl}/blog/${blogId}`);
   }
 
-  createComment(request: { blogId: number; text: string }) {
+  createComment(request: { blogId: string; text: string }) {
     return this.http.post<Comment>('http://localhost:8082/api/comments', request);
   }
 }

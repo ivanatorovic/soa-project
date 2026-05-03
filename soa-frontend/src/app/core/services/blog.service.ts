@@ -3,14 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Blog {
-  id: number;
+  id: string;
   title: string;
   description: string;
   createdAt: string;
   likesCount: number;
   authorUsername: string;
   imageUrls: string[];
-
   likedByCurrentUser: boolean;
   likeLoading?: boolean;
 }
@@ -33,15 +32,15 @@ export class BlogService {
     return this.http.get<Blog[]>(this.apiUrl);
   }
 
-  getBlogById(id: number): Observable<Blog> {
+  getBlogById(id: string): Observable<Blog> {
     return this.http.get<Blog>(`${this.apiUrl}/${id}`);
   }
 
-  likeBlog(id: number): Observable<any> {
+  likeBlog(id: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/like`, {});
   }
 
-  unlikeBlog(id: number): Observable<any> {
+  unlikeBlog(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}/like`);
   }
 

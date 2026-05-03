@@ -2,14 +2,14 @@ package com.soa.blog_service.dto;
 
 public class CreateCommentRequest {
 
-    private Long blogId;
+    private String blogId;
     private String text;
 
-    public Long getBlogId() {
+    public String getBlogId() {
         return blogId;
     }
 
-    public void setBlogId(Long blogId) {
+    public void setBlogId(String blogId) {
         this.blogId = blogId;
     }
 

@@ -35,16 +35,17 @@ public class CommentService {
         }
 
         Comment comment = new Comment();
-        comment.setBlog(blog);
+        comment.setBlogId(blog.getId());
         comment.setAuthorId(authorId);
         comment.setAuthorUsername(authorUsername);
         comment.setText(request.getText());
+        comment.prePersist();
 
         Comment savedComment = commentRepository.save(comment);
 
         CommentResponse response = new CommentResponse(
                 savedComment.getId(),
-                savedComment.getBlog().getId(),
+                savedComment.getBlogId(),
                 savedComment.getAuthorUsername(),
                 savedComment.getText(),
                 savedComment.getCreatedAt()
@@ -53,7 +54,7 @@ public class CommentService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> getCommentsByBlogId(Long blogId) {
+    public ResponseEntity<?> getCommentsByBlogId(String blogId) {
         Blog blog = blogRepository.findById(blogId).orElse(null);
 
         if (blog == null) {
@@ -68,7 +69,7 @@ public class CommentService {
         List<CommentResponse> response = comments.stream()
                 .map(comment -> new CommentResponse(
                         comment.getId(),
-                        comment.getBlog().getId(),
+                        comment.getBlogId(),
                         comment.getAuthorUsername(),
                         comment.getText(),
                         comment.getCreatedAt()
@@ -78,7 +79,7 @@ public class CommentService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> updateComment(Long id, String newText, Long currentUserId) {
+    public ResponseEntity<?> updateComment(String id, String newText, Long currentUserId) {
         Comment comment = commentRepository.findById(id).orElse(null);
 
         if (comment == null) {
@@ -94,11 +95,12 @@ public class CommentService {
         }
 
         comment.setText(newText);
+        comment.preUpdate();
         Comment updatedComment = commentRepository.save(comment);
 
         CommentResponse response = new CommentResponse(
                 updatedComment.getId(),
-                updatedComment.getBlog().getId(),
+                updatedComment.getBlogId(),
                 updatedComment.getAuthorUsername(),
                 updatedComment.getText(),
                 updatedComment.getCreatedAt()

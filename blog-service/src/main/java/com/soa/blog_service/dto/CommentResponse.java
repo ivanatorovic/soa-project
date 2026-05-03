@@ -4,16 +4,15 @@ import java.time.LocalDateTime;
 
 public class CommentResponse {
 
-    private Long id;
-    private Long blogId;
+    private String id;
+    private String blogId;
     private String authorUsername;
     private String text;
     private LocalDateTime createdAt;
 
-    public CommentResponse() {
-    }
+    public CommentResponse() {}
 
-    public CommentResponse(Long id, Long blogId, String authorUsername, String text, LocalDateTime createdAt) {
+    public CommentResponse(String id, String blogId, String authorUsername, String text, LocalDateTime createdAt) {
         this.id = id;
         this.blogId = blogId;
         this.authorUsername = authorUsername;
@@ -21,43 +20,14 @@ public class CommentResponse {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getBlogId() {
-        return blogId;
-    }
-
-    public String getAuthorUsername() {
-        return authorUsername;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setBlogId(Long blogId) {
-        this.blogId = blogId;
-    }
-
-    public void setAuthorUsername(String authorUsername) {
-        this.authorUsername = authorUsername;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getBlogId() { return blogId; }
+    public void setBlogId(String blogId) { this.blogId = blogId; }
+    public String getAuthorUsername() { return authorUsername; }
+    public void setAuthorUsername(String authorUsername) { this.authorUsername = authorUsername; }
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

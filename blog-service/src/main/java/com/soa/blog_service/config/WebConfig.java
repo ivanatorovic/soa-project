@@ -30,7 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .toUri()
                 .toString();
 
-        registry.addResourceHandler("/assets/**")
+        registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(absolutePath);
     }
 }

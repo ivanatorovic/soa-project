@@ -1,18 +1,16 @@
 version: '3.9'
 
 services:
+
   blog-db:
-    image: postgres:15
+    image: mongo:latest
     container_name: blog-db
     restart: always
-    environment:
-      POSTGRES_DB: blogdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - blog-db-data:/var/lib/postgresql/data
+      - blog-db-data:/data/db
+
 
   blog-service:
     build:
@@ -25,13 +23,12 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://blog-db:5432/blogdb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_DATA_MONGODB_URI: mongodb://blog-db:27017/blog_db
       SERVER_PORT: 8082
+      APP_UPLOAD_DIR: /app/uploads
     volumes:
       - ./blog-service/uploads:/app/uploads
+
 
   stakeholders-db:
     image: postgres:15
@@ -45,6 +42,8 @@ services:
       - "5433:5432"
     volumes:
       - stakeholders-db-data:/var/lib/postgresql/data
+
+
   stakeholders-service:
     build:
       context: ./stakeholders-service
@@ -62,6 +61,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SERVER_PORT: 8081
 
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -72,10 +72,10 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      - blog-db
       - stakeholders-db
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+
 
 volumes:
   blog-db-data:

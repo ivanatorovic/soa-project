@@ -28,26 +28,18 @@ public class BlogController {
             @AuthenticationPrincipal JwtUserPrincipal principal,
             HttpServletRequest request
     ) {
-        return blogService.createBlog(
-                infoJson,
-                images,
-                principal.getUserId(),
-                principal.getUsername(),
-                request
-        );
+        return blogService.createBlog(infoJson, images, principal.getUserId(), principal.getUsername(), request);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllBlogs(
-            @AuthenticationPrincipal JwtUserPrincipal principal
-    ) {
+    public ResponseEntity<?> getAllBlogs(@AuthenticationPrincipal JwtUserPrincipal principal) {
         Long userId = principal != null ? principal.getUserId() : null;
         return blogService.getAllBlogs(userId);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getBlogById(
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
         Long userId = principal != null ? principal.getUserId() : null;
@@ -56,7 +48,7 @@ public class BlogController {
 
     @PostMapping("/{id}/like")
     public ResponseEntity<?> likeBlog(
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
         return blogService.likeBlog(id, principal.getUserId());
@@ -64,14 +56,14 @@ public class BlogController {
 
     @DeleteMapping("/{id}/like")
     public ResponseEntity<?> unlikeBlog(
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
         return blogService.unlikeBlog(id, principal.getUserId());
     }
 
     @GetMapping("/{id}/likes")
-    public ResponseEntity<?> getLikesCount(@PathVariable Long id) {
+    public ResponseEntity<?> getLikesCount(@PathVariable String id) {
         return blogService.getLikesCount(id);
     }
 }

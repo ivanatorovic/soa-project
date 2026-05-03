@@ -1,44 +1,28 @@
 package com.soa.blog_service.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(
-        name = "blog_likes",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"blog_id", "user_id"})
-)
+@Document(collection = "blog_likes")
 public class BlogLike {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blog_id", nullable = false)
-    @JsonIgnore
-    private Blog blog;
-
-    @Column(name = "user_id", nullable = false)
+    private String blogId;
     private Long userId;
-
     private LocalDateTime createdAt;
 
-    @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() { return id; }
-
-    public Blog getBlog() { return blog; }
-    public void setBlog(Blog blog) { this.blog = blog; }
-
+    public String getId() { return id; }
+    public String getBlogId() { return blogId; }
+    public void setBlogId(String blogId) { this.blogId = blogId; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

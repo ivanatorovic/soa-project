@@ -1,78 +1,42 @@
 package com.soa.blog_service.model;
 
-import jakarta.persistence.*;
-
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
-@Entity
+@Document(collection = "comments")
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private Long authorId;
-
     private String authorUsername;
-
     private String text;
-
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String blogId;
 
-    @ManyToOne
-    @JoinColumn(name = "blog_id", nullable = false)
-    private Blog blog;
-
-    @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getAuthorId() {
-        return authorId;
-    }
-
-    public String getAuthorUsername() {
-        return authorUsername;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public Blog getBlog() {
-        return blog;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
-    }
-
-    public void setAuthorUsername(String authorUsername) {
-        this.authorUsername = authorUsername;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public void setBlog(Blog blog) {
-        this.blog = blog;
-    }
+    public String getId() { return id; }
+    public Long getAuthorId() { return authorId; }
+    public void setAuthorId(Long authorId) { this.authorId = authorId; }
+    public String getAuthorUsername() { return authorUsername; }
+    public void setAuthorUsername(String authorUsername) { this.authorUsername = authorUsername; }
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getBlogId() { return blogId; }
+    public void setBlogId(String blogId) { this.blogId = blogId; }
 }

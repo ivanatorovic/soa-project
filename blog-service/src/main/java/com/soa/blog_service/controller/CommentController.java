@@ -27,13 +27,13 @@ public class CommentController {
     }
 
     @GetMapping("/blog/{blogId}")
-    public ResponseEntity<?> getCommentsByBlogId(@PathVariable Long blogId) {
+    public ResponseEntity<?> getCommentsByBlogId(@PathVariable String blogId) {
         return commentService.getCommentsByBlogId(blogId);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateComment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody UpdateCommentRequest request,
             @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
