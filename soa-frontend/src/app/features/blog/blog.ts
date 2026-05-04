@@ -15,7 +15,7 @@ import { UserService } from '../../core/services/user';
 })
 export class BlogComponent implements OnInit {
   blogs: Blog[] = [];
-  followedBlogIds = new Set<number>();
+  followedBlogIds = new Set<string>();
 
   loading = true;
   errorMessage = '';

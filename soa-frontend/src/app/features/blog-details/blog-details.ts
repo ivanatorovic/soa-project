@@ -72,7 +72,7 @@ export class BlogDetails implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  loadBlog(blogId: number): void {
+  loadBlog(blogId: string): void {
     this.blogService.getBlogById(blogId).subscribe({
       next: (blog) => {
         this.blog = {
@@ -200,7 +200,6 @@ export class BlogDetails implements OnInit, OnDestroy {
     if (!this.blog?.imageUrls?.length) return;
 
     this.currentImageIndex = (this.currentImageIndex + 1) % this.blog.imageUrls.length;
-    this.restartAutoSlide();
   }
 
   prevImage(): void {
@@ -208,17 +207,14 @@ export class BlogDetails implements OnInit, OnDestroy {
 
     this.currentImageIndex =
       (this.currentImageIndex - 1 + this.blog.imageUrls.length) % this.blog.imageUrls.length;
-    this.restartAutoSlide();
   }
 
   goToImage(index: number): void {
     this.currentImageIndex = index;
-    this.restartAutoSlide();
   }
 
-  private restartAutoSlide(): void {
-    this.startAutoSlide();
-  }
+
+
 
   getFormattedDescription(): string {
     if (!this.blog?.description) return '';

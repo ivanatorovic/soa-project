@@ -77,7 +77,7 @@ public class BlogController {
 
     @GetMapping("/{blogId}/images/{imageIndex}")
     public ResponseEntity<byte[]> getBlogImage(
-            @PathVariable Long blogId,
+            @PathVariable String blogId,
             @PathVariable int imageIndex
     ) {
         return blogService.getBlogImage(blogId, imageIndex);

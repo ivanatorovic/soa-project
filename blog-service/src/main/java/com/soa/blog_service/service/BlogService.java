@@ -75,7 +75,7 @@ public class BlogService {
             blog.setAuthorUsername(authorUsername);
             blog.prePersist();
 
-            List<String> imageNames = new ArrayList<>();
+            List<String> imageUrls = new ArrayList<>();
 
             if (images != null && !images.isEmpty()) {
                 Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -202,7 +202,7 @@ public class BlogService {
         return ResponseEntity.ok(count);
     }
 
-    public ResponseEntity<byte[]> getBlogImage(Long blogId, int imageIndex) {
+    public ResponseEntity<byte[]> getBlogImage(String blogId, int imageIndex) {
         Blog blog = blogRepository.findById(blogId).orElse(null);
 
         if (blog == null) {
