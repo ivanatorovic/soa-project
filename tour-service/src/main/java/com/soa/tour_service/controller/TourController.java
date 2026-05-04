@@ -1,16 +1,19 @@
 package com.soa.tour_service.controller;
 
-import com.soa.tour_service.dto.CreateKeyPointRequest;
+import com.soa.tour_service.dto.CreateReviewRequest;
 import com.soa.tour_service.dto.CreateTourRequest;
+import com.soa.tour_service.dto.ReviewResponse;
 import com.soa.tour_service.dto.TourResponse;
 import com.soa.tour_service.security.AuthenticatedUser;
+import com.soa.tour_service.service.ReviewService;
 import com.soa.tour_service.service.TourService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -18,9 +21,11 @@ import java.util.List;
 public class TourController {
 
     private final TourService tourService;
+    private final ReviewService reviewService;
 
-    public TourController(TourService tourService) {
+    public TourController(TourService tourService, ReviewService reviewService) {
         this.tourService = tourService;
+        this.reviewService = reviewService;
     }
 
     @PostMapping
@@ -38,7 +43,6 @@ public class TourController {
     ) {
         return ResponseEntity.ok(tourService.getMyTours(user.getId()));
     }
-
 
     @PostMapping(value = "/{tourId}/key-points", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> addKeyPoint(
@@ -87,5 +91,36 @@ public class TourController {
     ) {
         tourService.deleteKeyPoint(tourId, keyPointId, user.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/{tourId}/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ReviewResponse> addReview(
+            @PathVariable Long tourId,
+            @ModelAttribute CreateReviewRequest request,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        ReviewResponse response = reviewService.createReview(
+                tourId,
+                request,
+                user.getId(),
+                user.getUsername(),
+                user.getRole()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{tourId}/reviews")
+    public ResponseEntity<List<ReviewResponse>> getReviewsForTour(
+            @PathVariable Long tourId
+    ) {
+        return ResponseEntity.ok(reviewService.getReviewsForTour(tourId));
+    }
+
+    @GetMapping("/{tourId}/reviews/count")
+    public ResponseEntity<Long> countReviewsForTour(
+            @PathVariable Long tourId
+    ) {
+        return ResponseEntity.ok(reviewService.countReviewsForTour(tourId));
     }
 }

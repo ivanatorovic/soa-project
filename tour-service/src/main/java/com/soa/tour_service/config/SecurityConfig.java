@@ -37,14 +37,22 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/tours").hasAnyRole("GUIDE", "ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/api/tours/*/key-points").hasAnyRole("GUIDE", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/tours/*/key-points/*").hasAnyRole("GUIDE", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/tours/*/key-points/*").hasAnyRole("GUIDE", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/tours/*/reviews").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/tours/*/reviews").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/tours/*/reviews/count").authenticated()
+
                         .requestMatchers(HttpMethod.GET, "/api/tours/tourist-location").hasRole("TOURIST")
                         .requestMatchers(HttpMethod.PUT, "/api/tours/tourist-location").hasRole("TOURIST")
+
                         .requestMatchers(HttpMethod.GET, "/api/tours/my").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/tours").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/tours/*").authenticated()
+
                         .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
