@@ -34,7 +34,7 @@ public class DataInitializer implements CommandLineRunner {
         b1.setDescription("Otkrijte najlepše destinacije za savršeno letovanje širom Evrope i sveta.");
         b1.setAuthorId(3L);
         b1.setAuthorUsername("ivana");
-        b1.setImageUrls(List.of("/uploads/zakintos.jpg"));
+        b1.setImageUrls(List.of("zakintos.jpg"));
         b1.prePersist();
         b1 = blogRepository.save(b1);
 
@@ -43,7 +43,7 @@ public class DataInitializer implements CommandLineRunner {
         b2.setDescription("Saveti za efikasno pakovanje i organizaciju pre putovanja bez stresa.");
         b2.setAuthorId(4L);
         b2.setAuthorUsername("tijana");
-        b2.setImageUrls(List.of("/uploads/pakovanje.jpg"));
+        b2.setImageUrls(List.of("pakovanje.jpg"));
         b2.prePersist();
         b2 = blogRepository.save(b2);
 
@@ -52,7 +52,7 @@ public class DataInitializer implements CommandLineRunner {
         b3.setDescription("Ako planirate kratak odmor, ovo su idealne evropske destinacije za vikend.");
         b3.setAuthorId(3L);
         b3.setAuthorUsername("ivana");
-        b3.setImageUrls(List.of("/uploads/barsa.jpg", "/assets/rim.jpg", "/assets/pariz.jpg"));
+        b3.setImageUrls(List.of("barsa.jpg", "rim.jpg", "pariz.jpg"));
         b3.prePersist();
         b3 = blogRepository.save(b3);
 
@@ -61,7 +61,7 @@ public class DataInitializer implements CommandLineRunner {
         b4.setDescription("Kako da obiđete svet i uštedite novac uz pametno planiranje.");
         b4.setAuthorId(3L);
         b4.setAuthorUsername("ivana");
-        b4.setImageUrls(List.of("/uploads/jeftino.jpg"));
+        b4.setImageUrls(List.of("jeftino.jpg"));
         b4.prePersist();
         b4 = blogRepository.save(b4);
 

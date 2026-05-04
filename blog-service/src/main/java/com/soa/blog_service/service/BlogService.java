@@ -89,7 +89,7 @@ public class BlogService {
                     String uniqueFileName = UUID.randomUUID() + extension;
                     Path filePath = uploadPath.resolve(uniqueFileName);
                     Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                    imageUrls.add("/uploads/" + uniqueFileName);
+                    imageUrls.add(uniqueFileName);
                 }
             }
 
@@ -292,10 +292,14 @@ public class BlogService {
     }
 
     private Path resolveImagePath(String fileName) {
+        String cleanFileName = fileName
+                .replace("\\", "/")
+                .replaceFirst("^.*/", "");
+
         return Paths.get(uploadDir)
                 .toAbsolutePath()
                 .normalize()
-                .resolve(fileName);
+                .resolve(cleanFileName);
     }
 
     private MediaType getImageMediaType(String filename) {
