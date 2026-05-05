@@ -18,5 +18,12 @@ public class StaticResourceConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/uploads/keypoints/**")
                 .addResourceLocations("file:" + uploadPath.toString() + "/");
+
+        Path reviewsPath = Paths.get(System.getProperty("user.dir"), "uploads", "reviews")
+                .toAbsolutePath()
+                .normalize();
+
+        registry.addResourceHandler("/uploads/reviews/**")
+                .addResourceLocations("file:" + reviewsPath.toString() + "/");
     }
 }

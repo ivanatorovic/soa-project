@@ -1,9 +1,5 @@
 <div class="tour-details-page">
   <ng-container *ngIf="tour; else loadingBlock">
-    <div class="top-bar">
-      <button class="back-btn" (click)="goBack()">← Nazad na ture</button>
-    </div>
-
     <div class="hero-card">
       <div class="tour-main-info">
         <div class="tour-badge">
@@ -27,16 +23,23 @@
           </div>
         </div>
       </div>
+      <a class="reviews-summary" (click)="goToReviews()">
+        <div class="reviews-stars">⭐</div>
+        <div>
+          <strong>Recenzije</strong>
+          <span>{{ reviewCount }} recenzija</span>
+        </div>
+      </a>
     </div>
 
     <div class="details-grid">
       <div class="map-card">
         <div class="map-header">
-  <h2>Mapa ture</h2>
-  <button class="route-btn" (click)="toggleRoute()">
-    {{ showRoute ? 'Sakrij turu' : 'Prikaži turu' }}
-  </button>
-</div>
+          <h2>Mapa ture</h2>
+          <button class="route-btn" (click)="toggleRoute()">
+            {{ showRoute ? 'Sakrij turu' : 'Prikaži turu' }}
+          </button>
+        </div>
         <div id="tour-details-map" class="map-box"></div>
       </div>
 
@@ -47,16 +50,8 @@
           Ova tura još nema ključne tačke.
         </div>
 
-        <div
-          *ngFor="let kp of tour.keyPoints"
-          class="keypoint-item"
-          (click)="focusKeyPoint(kp)"
-        >
-          <img
-            *ngIf="kp.imageUrl"
-            [src]="getImageUrl(kp.imageUrl)"
-            alt="Slika ključne tačke"
-          />
+        <div *ngFor="let kp of tour.keyPoints" class="keypoint-item" (click)="focusKeyPoint(kp)">
+          <img *ngIf="kp.imageUrl" [src]="getImageUrl(kp.imageUrl)" alt="Slika ključne tačke" />
 
           <div class="keypoint-content">
             <h3>{{ kp.name }}</h3>

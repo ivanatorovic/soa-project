@@ -7,6 +7,7 @@ import com.soa.tour_service.dto.TourResponse;
 import com.soa.tour_service.security.AuthenticatedUser;
 import com.soa.tour_service.service.ReviewService;
 import com.soa.tour_service.service.TourService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -96,12 +98,15 @@ public class TourController {
     @PostMapping(value = "/{tourId}/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewResponse> addReview(
             @PathVariable Long tourId,
-            @ModelAttribute CreateReviewRequest request,
-            @AuthenticationPrincipal AuthenticatedUser user
+            @RequestPart("info") String infoJson,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @AuthenticationPrincipal AuthenticatedUser user,
+            HttpServletRequest request
     ) {
         ReviewResponse response = reviewService.createReview(
                 tourId,
-                request,
+                infoJson,
+                images,
                 user.getId(),
                 user.getUsername(),
                 user.getRole()

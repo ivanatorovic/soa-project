@@ -10,8 +10,6 @@ public class CreateReviewRequest {
     private Integer rating;
     private String comment;
     private LocalDate visitedAt;
-    private List<MultipartFile> images;
-
     public CreateReviewRequest() {
     }
 
@@ -27,10 +25,6 @@ public class CreateReviewRequest {
         return visitedAt;
     }
 
-    public List<MultipartFile> getImages() {
-        return images;
-    }
-
     public void setRating(Integer rating) {
         this.rating = rating;
     }
@@ -41,9 +35,5 @@ public class CreateReviewRequest {
 
     public void setVisitedAt(LocalDate visitedAt) {
         this.visitedAt = visitedAt;
-    }
-
-    public void setImages(List<MultipartFile> images) {
-        this.images = images;
     }
 }

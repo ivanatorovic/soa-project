@@ -9,22 +9,24 @@ import * as L from 'leaflet';
   standalone: true,
   imports: [CommonModule, NgIf, NgFor],
   templateUrl: './tour-details.html',
-  styleUrls: ['./tour-details.css']
+  styleUrls: ['./tour-details.css'],
 })
 export class TourDetails implements OnInit, OnDestroy {
   tour: TourResponse | null = null;
   errorMessage = '';
 
+  reviewCount = 0;
+
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
   private activeMarker: L.Marker | null = null;
   private routeLine: L.Polyline | null = null;
-showRoute = false;
+  showRoute = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private tourService: TourService
+    private tourService: TourService,
   ) {}
 
   ngOnInit(): void {
@@ -51,6 +53,11 @@ showRoute = false;
       next: (response) => {
         this.tour = response;
 
+        this.tourService.getReviewCount(tourId).subscribe({
+          next: (count) => (this.reviewCount = count),
+          error: () => (this.reviewCount = 0),
+        });
+
         setTimeout(() => {
           if (!this.map) {
             this.initMap();
@@ -63,7 +70,7 @@ showRoute = false;
       error: (error) => {
         console.error(error);
         this.errorMessage = 'Nije moguće učitati detalje ture.';
-      }
+      },
     });
   }
 
@@ -72,7 +79,7 @@ showRoute = false;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19
+      maxZoom: 19,
     }).addTo(this.map);
 
     this.renderMarkers();
@@ -82,65 +89,64 @@ showRoute = false;
     }, 300);
   }
 
- renderMarkers(): void {
-  if (!this.map || !this.tour) return;
+  renderMarkers(): void {
+    if (!this.map || !this.tour) return;
 
-  this.markers.forEach(marker => this.map?.removeLayer(marker));
-  this.markers = [];
+    this.markers.forEach((marker) => this.map?.removeLayer(marker));
+    this.markers = [];
 
-  if (this.routeLine) {
-    this.map.removeLayer(this.routeLine);
-    this.routeLine = null;
-  }
+    if (this.routeLine) {
+      this.map.removeLayer(this.routeLine);
+      this.routeLine = null;
+    }
 
-  const validPoints = this.tour.keyPoints?.filter(
-    kp => kp.latitude !== null && kp.longitude !== null
-  ) || [];
+    const validPoints =
+      this.tour.keyPoints?.filter((kp) => kp.latitude !== null && kp.longitude !== null) || [];
 
-  if (validPoints.length === 0) {
-    this.map.setView([45.2671, 19.8335], 12);
-    return;
-  }
+    if (validPoints.length === 0) {
+      this.map.setView([45.2671, 19.8335], 12);
+      return;
+    }
 
-  const bounds: L.LatLngTuple[] = [];
+    const bounds: L.LatLngTuple[] = [];
 
-  validPoints.forEach(kp => {
-    const marker = L.marker([kp.latitude, kp.longitude])
-      .addTo(this.map!)
-      .bindPopup(`<b>${kp.name}</b><br>${kp.description ?? ''}`);
+    validPoints.forEach((kp) => {
+      const marker = L.marker([kp.latitude, kp.longitude])
+        .addTo(this.map!)
+        .bindPopup(`<b>${kp.name}</b><br>${kp.description ?? ''}`);
 
-    marker.on('click', () => {
-      this.activeMarker = marker;
+      marker.on('click', () => {
+        this.activeMarker = marker;
+      });
+
+      this.markers.push(marker);
+      bounds.push([kp.latitude, kp.longitude]);
     });
 
-    this.markers.push(marker);
-    bounds.push([kp.latitude, kp.longitude]);
-  });
+    if (this.showRoute && bounds.length >= 2) {
+      this.routeLine = L.polyline(bounds, {
+        color: '#d62828',
+        weight: 5,
+        opacity: 0.95,
+        dashArray: '12, 8',
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(this.map);
+    }
 
-  if (this.showRoute && bounds.length >= 2) {
-   this.routeLine = L.polyline(bounds, {
-  color: '#d62828',
-  weight: 5,
-  opacity: 0.95,
-  dashArray: '12, 8',
-  lineCap: 'round',
-  lineJoin: 'round'
-}).addTo(this.map);
+    if (bounds.length === 1) {
+      this.map.setView(bounds[0], 15);
+    } else {
+      this.map.fitBounds(bounds, { padding: [40, 40] });
+    }
   }
-
-  if (bounds.length === 1) {
-    this.map.setView(bounds[0], 15);
-  } else {
-    this.map.fitBounds(bounds, { padding: [40, 40] });
-  }
-}
 
   focusKeyPoint(kp: KeyPointResponse): void {
     if (!this.map) return;
 
     this.map.setView([kp.latitude, kp.longitude], 16);
 
-    const matchingMarker = this.markers.find(marker => {
+    const matchingMarker = this.markers.find((marker) => {
       const position = marker.getLatLng();
       return position.lat === kp.latitude && position.lng === kp.longitude;
     });
@@ -176,7 +182,13 @@ showRoute = false;
     this.router.navigate(['/tours']);
   }
   toggleRoute(): void {
-  this.showRoute = !this.showRoute;
-  this.renderMarkers();
-}
+    this.showRoute = !this.showRoute;
+    this.renderMarkers();
+  }
+
+  goToReviews(): void {
+    if (!this.tour) return;
+
+    this.router.navigate(['/tours', this.tour.id, 'reviews']);
+  }
 }

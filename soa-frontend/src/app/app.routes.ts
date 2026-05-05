@@ -16,6 +16,8 @@ import { Tours } from './features/ture/tours/tours';
 import { AddKeyPoint } from './features/tours/add-key-point/add-key-point';
 import { TourDetails } from './features/tours/tour-details/tour-details';
 import { UserList } from './features/stakeholders/user-list/user-list';
+import { Reviews } from './features/tours/reviews/reviews';
+import { CreateReview } from './features/tours/create-review/create-review';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -28,8 +30,13 @@ export const routes: Routes = [
   { path: 'blog/create', component: CreateBlogComponent, canActivate: [authGuard] },
   { path: 'blog/:id', component: BlogDetails },
   {
-  path: 'tours/tourist-location', component: TouristLocationSimulator, canActivate: [authGuard]},
+    path: 'tours/tourist-location',
+    component: TouristLocationSimulator,
+    canActivate: [authGuard],
+  },
   { path: 'tours/:id', component: TourDetails },
+  { path: 'tours/:id/reviews', component: Reviews },
+  { path: 'tours/:id/create-review', component: CreateReview },
   { path: 'tours/:id/key-points', component: AddKeyPoint },
   {
     path: 'create-tour',
@@ -43,5 +50,4 @@ export const routes: Routes = [
   { path: 'edit-profile', component: EditProfileComponent },
   { path: 'users', component: UserList, canActivate: [authGuard] },
   { path: 'users/:type/:id', component: UserList, canActivate: [authGuard] },
-  
 ];

@@ -27,7 +27,6 @@ public class Review {
     @Column
     private String touristUsername;
 
-    @Column(nullable = false)
     private LocalDate visitedAt;
 
     @Column(nullable = false)

@@ -1,0 +1,82 @@
+<div class="reviews-page">
+  <section class="reviews-hero">
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <h1>Recenzije ture</h1>
+      <p>Pogledaj iskustva turista, njihove utiske, ocene i slike sa ove ture.</p>
+    </div>
+  </section>
+
+  <section class="reviews-content">
+    <div class="reviews-header">
+      <h2>Utisci posetilaca</h2>
+
+      <div class="reviews-actions">
+        <span class="reviews-count"> {{ reviews.length }} recenzija </span>
+
+        <button *ngIf="isTourist" class="add-review-btn" (click)="goToCreateReview()">
+          + Dodaj recenziju
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="status-message">Učitavanje recenzija...</div>
+
+    <div *ngIf="errorMessage" class="status-message error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && reviews.length === 0" class="status-message">
+      Ova tura još nema recenzije.
+    </div>
+
+    <div class="reviews-list" *ngIf="!loading && !errorMessage && reviews.length > 0">
+      <div class="review-card" *ngFor="let review of reviews">
+        <div class="review-images">
+          <div
+            class="image-slider"
+            *ngIf="review.imageUrls && review.imageUrls.length > 0; else noImages"
+          >
+            <button
+              class="arrow left"
+              *ngIf="review.imageUrls.length > 1"
+              (click)="prevImage(review); $event.stopPropagation()"
+            >
+              ‹
+            </button>
+
+            <img [src]="getImageUrl(getCurrentImage(review))" alt="Slika recenzije" />
+
+            <button
+              class="arrow right"
+              *ngIf="review.imageUrls.length > 1"
+              (click)="nextImage(review); $event.stopPropagation()"
+            >
+              ›
+            </button>
+          </div>
+
+          <ng-template #noImages>
+            <div class="no-image">📷</div>
+          </ng-template>
+        </div>
+
+        <div class="review-body">
+          <div class="rating">
+            <span>{{ getStars(review.rating) }}</span>
+            <strong>{{ review.rating }}/5</strong>
+          </div>
+
+          <p class="comment">{{ review.comment }}</p>
+
+          <div class="review-meta">
+            <p><strong>Autor:</strong> {{ review.touristUsername }}</p>
+            <p><strong>Kreirano:</strong> {{ review.createdAt | date: 'dd.MM.yyyy. HH:mm' }}</p>
+            <p><strong>Posećeno:</strong> {{ review.visitedAt | date: 'dd.MM.yyyy.' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

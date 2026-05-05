@@ -1,5 +1,6 @@
 package com.soa.tour_service.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soa.tour_service.dto.CreateReviewRequest;
 import com.soa.tour_service.dto.ReviewResponse;
 import com.soa.tour_service.model.Review;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,60 +28,65 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final TourRepository tourRepository;
+    private final ObjectMapper objectMapper;
 
-    public ReviewService(ReviewRepository reviewRepository, TourRepository tourRepository) {
+    public ReviewService(ReviewRepository reviewRepository, TourRepository tourRepository,ObjectMapper objectMapper) {
         this.reviewRepository = reviewRepository;
         this.tourRepository = tourRepository;
+        this.objectMapper = objectMapper;
     }
 
     public ReviewResponse createReview(
             Long tourId,
-            CreateReviewRequest request,
+            String infoJson,
+            List<MultipartFile> images,
             Long touristId,
             String touristUsername,
             String role
     ) {
-        if (!"TOURIST".equals(role)) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Only tourists can leave reviews"
-            );
-        }
+        try {
+            if (!"TOURIST".equals(role)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only tourists can leave reviews");
+            }
 
-        Tour tour = tourRepository.findById(tourId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Tour with id " + tourId + " not found"
-                ));
+            CreateReviewRequest request = objectMapper.readValue(infoJson, CreateReviewRequest.class);
 
-        if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Rating must be between 1 and 5"
-            );
-        }
+            Tour tour = tourRepository.findById(tourId)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Tour with id " + tourId + " not found"
+                    ));
 
-        Review review = new Review();
-        review.setTour(tour);
-        review.setRating(request.getRating());
-        review.setComment(request.getComment());
-        review.setVisitedAt(request.getVisitedAt());
-        review.setCreatedAt(LocalDateTime.now());
-        review.setTouristId(touristId);
-        review.setTouristUsername(touristUsername);
+            if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating must be between 1 and 5");
+            }
 
-        if (request.getImages() != null && !request.getImages().isEmpty()) {
-            List<String> imageUrls = request.getImages().stream()
-                    .filter(image -> image != null && !image.isEmpty())
-                    .map(this::saveImage)
-                    .toList();
+            Review review = new Review();
+            review.setTour(tour);
+            review.setRating(request.getRating());
+            review.setComment(request.getComment());
+            review.setVisitedAt(request.getVisitedAt());
+            review.setCreatedAt(LocalDateTime.now());
+            review.setTouristId(touristId);
+            review.setTouristUsername(touristUsername);
+
+            List<String> imageUrls = new ArrayList<>();
+
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile image : images) {
+                    if (image == null || image.isEmpty()) continue;
+                    imageUrls.add(saveImage(image));
+                }
+            }
 
             review.setImageUrls(imageUrls);
+
+            Review savedReview = reviewRepository.save(review);
+            return mapToResponse(savedReview);
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid review info JSON");
         }
-
-        Review savedReview = reviewRepository.save(review);
-
-        return mapToResponse(savedReview);
     }
 
     public List<ReviewResponse> getReviewsForTour(Long tourId) {
