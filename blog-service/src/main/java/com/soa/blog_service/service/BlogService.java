@@ -123,6 +123,36 @@ public class BlogService {
                     .body(Map.of("message", "Ne postoji blog sa ID: " + id));
         }
 
+        if (!blog.getAuthorId().equals(userId)) {
+
+            try {
+                String url = followerServiceUrl + "/api/follows/" + userId + "/following";
+
+                ResponseEntity<List<FollowUserDto>> followResponse = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<List<FollowUserDto>>() {}
+                );
+
+                List<FollowUserDto> followedUsers = followResponse.getBody();
+
+                boolean followsAuthor = followedUsers != null &&
+                        followedUsers.stream()
+                                .anyMatch(f -> f.getUserId().equals(blog.getAuthorId()));
+
+                if (!followsAuthor) {
+                    return ResponseEntity.status(403)
+                            .body(Map.of("message",
+                                    "Morate zapratiti korisnika da biste čitali blog."));
+                }
+
+            } catch (Exception e) {
+                return ResponseEntity.status(500)
+                        .body(Map.of("message", "Greška pri proveri praćenja korisnika"));
+            }
+        }
+
         return ResponseEntity.ok(mapToResponse(blog, userId));
     }
 
@@ -138,6 +168,36 @@ public class BlogService {
         }
 
         Blog blog = blogRepository.findById(blogId).orElse(null);
+
+        if (!blog.getAuthorId().equals(userId)) {
+
+            try {
+                String url = followerServiceUrl + "/api/follows/" + userId + "/following";
+
+                ResponseEntity<List<FollowUserDto>> followResponse = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<List<FollowUserDto>>() {}
+                );
+
+                List<FollowUserDto> followedUsers = followResponse.getBody();
+
+                boolean followsAuthor = followedUsers != null &&
+                        followedUsers.stream()
+                                .anyMatch(f -> f.getUserId().equals(blog.getAuthorId()));
+
+                if (!followsAuthor) {
+                    return ResponseEntity.status(403)
+                            .body(Map.of("message",
+                                    "Morate zapratiti korisnika da biste lajkovali blog."));
+                }
+
+            } catch (Exception e) {
+                return ResponseEntity.status(500)
+                        .body(Map.of("message", "Greška pri proveri praćenja korisnika"));
+            }
+        }
 
         if (blog == null) {
             return ResponseEntity.status(404)

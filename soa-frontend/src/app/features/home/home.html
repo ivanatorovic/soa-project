@@ -19,7 +19,7 @@
       <a (click)="goToBlog()">Blog</a>
       <a *ngIf="isAdmin()" (click)="goToAdminUsers()">Svi korisnici</a>
       <a (click)="goToTours()">Pogledaj ture</a>
-      <a (click)="goToUsers()">Ostali korisnici</a>
+      <a *ngIf="!isAdmin()" (click)="goToUsers()">Ostali korisnici</a>
       <a class="nav-btn logout" (click)="logout()">Odjava</a>
     </div>
   </nav>

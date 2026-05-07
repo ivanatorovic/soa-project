@@ -46,7 +46,10 @@
             </div>
 
             <!-- 🔥 NOVO: stats u sredini -->
-            <div class="profile-stats-inline" *ngIf="profile && !isEditing">
+            <div
+              class="profile-stats-inline"
+              *ngIf="profile && !isEditing && profile.role !== 'ADMIN'"
+            >
               <div class="profile-stat clickable-stat" (click)="goToFollowing()">
                 <span class="profile-stat-number">{{ followingCount }}</span>
                 <span class="profile-stat-label">Pratim</span>

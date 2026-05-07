@@ -74,8 +74,17 @@ export class BlogComponent implements OnInit {
   toggleLike(blog: Blog): void {
     if (blog.likeLoading) return;
 
-    blog.likeLoading = true;
     blog.likeErrorMessage = '';
+    this.accessErrorMessage = '';
+
+    const isMyBlog = blog.authorId === this.currentUserId;
+
+    if (!isMyBlog && !this.followedBlogIds.has(blog.id)) {
+      this.accessErrorMessage = 'Morate zapratiti korisnika da biste mogli da lajkujete blog.';
+      return;
+    }
+
+    blog.likeLoading = true;
 
     if (blog.likedByCurrentUser) {
       this.blogService.unlikeBlog(blog.id).subscribe({
@@ -85,7 +94,6 @@ export class BlogComponent implements OnInit {
           blog.likeLoading = false;
         },
         error: (error) => {
-          console.error('Greška pri uklanjanju lajka:', error);
           blog.likeErrorMessage =
             error?.error?.message || 'Došlo je do greške pri uklanjanju lajka.';
           blog.likeLoading = false;
@@ -99,7 +107,6 @@ export class BlogComponent implements OnInit {
           blog.likeLoading = false;
         },
         error: (error) => {
-          console.error('Greška pri lajkovanju:', error);
           blog.likeErrorMessage = error?.error?.message || 'Došlo je do greške pri lajkovanju.';
           blog.likeLoading = false;
         },
