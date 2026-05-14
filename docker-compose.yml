@@ -30,7 +30,8 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://blog-db:27017/blog_db
       SERVER_PORT: 8082
       UPLOAD_DIR: /app/uploads
-      FOLLOWER_SERVICE_URL: http://follower-service:5000
+      GRPC_CLIENT_FOLLOWER_SERVICE_ADDRESS: static://follower-service:5001
+      GRPC_CLIENT_FOLLOWER_SERVICE_NEGOTIATION_TYPE: plaintext
     volumes:
       - ./blog-service/uploads:/app/uploads
 
@@ -151,6 +152,7 @@ services:
       - app-network
     ports:
       - "5000:5000"
+      - "5001:5001"
     environment:
       ASPNETCORE_URLS: http://+:5000
       NEO4J_URI: bolt://follower-db:7687

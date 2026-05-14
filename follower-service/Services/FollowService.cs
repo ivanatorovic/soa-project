@@ -1,5 +1,6 @@
 using follower_service.Repositories;
 using follower_service.Dtos;
+using System.Linq;
 
 namespace follower_service.Services
 {
@@ -121,6 +122,13 @@ namespace follower_service.Services
             }
 
             return await _followRepository.GetFollowRecommendationsAsync(userId);
+        }
+
+        public async Task<bool> IsFollowingAsync(long followerId, long followedId)
+        {
+            var followedUsers = await GetFollowedUsersAsync(followerId);
+
+            return followedUsers.Any(user => user.UserId == followedId);
         }
     }
 }

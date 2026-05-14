@@ -3,29 +3,20 @@ package com.soa.blog_service.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soa.blog_service.dto.BlogResponse;
 import com.soa.blog_service.dto.CreateBlogRequest;
-import com.soa.blog_service.dto.FollowUserDto;
+import com.soa.blog_service.grpc.FollowerGrpcService;
 import com.soa.blog_service.model.Blog;
 import com.soa.blog_service.model.BlogLike;
 import com.soa.blog_service.repository.BlogLikeRepository;
 import com.soa.blog_service.repository.BlogRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.ParameterizedTypeReference;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.nio.file.*;
+import java.util.*;
 
 @Service
 public class BlogService {
@@ -36,21 +27,18 @@ public class BlogService {
     private final BlogRepository blogRepository;
     private final BlogLikeRepository blogLikeRepository;
     private final ObjectMapper objectMapper;
-    @Value("${follower.service.url}")
-    private String followerServiceUrl;
-
-    private final RestTemplate restTemplate;
+    private final FollowerGrpcService followerGrpcService;
 
     public BlogService(
             BlogRepository blogRepository,
             BlogLikeRepository blogLikeRepository,
             ObjectMapper objectMapper,
-            RestTemplate restTemplate
+            FollowerGrpcService followerGrpcService
     ) {
         this.blogRepository = blogRepository;
         this.blogLikeRepository = blogLikeRepository;
         this.objectMapper = objectMapper;
-        this.restTemplate = restTemplate;
+        this.followerGrpcService = followerGrpcService;
     }
 
     public ResponseEntity<?> createBlog(
@@ -79,16 +67,22 @@ public class BlogService {
 
             if (images != null && !images.isEmpty()) {
                 Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                 }
+
                 for (MultipartFile image : images) {
                     if (image == null || image.isEmpty()) continue;
+
                     String originalFilename = image.getOriginalFilename();
                     String extension = getFileExtension(originalFilename);
                     String uniqueFileName = UUID.randomUUID() + extension;
+
                     Path filePath = uploadPath.resolve(uniqueFileName);
+
                     Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
                     imageUrls.add(uniqueFileName);
                 }
             }
@@ -100,7 +94,8 @@ public class BlogService {
             return ResponseEntity.ok(savedBlog);
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Greška prilikom kreiranja bloga: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Greška prilikom kreiranja bloga: " + e.getMessage()));
         }
     }
 
@@ -111,7 +106,11 @@ public class BlogService {
             return ResponseEntity.status(404)
                     .body(Map.of("message", "Nema blogova u sistemu"));
         }
-        List<BlogResponse> response = blogs.stream().map(blog -> mapToResponse(blog, userId)).toList();
+
+        List<BlogResponse> response = blogs.stream()
+                .map(blog -> mapToResponse(blog, userId))
+                .toList();
+
         return ResponseEntity.ok(response);
     }
 
@@ -124,39 +123,27 @@ public class BlogService {
         }
 
         if (!blog.getAuthorId().equals(userId)) {
-
             try {
-                String url = followerServiceUrl + "/api/follows/" + userId + "/following";
-
-                ResponseEntity<List<FollowUserDto>> followResponse = restTemplate.exchange(
-                        url,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<FollowUserDto>>() {}
+                boolean followsAuthor = followerGrpcService.isFollowing(
+                        userId,
+                        blog.getAuthorId()
                 );
-
-                List<FollowUserDto> followedUsers = followResponse.getBody();
-
-                boolean followsAuthor = followedUsers != null &&
-                        followedUsers.stream()
-                                .anyMatch(f -> f.getUserId().equals(blog.getAuthorId()));
 
                 if (!followsAuthor) {
                     return ResponseEntity.status(403)
-                            .body(Map.of("message",
-                                    "Morate zapratiti korisnika da biste čitali blog."));
+                            .body(Map.of("message", "Morate zapratiti korisnika da biste čitali blog."));
                 }
 
             } catch (Exception e) {
                 return ResponseEntity.status(500)
-                        .body(Map.of("message", "Greška pri proveri praćenja korisnika"));
+                        .body(Map.of("message", "Greška pri gRPC proveri praćenja korisnika"));
             }
         }
 
         return ResponseEntity.ok(mapToResponse(blog, userId));
     }
 
-    public ResponseEntity<?> likeBlog(String blogId, Long userId,String role) {
+    public ResponseEntity<?> likeBlog(String blogId, Long userId, String role) {
         if (userId == null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Morate proslediti userId"));
@@ -169,39 +156,27 @@ public class BlogService {
 
         Blog blog = blogRepository.findById(blogId).orElse(null);
 
+        if (blog == null) {
+            return ResponseEntity.status(404)
+                    .body(Map.of("message", "Ne postoji blog sa ID: " + blogId));
+        }
+
         if (!blog.getAuthorId().equals(userId)) {
-
             try {
-                String url = followerServiceUrl + "/api/follows/" + userId + "/following";
-
-                ResponseEntity<List<FollowUserDto>> followResponse = restTemplate.exchange(
-                        url,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<FollowUserDto>>() {}
+                boolean followsAuthor = followerGrpcService.isFollowing(
+                        userId,
+                        blog.getAuthorId()
                 );
-
-                List<FollowUserDto> followedUsers = followResponse.getBody();
-
-                boolean followsAuthor = followedUsers != null &&
-                        followedUsers.stream()
-                                .anyMatch(f -> f.getUserId().equals(blog.getAuthorId()));
 
                 if (!followsAuthor) {
                     return ResponseEntity.status(403)
-                            .body(Map.of("message",
-                                    "Morate zapratiti korisnika da biste lajkovali blog."));
+                            .body(Map.of("message", "Morate zapratiti korisnika da biste lajkovali blog."));
                 }
 
             } catch (Exception e) {
                 return ResponseEntity.status(500)
-                        .body(Map.of("message", "Greška pri proveri praćenja korisnika"));
+                        .body(Map.of("message", "Greška pri gRPC proveri praćenja korisnika"));
             }
-        }
-
-        if (blog == null) {
-            return ResponseEntity.status(404)
-                    .body(Map.of("message", "Ne postoji blog sa ID: " + blogId));
         }
 
         boolean alreadyLiked = blogLikeRepository.existsByBlogIdAndUserId(blogId, userId);
@@ -215,12 +190,13 @@ public class BlogService {
         like.setBlogId(blogId);
         like.setUserId(userId);
         like.prePersist();
+
         blogLikeRepository.save(like);
 
         return ResponseEntity.ok(Map.of("message", "Blog je uspesno lajkovan"));
     }
 
-    public ResponseEntity<?> unlikeBlog(String blogId, Long userId,String role) {
+    public ResponseEntity<?> unlikeBlog(String blogId, Long userId, String role) {
         if (userId == null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Morate proslediti userId"));
@@ -259,6 +235,7 @@ public class BlogService {
         }
 
         long count = blogLikeRepository.countByBlogId(blogId);
+
         return ResponseEntity.ok(count);
     }
 
@@ -280,11 +257,6 @@ public class BlogService {
         try {
             Path path = resolveImagePath(fileName);
 
-            System.out.println("UPLOAD DIR = " + Paths.get(uploadDir).toAbsolutePath().normalize());
-            System.out.println("FILE NAME = " + fileName);
-            System.out.println("FULL IMAGE PATH = " + path);
-            System.out.println("EXISTS = " + Files.exists(path));
-
             if (!Files.exists(path)) {
                 return ResponseEntity.notFound().build();
             }
@@ -296,18 +268,48 @@ public class BlogService {
                     .body(imageBytes);
 
         } catch (IOException e) {
-            e.printStackTrace();
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    public ResponseEntity<?> getFollowedUsersBlogs(Long userId) {
+        if (userId == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Morate proslediti userId"));
+        }
+
+        try {
+            List<Long> followedIds = followerGrpcService.getFollowingIds(userId);
+
+            if (followedIds == null || followedIds.isEmpty()) {
+                return ResponseEntity.ok(Map.of("message", "Ne pratite nijednog korisnika"));
+            }
+
+            List<Blog> blogs = blogRepository.findByAuthorIdIn(followedIds);
+
+            if (blogs.isEmpty()) {
+                return ResponseEntity.ok(Map.of("message", "Korisnici koje pratite nemaju blogove"));
+            }
+
+            List<BlogResponse> response = blogs.stream()
+                    .map(blog -> mapToResponse(blog, userId))
+                    .toList();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("message", "Greška pri gRPC pozivu follower servisa: " + e.getMessage()));
         }
     }
 
     private BlogResponse mapToResponse(Blog blog, Long userId) {
         BlogResponse response = new BlogResponse();
+
         response.setId(blog.getId());
         response.setTitle(blog.getTitle());
         response.setDescription(blog.getDescription());
         response.setCreatedAt(blog.getCreatedAt());
-        response.setImageUrls(blog.getImageUrls());
         response.setAuthorUsername(blog.getAuthorUsername());
         response.setAuthorId(blog.getAuthorId());
         response.setLikesCount((int) blogLikeRepository.countByBlogId(blog.getId()));
@@ -324,6 +326,7 @@ public class BlogService {
         response.setImageUrls(imageEndpoints);
 
         boolean likedByCurrentUser = false;
+
         if (userId != null) {
             likedByCurrentUser = blogLikeRepository.existsByBlogIdAndUserId(blog.getId(), userId);
         }
@@ -331,24 +334,6 @@ public class BlogService {
         response.setLikedByCurrentUser(likedByCurrentUser);
 
         return response;
-    }
-
-    private String saveFile(MultipartFile file) throws IOException {
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
-
-        String originalFilename = file.getOriginalFilename();
-        String extension = getFileExtension(originalFilename);
-        String uniqueFileName = UUID.randomUUID() + extension;
-
-        Path filePath = uploadPath.resolve(uniqueFileName);
-
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        System.out.println("UPLOAD DIR = " + uploadPath);
-        System.out.println("SAVED FILE PATH = " + filePath);
-
-        return uniqueFileName;
     }
 
     private Path resolveImagePath(String fileName) {
@@ -368,9 +353,11 @@ public class BlogService {
         if (lower.endsWith(".png")) {
             return MediaType.IMAGE_PNG;
         }
+
         if (lower.endsWith(".gif")) {
             return MediaType.IMAGE_GIF;
         }
+
         if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
             return MediaType.IMAGE_JPEG;
         }
@@ -381,52 +368,5 @@ public class BlogService {
     private String getFileExtension(String filename) {
         if (filename == null || !filename.contains(".")) return "";
         return filename.substring(filename.lastIndexOf("."));
-    }
-
-    public ResponseEntity<?> getFollowedUsersBlogs(Long userId) {
-        if (userId == null) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Morate proslediti userId"));
-        }
-
-        try {
-            String url = followerServiceUrl + "/api/follows/" + userId + "/following";
-            ResponseEntity<List<FollowUserDto>> followResponse = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<List<FollowUserDto>>() {}
-            );
-
-            List<FollowUserDto> followedUsers = followResponse.getBody();
-
-            if (followedUsers == null || followedUsers.isEmpty()) {
-                return ResponseEntity.ok(
-                        Map.of("message", "Ne pratite nijednog korisnika")
-                );
-            }
-
-            List<Long> followedIds = followedUsers.stream()
-                    .map(FollowUserDto::getUserId)
-                    .toList();
-
-            List<Blog> blogs = blogRepository.findByAuthorIdIn(followedIds);
-
-            if (blogs.isEmpty()) {
-                return ResponseEntity.ok(
-                        Map.of("message", "Korisnici koje pratite nemaju blogove")
-                );
-            }
-
-            List<BlogResponse> response = blogs.stream()
-                    .map(blog -> mapToResponse(blog, userId))
-                    .toList();
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(Map.of("message", "Greska pri pozivu follower servisa: " + e.getMessage()));
-        }
     }
 }

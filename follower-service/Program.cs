@@ -1,16 +1,18 @@
 using System.Text;
 using follower_service.Data;
+using follower_service.Grpc;
 using follower_service.Middlewares;
 using follower_service.Repositories;
 using follower_service.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://0.0.0.0:5000");
-
 builder.Services.AddControllers();
+
+builder.Services.AddGrpc();
 
 builder.Services.AddSingleton<Neo4jContext>();
 builder.Services.AddScoped<FollowRepository>();
@@ -50,6 +52,19 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http1;
+    });
+
+    options.ListenAnyIP(5001, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
@@ -60,5 +75,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGrpcService<FollowGrpcService>();
 
 app.Run();

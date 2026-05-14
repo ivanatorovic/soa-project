@@ -2,17 +2,13 @@ package com.soa.blog_service.service;
 
 import com.soa.blog_service.dto.CommentResponse;
 import com.soa.blog_service.dto.CreateCommentRequest;
-import com.soa.blog_service.dto.FollowUserDto;
+import com.soa.blog_service.grpc.FollowerGrpcService;
 import com.soa.blog_service.model.Blog;
 import com.soa.blog_service.model.Comment;
 import com.soa.blog_service.repository.BlogRepository;
 import com.soa.blog_service.repository.CommentRepository;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -22,19 +18,16 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final BlogRepository blogRepository;
-    private final RestTemplate restTemplate;
-
-    @Value("${follower.service.url}")
-    private String followerServiceUrl;
+    private final FollowerGrpcService followerGrpcService;
 
     public CommentService(
             CommentRepository commentRepository,
             BlogRepository blogRepository,
-            RestTemplate restTemplate
+            FollowerGrpcService followerGrpcService
     ) {
         this.commentRepository = commentRepository;
         this.blogRepository = blogRepository;
-        this.restTemplate = restTemplate;
+        this.followerGrpcService = followerGrpcService;
     }
 
     public ResponseEntity<?> createComment(
@@ -57,20 +50,10 @@ public class CommentService {
 
         if (!blog.getAuthorId().equals(authorId)) {
             try {
-                String url = followerServiceUrl + "/api/follows/" + authorId + "/following";
-
-                ResponseEntity<List<FollowUserDto>> followResponse = restTemplate.exchange(
-                        url,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<FollowUserDto>>() {}
+                boolean followsAuthor = followerGrpcService.isFollowing(
+                        authorId,
+                        blog.getAuthorId()
                 );
-
-                List<FollowUserDto> followedUsers = followResponse.getBody();
-
-                boolean followsAuthor = followedUsers != null &&
-                        followedUsers.stream()
-                                .anyMatch(f -> f.getUserId().equals(blog.getAuthorId()));
 
                 if (!followsAuthor) {
                     return ResponseEntity.status(403)
@@ -82,7 +65,7 @@ public class CommentService {
 
             } catch (Exception e) {
                 return ResponseEntity.status(500)
-                        .body(Map.of("message", "Greška pri proveri praćenja korisnika"));
+                        .body(Map.of("message", "Greška pri gRPC proveri praćenja korisnika"));
             }
         }
 
