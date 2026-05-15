@@ -15,6 +15,11 @@ import com.soa.tour_service.repository.TagRepository;
 import com.soa.tour_service.repository.TourRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import java.time.LocalDateTime;
+import com.soa.tour_service.model.TransportType;
+import com.soa.tour_service.model.TourTransportTime;
+import com.soa.tour_service.repository.TourTransportTimeRepository;
+import com.soa.tour_service.dto.TourTransportTimeResponse;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,11 +38,18 @@ public class TourService {
     private final TourRepository tourRepository;
     private final TagRepository tagRepository;
     private final KeyPointRepository keyPointRepository;
+    private final TourTransportTimeRepository tourTransportTimeRepository;
 
-    public TourService(TourRepository tourRepository, TagRepository tagRepository,KeyPointRepository keyPointRepository) {
+    public TourService(
+            TourRepository tourRepository,
+            TagRepository tagRepository,
+            KeyPointRepository keyPointRepository,
+            TourTransportTimeRepository tourTransportTimeRepository
+    ) {
         this.tourRepository = tourRepository;
         this.tagRepository = tagRepository;
         this.keyPointRepository = keyPointRepository;
+        this.tourTransportTimeRepository = tourTransportTimeRepository;
     }
 
     public TourResponse createTour(CreateTourRequest request, Long authorId) {
@@ -77,7 +89,168 @@ public class TourService {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+    public TourResponse publishTour(Long tourId, Long userId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
 
+        if (!tour.getAuthorId().equals(userId)) {
+            throw new RuntimeException("Niste vlasnik ove ture");
+        }
+
+        if (tour.getStatus() != TourStatus.DRAFT) {
+            throw new RuntimeException("Samo tura u draft stanju može da se objavi");
+        }
+
+        validateTourForPublishing(tour);
+
+        tour.setStatus(TourStatus.PUBLISHED);
+        tour.setPublishedAt(LocalDateTime.now());
+
+        Tour savedTour = tourRepository.save(tour);
+        return mapToResponse(savedTour);
+    }
+    public TourResponse archiveTour(Long tourId, Long userId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
+
+        if (!tour.getAuthorId().equals(userId)) {
+            throw new RuntimeException("Niste vlasnik ove ture");
+        }
+
+        if (tour.getStatus() != TourStatus.PUBLISHED) {
+            throw new RuntimeException("Samo objavljena tura može da se arhivira");
+        }
+
+        tour.setStatus(TourStatus.ARCHIVED);
+        tour.setArchivedAt(LocalDateTime.now());
+
+        Tour savedTour = tourRepository.save(tour);
+        return mapToResponse(savedTour);
+    }
+    public TourResponse reactivateTour(Long tourId, Long userId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
+
+        if (!tour.getAuthorId().equals(userId)) {
+            throw new RuntimeException("Niste vlasnik ove ture");
+        }
+
+        if (tour.getStatus() != TourStatus.ARCHIVED) {
+            throw new RuntimeException("Samo arhivirana tura može ponovo da se aktivira");
+        }
+
+        tour.setStatus(TourStatus.PUBLISHED);
+        tour.setArchivedAt(null);
+
+        Tour savedTour = tourRepository.save(tour);
+        return mapToResponse(savedTour);
+    }
+    private void validateTourForPublishing(Tour tour) {
+        if (tour.getName() == null || tour.getName().isBlank()) {
+            throw new RuntimeException("Tura mora imati naziv");
+        }
+
+        if (tour.getDescription() == null || tour.getDescription().isBlank()) {
+            throw new RuntimeException("Tura mora imati opis");
+        }
+
+        if (tour.getDifficulty() == null) {
+            throw new RuntimeException("Tura mora imati težinu");
+        }
+
+        if (tour.getTags() == null || tour.getTags().isEmpty()) {
+            throw new RuntimeException("Tura mora imati bar jedan tag");
+        }
+
+        if (tour.getKeyPoints() == null || tour.getKeyPoints().size() < 2) {
+            throw new RuntimeException("Tura mora imati najmanje dve ključne tačke");
+        }
+
+        if (tour.getTransportTimes() == null || tour.getTransportTimes().isEmpty()) {
+            throw new RuntimeException("Tura mora imati bar jedno vreme obilaska");
+        }
+    }
+    public TourResponse addTransportTime(
+            Long tourId,
+            TransportType transportType,
+            Integer durationMinutes,
+            Long userId
+    ) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
+
+        if (!tour.getAuthorId().equals(userId)) {
+            throw new RuntimeException("Niste vlasnik ove ture");
+        }
+
+        if (durationMinutes == null || durationMinutes <= 0) {
+            throw new RuntimeException("Vreme obilaska mora biti veće od 0 minuta");
+        }
+
+        TourTransportTime transportTime = new TourTransportTime();
+        transportTime.setTour(tour);
+        transportTime.setTransportType(transportType);
+        transportTime.setDurationMinutes(durationMinutes);
+
+        tourTransportTimeRepository.save(transportTime);
+
+        tour.getTransportTimes().add(transportTime);
+
+        return mapToResponse(tour);
+    }
+    public List<TourResponse> getPublishedToursForTourist() {
+        return tourRepository.findByStatus(TourStatus.PUBLISHED)
+                .stream()
+                .map(this::mapToTouristPreviewResponse)
+                .toList();
+    }
+    private TourResponse mapToTouristPreviewResponse(Tour tour) {
+        List<String> tagNames = tour.getTags()
+                .stream()
+                .map(Tag::getName)
+                .toList();
+
+        List<KeyPointResponse> keyPointResponses = tour.getKeyPoints()
+                .stream()
+                .limit(1)
+                .map(kp -> new KeyPointResponse(
+                        kp.getId(),
+                        kp.getName(),
+                        kp.getDescription(),
+                        kp.getLatitude(),
+                        kp.getLongitude(),
+                        kp.getImageUrl()
+                ))
+                .toList();
+
+        List<TourTransportTimeResponse> transportTimeResponses = tour.getTransportTimes()
+                .stream()
+                .map(time -> new TourTransportTimeResponse(
+                        time.getId(),
+                        time.getTransportType(),
+                        time.getDurationMinutes()
+                ))
+                .toList();
+
+        TourResponse response = new TourResponse(
+                tour.getId(),
+                tour.getName(),
+                tour.getDescription(),
+                tour.getDifficulty(),
+                tour.getPrice(),
+                tour.getStatus(),
+                tour.getAuthorId(),
+                tagNames,
+                keyPointResponses
+        );
+
+        response.setPublishedAt(tour.getPublishedAt());
+        response.setArchivedAt(tour.getArchivedAt());
+        response.setDistanceInKm(tour.getDistanceInKm());
+        response.setTransportTimes(transportTimeResponses);
+
+        return response;
+    }
     private TourResponse mapToResponse(Tour tour) {
         List<String> tagNames = tour.getTags()
                 .stream()
@@ -96,7 +269,16 @@ public class TourService {
                 ))
                 .toList();
 
-        return new TourResponse(
+        List<TourTransportTimeResponse> transportTimeResponses = tour.getTransportTimes()
+                .stream()
+                .map(time -> new TourTransportTimeResponse(
+                        time.getId(),
+                        time.getTransportType(),
+                        time.getDurationMinutes()
+                ))
+                .toList();
+
+        TourResponse response = new TourResponse(
                 tour.getId(),
                 tour.getName(),
                 tour.getDescription(),
@@ -107,6 +289,13 @@ public class TourService {
                 tagNames,
                 keyPointResponses
         );
+
+        response.setPublishedAt(tour.getPublishedAt());
+        response.setArchivedAt(tour.getArchivedAt());
+        response.setDistanceInKm(tour.getDistanceInKm());
+        response.setTransportTimes(transportTimeResponses);
+
+        return response;
     }
 
     public void addKeyPoint(
@@ -140,6 +329,13 @@ public class TourService {
         kp.setTour(tour);
 
         keyPointRepository.save(kp);
+
+        tour.getKeyPoints().add(kp);
+
+        double totalDistance = calculateTotalTourDistance(tour.getKeyPoints());
+        tour.setDistanceInKm(totalDistance);
+
+        tourRepository.save(tour);
     }
 
     private String saveImage(MultipartFile image) {
@@ -217,6 +413,9 @@ public class TourService {
         }
 
         keyPointRepository.save(keyPoint);
+        double totalDistance = calculateTotalTourDistance(tour.getKeyPoints());
+        tour.setDistanceInKm(totalDistance);
+        tourRepository.save(tour);
     }
 
     public void deleteKeyPoint(Long tourId, Long keyPointId, Long userId) {
@@ -235,5 +434,49 @@ public class TourService {
         }
 
         keyPointRepository.delete(keyPoint);
+
+        tour.getKeyPoints().remove(keyPoint);
+
+        double totalDistance = calculateTotalTourDistance(tour.getKeyPoints());
+        tour.setDistanceInKm(totalDistance);
+
+        tourRepository.save(tour);
+    }
+
+    private double calculateDistanceInKm(Double lat1, Double lon1, Double lat2, Double lon2) {
+        final int earthRadiusKm = 6371;
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return earthRadiusKm * c;
+    }
+
+    private double calculateTotalTourDistance(List<KeyPoint> keyPoints) {
+        if (keyPoints == null || keyPoints.size() < 2) {
+            return 0.0;
+        }
+
+        double totalDistance = 0.0;
+
+        for (int i = 1; i < keyPoints.size(); i++) {
+            KeyPoint previous = keyPoints.get(i - 1);
+            KeyPoint current = keyPoints.get(i);
+
+            totalDistance += calculateDistanceInKm(
+                    previous.getLatitude(),
+                    previous.getLongitude(),
+                    current.getLatitude(),
+                    current.getLongitude()
+            );
+        }
+
+        return totalDistance;
     }
 }

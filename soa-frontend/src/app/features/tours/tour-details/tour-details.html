@@ -16,6 +16,20 @@
             <span><b>Težina:</b> {{ tour.difficulty }}</span>
             <span><b>Status:</b> {{ tour.status }}</span>
             <span><b>Cena:</b> {{ tour.price }} RSD</span>
+            <span>
+              <b>Dužina:</b>
+              {{ tour.distanceInKm ? (tour.distanceInKm | number:'1.1-2') : 0 }} km
+            </span>
+          </div>
+
+          <div class="transport-preview" *ngIf="tour.transportTimes && tour.transportTimes.length > 0">
+            <span *ngFor="let time of tour.transportTimes">
+              {{ getTransportLabel(time.transportType) }}: {{ time.durationMinutes }} min
+            </span>
+          </div>
+
+          <div class="transport-preview empty-transport" *ngIf="!tour.transportTimes || tour.transportTimes.length === 0">
+            <span>Nema uneto vreme obilaska</span>
           </div>
 
           <div class="tags" *ngIf="tour.tags && tour.tags.length > 0">
@@ -23,6 +37,7 @@
           </div>
         </div>
       </div>
+
       <a class="reviews-summary" (click)="goToReviews()">
         <div class="reviews-stars">⭐</div>
         <div>
@@ -32,6 +47,14 @@
       </a>
     </div>
 
+    <p *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </p>
+
+    <p *ngIf="errorMessage" class="global-error">
+      {{ errorMessage }}
+    </p>
+
     <div class="details-grid">
       <div class="map-card">
         <div class="map-header">
@@ -40,28 +63,64 @@
             {{ showRoute ? 'Sakrij turu' : 'Prikaži turu' }}
           </button>
         </div>
+
         <div id="tour-details-map" class="map-box"></div>
       </div>
 
-      <div class="keypoints-card">
-        <h2>Ključne tačke</h2>
+      <div class="side-column">
+        <div class="keypoints-card">
+          <h2>Ključne tačke</h2>
 
-        <div *ngIf="!tour.keyPoints || tour.keyPoints.length === 0" class="empty-state">
-          Ova tura još nema ključne tačke.
-        </div>
+          <div *ngIf="!tour.keyPoints || tour.keyPoints.length === 0" class="empty-state">
+            Ova tura još nema ključne tačke.
+          </div>
 
-        <div *ngFor="let kp of tour.keyPoints" class="keypoint-item" (click)="focusKeyPoint(kp)">
-          <img *ngIf="kp.imageUrl" [src]="getImageUrl(kp.imageUrl)" alt="Slika ključne tačke" />
+          <div *ngFor="let kp of tour.keyPoints" class="keypoint-item" (click)="focusKeyPoint(kp)">
+            <img *ngIf="kp.imageUrl" [src]="getImageUrl(kp.imageUrl)" alt="Slika ključne tačke" />
 
-          <div class="keypoint-content">
-            <h3>{{ kp.name }}</h3>
-            <p>{{ kp.description }}</p>
+            <div class="keypoint-content">
+              <h3>{{ kp.name }}</h3>
+              <p>{{ kp.description }}</p>
 
-            <div class="coordinates">
-              <span>Lat: {{ kp.latitude }}</span>
-              <span>Lng: {{ kp.longitude }}</span>
+              <div class="coordinates">
+                <span>Lat: {{ kp.latitude }}</span>
+                <span>Lng: {{ kp.longitude }}</span>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div class="transport-card" *ngIf="!isTourist()">
+          <h2>Vreme obilaska</h2>
+          <p class="transport-description">
+            Dodajte vreme potrebno za obilazak ture u zavisnosti od tipa prevoza.
+          </p>
+
+          <form class="transport-form" (ngSubmit)="addTransportTime()">
+            <div class="form-group">
+              <label>Tip prevoza</label>
+              <select name="transportType" [(ngModel)]="transportForm.transportType">
+                <option value="WALKING">Peške</option>
+                <option value="BICYCLE">Bicikl</option>
+                <option value="CAR">Automobil</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Trajanje u minutima</label>
+              <input
+                type="number"
+                name="durationMinutes"
+                [(ngModel)]="transportForm.durationMinutes"
+                min="1"
+                placeholder="npr. 120"
+              />
+            </div>
+
+            <button type="submit" class="save-time-btn">
+              Sačuvaj vreme obilaska
+            </button>
+          </form>
         </div>
       </div>
     </div>

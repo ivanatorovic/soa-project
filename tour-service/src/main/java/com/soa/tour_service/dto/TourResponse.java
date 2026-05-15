@@ -2,7 +2,7 @@ package com.soa.tour_service.dto;
 
 import com.soa.tour_service.model.TourDifficulty;
 import com.soa.tour_service.model.TourStatus;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class TourResponse {
@@ -16,7 +16,10 @@ public class TourResponse {
     private Long authorId;
     private List<String> tags;
     private List<KeyPointResponse> keyPoints;
-
+    private LocalDateTime publishedAt;
+    private LocalDateTime archivedAt;
+    private Double distanceInKm;
+    private List<TourTransportTimeResponse> transportTimes;
     public TourResponse() {
     }
 
@@ -69,5 +72,33 @@ public class TourResponse {
 
     public List<KeyPointResponse> getKeyPoints() {
         return keyPoints;
+    }
+    public LocalDateTime getPublishedAt() {
+        return publishedAt;
+    }
+
+    public LocalDateTime getArchivedAt() {
+        return archivedAt;
+    }
+
+    public Double getDistanceInKm() {
+        return distanceInKm;
+    }
+    public List<TourTransportTimeResponse> getTransportTimes() {
+        return transportTimes;
+    }
+    public void setPublishedAt(LocalDateTime publishedAt) {
+        this.publishedAt = publishedAt;
+    }
+
+    public void setArchivedAt(LocalDateTime archivedAt) {
+        this.archivedAt = archivedAt;
+    }
+
+    public void setDistanceInKm(Double distanceInKm) {
+        this.distanceInKm = distanceInKm;
+    }
+    public void setTransportTimes(List<TourTransportTimeResponse> transportTimes) {
+        this.transportTimes = transportTimes;
     }
 }

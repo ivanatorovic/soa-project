@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TourService, TourResponse, KeyPointResponse } from '../../../core/services/tour';
 import * as L from 'leaflet';
@@ -7,15 +8,21 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-tour-details',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor],
+  imports: [CommonModule, NgIf, NgFor, FormsModule],
   templateUrl: './tour-details.html',
   styleUrls: ['./tour-details.css'],
 })
 export class TourDetails implements OnInit, OnDestroy {
   tour: TourResponse | null = null;
   errorMessage = '';
+  successMessage = '';
 
   reviewCount = 0;
+
+  transportForm = {
+    transportType: 'WALKING',
+    durationMinutes: 120,
+  };
 
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
@@ -72,6 +79,35 @@ export class TourDetails implements OnInit, OnDestroy {
         this.errorMessage = 'Nije moguće učitati detalje ture.';
       },
     });
+  }
+
+  addTransportTime(): void {
+    if (!this.tour) return;
+
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (!this.transportForm.durationMinutes || this.transportForm.durationMinutes <= 0) {
+      this.errorMessage = 'Vreme obilaska mora biti veće od 0 minuta.';
+      return;
+    }
+
+    this.tourService
+      .addTransportTime(
+        this.tour.id,
+        this.transportForm.transportType,
+        this.transportForm.durationMinutes
+      )
+      .subscribe({
+        next: (response) => {
+          this.tour = response;
+          this.successMessage = 'Vreme obilaska je uspešno dodato.';
+        },
+        error: (error) => {
+          console.error(error);
+          this.errorMessage = error?.error?.message || 'Nije moguće dodati vreme obilaska.';
+        },
+      });
   }
 
   initMap(): void {
@@ -170,6 +206,23 @@ export class TourDetails implements OnInit, OnDestroy {
     }
   }
 
+  getTransportLabel(type: string): string {
+    switch (type) {
+      case 'WALKING':
+        return 'Peške';
+      case 'BICYCLE':
+        return 'Bicikl';
+      case 'CAR':
+        return 'Automobil';
+      default:
+        return type;
+    }
+  }
+
+  isTourist(): boolean {
+    return localStorage.getItem('role') === 'TOURIST';
+  }
+
   getImageUrl(imageUrl: string | undefined): string {
     if (!imageUrl) return '';
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
@@ -181,6 +234,7 @@ export class TourDetails implements OnInit, OnDestroy {
   goBack(): void {
     this.router.navigate(['/tours']);
   }
+
   toggleRoute(): void {
     this.showRoute = !this.showRoute;
     this.renderMarkers();

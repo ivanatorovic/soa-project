@@ -1,5 +1,5 @@
 package com.soa.tour_service.model;
-
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 
@@ -33,6 +33,12 @@ public class Tour {
     @Column(nullable = false)
     private TourStatus status;
 
+    private LocalDateTime publishedAt;
+
+    private LocalDateTime archivedAt;
+
+    private Double distanceInKm = 0.0;
+
     @Column(nullable = false)
     private Long authorId;
 
@@ -50,6 +56,8 @@ public class Tour {
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TourTransportTime> transportTimes = new ArrayList<>();
     public Tour() {
     }
 
@@ -127,5 +135,36 @@ public class Tour {
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    public LocalDateTime getPublishedAt() {
+        return publishedAt;
+    }
+
+    public void setPublishedAt(LocalDateTime publishedAt) {
+        this.publishedAt = publishedAt;
+    }
+
+    public LocalDateTime getArchivedAt() {
+        return archivedAt;
+    }
+
+    public void setArchivedAt(LocalDateTime archivedAt) {
+        this.archivedAt = archivedAt;
+    }
+
+    public Double getDistanceInKm() {
+        return distanceInKm;
+    }
+
+    public void setDistanceInKm(Double distanceInKm) {
+        this.distanceInKm = distanceInKm;
+    }
+    public List<TourTransportTime> getTransportTimes() {
+        return transportTimes;
+    }
+
+    public void setTransportTimes(List<TourTransportTime> transportTimes) {
+        this.transportTimes = transportTimes;
     }
 }

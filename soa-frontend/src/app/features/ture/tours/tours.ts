@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { TourService, TourResponse } from '../../../core/services/tour';
-import {  RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-tours',
@@ -14,6 +14,7 @@ import {  RouterModule } from '@angular/router';
 export class Tours implements OnInit, OnDestroy {
   tours: TourResponse[] = [];
   errorMessage: string = '';
+  successMessage: string = '';
 
   heroImages: string[] = [
     '/slika.jpg',
@@ -41,14 +42,16 @@ export class Tours implements OnInit, OnDestroy {
   }
 
   loadTours(): void {
+    this.errorMessage = '';
+
     if (this.isTourist()) {
-      this.tourService.getAllTours().subscribe({
+      this.tourService.getPublishedTours().subscribe({
         next: (response) => {
           this.tours = response;
         },
         error: (error) => {
           console.error(error);
-          this.errorMessage = 'Nije moguće učitati ture.';
+          this.errorMessage = 'Nije moguće učitati objavljene ture.';
         }
       });
     } else {
@@ -58,7 +61,7 @@ export class Tours implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error(error);
-          this.errorMessage = 'Nije moguće učitati ture.';
+          this.errorMessage = 'Nije moguće učitati vaše ture.';
         }
       });
     }
@@ -78,6 +81,11 @@ export class Tours implements OnInit, OnDestroy {
     return localStorage.getItem('role') === 'TOURIST';
   }
 
+  isGuideOrAdmin(): boolean {
+    const role = localStorage.getItem('role');
+    return role === 'GUIDE' || role === 'ADMIN';
+  }
+
   getTourIcon(difficulty: string | undefined): string {
     switch (difficulty) {
       case 'EASY':
@@ -91,7 +99,84 @@ export class Tours implements OnInit, OnDestroy {
     }
   }
 
+  getStatusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'DRAFT':
+        return 'Draft';
+      case 'PUBLISHED':
+        return 'Objavljena';
+      case 'ARCHIVED':
+        return 'Arhivirana';
+      default:
+        return status || '';
+    }
+  }
+
+  getTransportLabel(type: string): string {
+    switch (type) {
+      case 'WALKING':
+        return 'Peške';
+      case 'BICYCLE':
+        return 'Bicikl';
+      case 'CAR':
+        return 'Automobil';
+      default:
+        return type;
+    }
+  }
+
+  publishTour(tourId: number, event: Event): void {
+    event.stopPropagation();
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.tourService.publishTour(tourId).subscribe({
+      next: () => {
+        this.successMessage = 'Tura je uspešno objavljena.';
+        this.loadTours();
+      },
+      error: (error) => {
+        console.error(error);
+        this.errorMessage = error?.error?.message || 'Nije moguće objaviti turu.';
+      }
+    });
+  }
+
+  archiveTour(tourId: number, event: Event): void {
+    event.stopPropagation();
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.tourService.archiveTour(tourId).subscribe({
+      next: () => {
+        this.successMessage = 'Tura je uspešno arhivirana.';
+        this.loadTours();
+      },
+      error: (error) => {
+        console.error(error);
+        this.errorMessage = error?.error?.message || 'Nije moguće arhivirati turu.';
+      }
+    });
+  }
+
+  reactivateTour(tourId: number, event: Event): void {
+    event.stopPropagation();
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.tourService.reactivateTour(tourId).subscribe({
+      next: () => {
+        this.successMessage = 'Tura je ponovo aktivirana.';
+        this.loadTours();
+      },
+      error: (error) => {
+        console.error(error);
+        this.errorMessage = error?.error?.message || 'Nije moguće ponovo aktivirati turu.';
+      }
+    });
+  }
+
   goToLocationSimulator(): void {
-  this.router.navigate(['/tours/tourist-location']);
-}
+    this.router.navigate(['/tours/tourist-location']);
+  }
 }

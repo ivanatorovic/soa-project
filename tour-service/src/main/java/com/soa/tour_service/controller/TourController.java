@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.soa.tour_service.model.TransportType;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -60,6 +61,10 @@ public class TourController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/published")
+    public ResponseEntity<List<TourResponse>> getPublishedToursForTourist() {
+        return ResponseEntity.ok(tourService.getPublishedToursForTourist());
+    }
     @GetMapping("/{tourId}")
     public ResponseEntity<TourResponse> getTourById(@PathVariable Long tourId) {
         return ResponseEntity.ok(tourService.getTourById(tourId));
@@ -128,4 +133,46 @@ public class TourController {
     ) {
         return ResponseEntity.ok(reviewService.countReviewsForTour(tourId));
     }
+
+
+    @PostMapping("/{tourId}/publish")
+    public ResponseEntity<TourResponse> publishTour(
+            @PathVariable Long tourId,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        return ResponseEntity.ok(tourService.publishTour(tourId, user.getId()));
+    }
+
+    @PostMapping("/{tourId}/archive")
+    public ResponseEntity<TourResponse> archiveTour(
+            @PathVariable Long tourId,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        return ResponseEntity.ok(tourService.archiveTour(tourId, user.getId()));
+    }
+
+    @PostMapping("/{tourId}/reactivate")
+    public ResponseEntity<TourResponse> reactivateTour(
+            @PathVariable Long tourId,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        return ResponseEntity.ok(tourService.reactivateTour(tourId, user.getId()));
+    }
+    @PostMapping("/{tourId}/transport-times")
+    public ResponseEntity<TourResponse> addTransportTime(
+            @PathVariable Long tourId,
+            @RequestParam TransportType transportType,
+            @RequestParam Integer durationMinutes,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        return ResponseEntity.ok(
+                tourService.addTransportTime(
+                        tourId,
+                        transportType,
+                        durationMinutes,
+                        user.getId()
+                )
+        );
+    }
+
 }

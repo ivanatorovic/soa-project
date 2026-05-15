@@ -26,6 +26,12 @@ export interface KeyPointResponse {
   imageUrl: string;
 }
 
+export interface TourTransportTimeResponse {
+  id: number;
+  transportType: string;
+  durationMinutes: number;
+}
+
 export interface TourResponse {
   id: number;
   name: string;
@@ -36,6 +42,11 @@ export interface TourResponse {
   authorId: number;
   tags: string[];
   keyPoints: KeyPointResponse[];
+
+  publishedAt?: string;
+  archivedAt?: string | null;
+  distanceInKm?: number;
+  transportTimes?: TourTransportTimeResponse[];
 }
 
 export interface TouristLocationRequest {
@@ -69,7 +80,8 @@ export class TourService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('jwt'); // koristi svuda isto ime
+    const token = localStorage.getItem('jwt');
+
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -93,28 +105,69 @@ export class TourService {
     });
   }
 
-  getTourById(tourId: number): Observable<TourResponse> {
-    const token = localStorage.getItem('jwt');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
+  getPublishedTours(): Observable<TourResponse[]> {
+    return this.http.get<TourResponse[]>(`${this.apiUrl}/published`, {
+      headers: this.getAuthHeaders(),
     });
+  }
 
-    return this.http.get<TourResponse>(`${this.apiUrl}/${tourId}`, { headers });
+  getTourById(tourId: number): Observable<TourResponse> {
+    return this.http.get<TourResponse>(`${this.apiUrl}/${tourId}`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
+  publishTour(tourId: number): Observable<TourResponse> {
+    return this.http.post<TourResponse>(
+      `${this.apiUrl}/${tourId}/publish`,
+      {},
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+  }
+
+  archiveTour(tourId: number): Observable<TourResponse> {
+    return this.http.post<TourResponse>(
+      `${this.apiUrl}/${tourId}/archive`,
+      {},
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+  }
+
+  reactivateTour(tourId: number): Observable<TourResponse> {
+    return this.http.post<TourResponse>(
+      `${this.apiUrl}/${tourId}/reactivate`,
+      {},
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+  }
+
+  addTransportTime(
+    tourId: number,
+    transportType: string,
+    durationMinutes: number
+  ): Observable<TourResponse> {
+    return this.http.post<TourResponse>(
+      `${this.apiUrl}/${tourId}/transport-times?transportType=${transportType}&durationMinutes=${durationMinutes}`,
+      {},
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
   }
 
   addKeyPoint(
     tourId: number,
     request: CreateKeyPointRequest,
-    imageFile?: File | null,
+    imageFile?: File | null
   ): Observable<void> {
-    const token = localStorage.getItem('jwt');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
     const formData = new FormData();
+
     formData.append('name', request.name);
     formData.append('description', request.description);
     formData.append('latitude', request.latitude.toString());
@@ -124,17 +177,19 @@ export class TourService {
       formData.append('image', imageFile);
     }
 
-    return this.http.post<void>(`${this.apiUrl}/${tourId}/key-points`, formData, { headers });
+    return this.http.post<void>(`${this.apiUrl}/${tourId}/key-points`, formData, {
+      headers: this.getAuthHeaders(),
+    });
   }
+
   updateKeyPoint(
     tourId: number,
     keyPointId: number,
     request: CreateKeyPointRequest,
-    imageFile?: File | null,
+    imageFile?: File | null
   ): Observable<void> {
-    const headers = this.getAuthHeaders();
-
     const formData = new FormData();
+
     formData.append('name', request.name);
     formData.append('description', request.description);
     formData.append('latitude', request.latitude.toString());
@@ -145,7 +200,7 @@ export class TourService {
     }
 
     return this.http.put<void>(`${this.apiUrl}/${tourId}/key-points/${keyPointId}`, formData, {
-      headers,
+      headers: this.getAuthHeaders(),
     });
   }
 
@@ -167,15 +222,19 @@ export class TourService {
     });
   }
 
-  getReviewCount(tourId: number) {
-    return this.http.get<number>(`${this.apiUrl}/${tourId}/reviews/count`);
+  getReviewCount(tourId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/${tourId}/reviews/count`, {
+      headers: this.getAuthHeaders(),
+    });
   }
 
-  getReviewsForTour(tourId: number) {
-    return this.http.get<ReviewResponse[]>(`${this.apiUrl}/${tourId}/reviews`);
+  getReviewsForTour(tourId: number): Observable<ReviewResponse[]> {
+    return this.http.get<ReviewResponse[]>(`${this.apiUrl}/${tourId}/reviews`, {
+      headers: this.getAuthHeaders(),
+    });
   }
 
-  createReview(tourId: number, formData: FormData) {
+  createReview(tourId: number, formData: FormData): Observable<ReviewResponse> {
     return this.http.post<ReviewResponse>(`${this.apiUrl}/${tourId}/reviews`, formData, {
       headers: this.getAuthHeaders(),
     });

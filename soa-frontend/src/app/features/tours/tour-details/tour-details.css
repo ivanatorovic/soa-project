@@ -32,6 +32,7 @@
   border-radius: 24px;
   padding: 30px;
   box-shadow: 0 12px 30px rgba(20, 45, 80, 0.08);
+  position: relative;
 }
 
 .tour-main-info {
@@ -81,6 +82,29 @@
   font-size: 14px;
 }
 
+.transport-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 16px 0;
+}
+
+.transport-preview span {
+  background: #f4f8fc;
+  border: 1px solid #dce8f5;
+  color: #0d4d8b;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.empty-transport span {
+  background: #fff8e8;
+  border-color: #ffe2a3;
+  color: #9a6a00;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -97,6 +121,66 @@
   font-weight: 500;
 }
 
+.reviews-summary {
+  position: absolute;
+  top: 130px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #e8f1ff;
+  border: 1px solid #bcd2f7;
+  color: #16324f;
+  padding: 16px 20px;
+  border-radius: 18px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(20, 45, 80, 0.08);
+  transition: 0.2s ease;
+}
+
+.reviews-summary:hover {
+  background: #dbeafe;
+  transform: translateY(-2px);
+}
+
+.reviews-stars {
+  font-size: 26px;
+}
+
+.reviews-summary strong {
+  display: block;
+  font-size: 16px;
+}
+
+.reviews-summary span {
+  display: block;
+  font-size: 14px;
+  color: #4a6a8a;
+}
+
+.success-message,
+.global-error {
+  max-width: 1300px;
+  margin: 0 auto 20px auto;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.success-message {
+  background: #eaf8ef;
+  color: #228b4e;
+  border: 1px solid #b7e4c7;
+}
+
+.global-error {
+  background: #fff1f1;
+  color: #c62828;
+  border: 1px solid #f1b0b0;
+  text-align: left;
+}
+
 .details-grid {
   max-width: 1300px;
   margin: 0 auto;
@@ -105,8 +189,15 @@
   gap: 28px;
 }
 
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .map-card,
-.keypoints-card {
+.keypoints-card,
+.transport-card {
   background: white;
   border-radius: 22px;
   padding: 24px;
@@ -114,11 +205,34 @@
 }
 
 .map-card h2,
-.keypoints-card h2 {
+.keypoints-card h2,
+.transport-card h2 {
   margin-top: 0;
   margin-bottom: 18px;
   color: #16324f;
   font-size: 24px;
+}
+
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.route-btn {
+  border: none;
+  background: #0d4d8b;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.route-btn:hover {
+  background: #0a3c6d;
 }
 
 .map-box {
@@ -192,18 +306,72 @@
   border-radius: 10px;
 }
 
+.transport-description {
+  color: #5e6c7b;
+  line-height: 1.6;
+  margin: -6px 0 18px 0;
+  font-size: 15px;
+}
+
+.transport-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 700;
+  color: #1f2d3d;
+  font-size: 14px;
+}
+
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #d9e1ea;
+  border-radius: 14px;
+  font-size: 15px;
+  outline: none;
+  background-color: #fbfcfe;
+  transition: 0.25s;
+}
+
+.form-group select:focus,
+.form-group input:focus {
+  border-color: #0d4d8b;
+  box-shadow: 0 0 0 3px rgba(13, 77, 139, 0.12);
+}
+
+.save-time-btn {
+  margin-top: 4px;
+  padding: 13px 18px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0d4d8b, #1d6fc1);
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.save-time-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #0a3c6d, #0d4d8b);
+}
+
 .loading-state {
   text-align: center;
   margin-top: 60px;
   color: #5e6c7b;
   font-size: 18px;
-}
-
-.global-error {
-  text-align: center;
-  margin-top: 40px;
-  color: #c62828;
-  font-weight: 600;
 }
 
 @media (max-width: 992px) {
@@ -213,6 +381,12 @@
 
   .map-box {
     height: 380px;
+  }
+
+  .reviews-summary {
+    position: static;
+    margin-top: 20px;
+    width: fit-content;
   }
 }
 
@@ -237,73 +411,4 @@
     width: 100%;
     height: 180px;
   }
-}
-.map-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.route-btn {
-  border: none;
-  background: #0d4d8b;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.route-btn:hover {
-  background: #0a3c6d;
-}
-
-.hero-card {
-  position: relative;
-}
-
-.reviews-summary {
-  position: absolute;
-  top: 130px; /* 🔽 malo niže (bilo 30px) */
-  right: 30px;
-
-  display: flex;
-  align-items: center;
-  gap: 14px; /* malo više prostora */
-
-  background: #e8f1ff; /* 🔵 plavičasto umesto narandžasto */
-  border: 1px solid #bcd2f7;
-
-  color: #16324f;
-
-  padding: 16px 20px; /* 🔼 malo veće (bilo 12px 16px) */
-  border-radius: 18px; /* malo zaobljenije */
-
-  text-decoration: none;
-  cursor: pointer;
-
-  box-shadow: 0 8px 20px rgba(20, 45, 80, 0.08);
-  transition: 0.2s ease;
-}
-
-.reviews-summary:hover {
-  background: #dbeafe; /* malo jača plava na hover */
-  transform: translateY(-2px);
-}
-
-.reviews-stars {
-  font-size: 26px; /* malo veće */
-}
-
-.reviews-summary strong {
-  display: block;
-  font-size: 16px; /* malo veće */
-}
-
-.reviews-summary span {
-  display: block;
-  font-size: 14px;
-  color: #4a6a8a;
 }
