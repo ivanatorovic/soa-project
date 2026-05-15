@@ -19,6 +19,8 @@ public class TourResponse {
     private LocalDateTime publishedAt;
     private LocalDateTime archivedAt;
     private Double distanceInKm;
+    private boolean inShoppingCart;
+    private boolean purchased;
     private List<TourTransportTimeResponse> transportTimes;
     public TourResponse() {
     }
@@ -53,7 +55,21 @@ public class TourResponse {
     public TourDifficulty getDifficulty() {
         return difficulty;
     }
+    public boolean isInShoppingCart() {
+        return inShoppingCart;
+    }
 
+    public void setInShoppingCart(boolean inShoppingCart) {
+        this.inShoppingCart = inShoppingCart;
+    }
+
+    public boolean isPurchased() {
+        return purchased;
+    }
+
+    public void setPurchased(boolean purchased) {
+        this.purchased = purchased;
+    }
     public Double getPrice() {
         return price;
     }

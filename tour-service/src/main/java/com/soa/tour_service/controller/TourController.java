@@ -63,8 +63,12 @@ public class TourController {
     }
 
     @GetMapping("/published")
-    public ResponseEntity<List<TourResponse>> getPublishedToursForTourist() {
-        return ResponseEntity.ok(tourService.getPublishedToursForTourist());
+    public List<TourResponse> getPublishedTours(Authentication authentication) {
+
+        AuthenticatedUser user =
+                (AuthenticatedUser) authentication.getPrincipal();
+
+        return tourService.getPublishedToursForTourist(user.getId());
     }
     @GetMapping("/{tourId}")
     public TourResponse getTourById(

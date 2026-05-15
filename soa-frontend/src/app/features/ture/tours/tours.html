@@ -142,11 +142,27 @@
       </button>
 
       <button
-  *ngIf="isTourist()"
+  *ngIf="isTourist() && !tour.inShoppingCart && !tour.purchased"
   class="details-btn"
   (click)="addToCart(tour.id, $event)"
 >
   Dodaj u korpu
+</button>
+
+<button
+  *ngIf="isTourist() && tour.inShoppingCart && !tour.purchased"
+  class="details-btn"
+  disabled
+>
+  Dodata u korpu
+</button>
+
+<button
+  *ngIf="isTourist() && tour.purchased"
+  class="details-btn"
+  disabled
+>
+  Kupljena
 </button>
 
       <div *ngIf="!isTourist()" class="lifecycle-actions">

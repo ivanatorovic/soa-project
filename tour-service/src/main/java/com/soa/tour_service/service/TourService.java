@@ -21,7 +21,7 @@ import com.soa.tour_service.model.TransportType;
 import com.soa.tour_service.model.TourTransportTime;
 import com.soa.tour_service.repository.TourTransportTimeRepository;
 import com.soa.tour_service.dto.TourTransportTimeResponse;
-
+import com.soa.tour_service.repository.ShoppingCartRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,19 +41,23 @@ public class TourService {
     private final KeyPointRepository keyPointRepository;
     private final TourTransportTimeRepository tourTransportTimeRepository;
     private final TourPurchaseTokenRepository tokenRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
+
 
     public TourService(
             TourRepository tourRepository,
             TagRepository tagRepository,
             KeyPointRepository keyPointRepository,
             TourTransportTimeRepository tourTransportTimeRepository,
-            TourPurchaseTokenRepository tokenRepository
+            TourPurchaseTokenRepository tokenRepository,
+            ShoppingCartRepository shoppingCartRepository
     ) {
         this.tourRepository = tourRepository;
         this.tagRepository = tagRepository;
         this.keyPointRepository = keyPointRepository;
         this.tourTransportTimeRepository = tourTransportTimeRepository;
                 this.tokenRepository = tokenRepository;
+        this.shoppingCartRepository = shoppingCartRepository;
 
     }
 
@@ -87,7 +91,21 @@ public class TourService {
         Tour savedTour = tourRepository.save(tour);
         return mapToResponse(savedTour);
     }
+    private void enrichTourForTourist(TourResponse response, Long touristId) {
 
+        boolean purchased = tokenRepository
+                .existsByTouristIdAndTourId(touristId, response.getId());
+
+        response.setPurchased(purchased);
+
+        boolean inCart = shoppingCartRepository.findByTouristId(touristId)
+                .map(cart -> cart.getItems()
+                        .stream()
+                        .anyMatch(item -> item.getTourId().equals(response.getId())))
+                .orElse(false);
+
+        response.setInShoppingCart(inCart);
+    }
     public List<TourResponse> getMyTours(Long authorId) {
         return tourRepository.findByAuthorId(authorId)
                 .stream()
@@ -203,11 +221,16 @@ public class TourService {
 
         return mapToResponse(tour);
     }
-    public List<TourResponse> getPublishedToursForTourist() {
-        return tourRepository.findByStatus(TourStatus.PUBLISHED)
+    public List<TourResponse> getPublishedToursForTourist(Long touristId) {
+
+        List<TourResponse> tours = tourRepository.findByStatus(TourStatus.PUBLISHED)
                 .stream()
                 .map(this::mapToTouristPreviewResponse)
                 .toList();
+
+        tours.forEach(tour -> enrichTourForTourist(tour, touristId));
+
+        return tours;
     }
     private TourResponse mapToTouristPreviewResponse(Tour tour) {
         List<String> tagNames = tour.getTags()

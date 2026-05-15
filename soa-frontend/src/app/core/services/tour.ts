@@ -53,6 +53,8 @@ export interface TourResponse {
   difficulty: string;
   price: number;
   status: string;
+  inShoppingCart?: boolean;
+purchased?: boolean;
   authorId: number;
   tags: string[];
   keyPoints: KeyPointResponse[];

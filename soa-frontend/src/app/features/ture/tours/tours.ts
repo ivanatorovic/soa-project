@@ -24,6 +24,7 @@ export class Tours implements OnInit, OnDestroy {
 
   currentSlide: number = 0;
   private sliderInterval: any;
+  
 
   constructor(
     private tourService: TourService,
@@ -183,6 +184,7 @@ export class Tours implements OnInit, OnDestroy {
   this.tourService.addTourToCart(tourId).subscribe({
     next: () => {
       this.successMessage = 'Tura je dodata u korpu.';
+this.loadTours();
     },
     error: (error) => {
       console.error(error);
