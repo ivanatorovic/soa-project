@@ -138,7 +138,11 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_SQL_INIT_MODE: always
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: true
       SERVER_PORT: 8083
+    volumes:
+      - ./tour-service/uploads:/app/uploads
 
   follower-service:
     build:
