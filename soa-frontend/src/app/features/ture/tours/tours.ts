@@ -175,6 +175,21 @@ export class Tours implements OnInit, OnDestroy {
       }
     });
   }
+  addToCart(tourId: number, event: Event): void {
+  event.stopPropagation();
+  this.errorMessage = '';
+  this.successMessage = '';
+
+  this.tourService.addTourToCart(tourId).subscribe({
+    next: () => {
+      this.successMessage = 'Tura je dodata u korpu.';
+    },
+    error: (error) => {
+      console.error(error);
+      this.errorMessage = error?.error?.message || 'Nije moguće dodati turu u korpu.';
+    }
+  });
+}
 
   goToLocationSimulator(): void {
     this.router.navigate(['/tours/tourist-location']);

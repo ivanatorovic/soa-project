@@ -57,6 +57,10 @@
       Simulator pozicije
     </button>
 
+    <button *ngIf="isTourist()" routerLink="/shopping-cart" class="create-btn">
+  Moja korpa
+</button>
+
     <button *ngIf="!isTourist()" (click)="goToCreateTour()" class="create-btn">
       + Kreiraj turu
     </button>
@@ -136,6 +140,14 @@
       >
         Dodaj ključne tačke
       </button>
+
+      <button
+  *ngIf="isTourist()"
+  class="details-btn"
+  (click)="addToCart(tour.id, $event)"
+>
+  Dodaj u korpu
+</button>
 
       <div *ngIf="!isTourist()" class="lifecycle-actions">
         <button

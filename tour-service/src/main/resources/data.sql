@@ -8,10 +8,10 @@ INSERT INTO tag (id, name) VALUES (5, 'Planinarenje');
 -- TOUR
 INSERT INTO tour (id, name, description, difficulty, price, status, author_id)
 VALUES
-    (1, 'Planinarenje na Tari', 'Tura kroz Nacionalni park Tara sa obilaskom vidikovaca i prirodnih lepota.', 'MEDIUM', 0, 'DRAFT', 3),
-    (2, 'Obilazak Beograda', 'Kulturno-istorijska tura kroz najpoznatije delove Beograda.', 'EASY', 0, 'DRAFT', 3),
-    (3, 'Avantura na Kopaoniku', 'Planinska avanturistička tura namenjena ljubiteljima prirode i aktivnosti.', 'HARD', 0, 'DRAFT', 3),
-    (4, 'Fruškogorska vinska šetnja', 'Lagana tura kroz Frušku goru, vidikovce i manastire.', 'EASY', 0, 'DRAFT', 3);
+    (1, 'Planinarenje na Tari', 'Tura kroz Nacionalni park Tara sa obilaskom vidikovaca i prirodnih lepota.', 'MEDIUM', 500, 'DRAFT', 3),
+    (2, 'Obilazak Beograda', 'Kulturno-istorijska tura kroz najpoznatije delove Beograda.', 'EASY', 350, 'DRAFT', 3),
+    (3, 'Avantura na Kopaoniku', 'Planinska avanturistička tura namenjena ljubiteljima prirode i aktivnosti.', 'HARD', 800, 'DRAFT', 3),
+    (4, 'Fruškogorska vinska šetnja', 'Lagana tura kroz Frušku goru, vidikovce i manastire.', 'EASY', 270, 'DRAFT', 3);
 
 -- TOUR_TAG
 INSERT INTO tour_tag (tour_id, tag_id) VALUES (1, 1);

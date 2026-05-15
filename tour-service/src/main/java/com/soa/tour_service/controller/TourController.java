@@ -1,5 +1,6 @@
 package com.soa.tour_service.controller;
-
+import com.soa.tour_service.security.AuthenticatedUser;
+import org.springframework.security.core.Authentication;
 import com.soa.tour_service.dto.CreateReviewRequest;
 import com.soa.tour_service.dto.CreateTourRequest;
 import com.soa.tour_service.dto.ReviewResponse;
@@ -66,8 +67,17 @@ public class TourController {
         return ResponseEntity.ok(tourService.getPublishedToursForTourist());
     }
     @GetMapping("/{tourId}")
-    public ResponseEntity<TourResponse> getTourById(@PathVariable Long tourId) {
-        return ResponseEntity.ok(tourService.getTourById(tourId));
+    public TourResponse getTourById(
+            @PathVariable Long tourId,
+            Authentication authentication
+    ) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+
+        return tourService.getTourById(
+                tourId,
+                user.getId(),
+                user.getRole()
+        );
     }
 
     @GetMapping

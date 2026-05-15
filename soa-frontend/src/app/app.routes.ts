@@ -18,6 +18,7 @@ import { TourDetails } from './features/tours/tour-details/tour-details';
 import { UserList } from './features/stakeholders/user-list/user-list';
 import { Reviews } from './features/tours/reviews/reviews';
 import { CreateReview } from './features/tours/create-review/create-review';
+import { ShoppingCart } from './features/tours/shopping-cart/shopping-cart';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -34,6 +35,11 @@ export const routes: Routes = [
     component: TouristLocationSimulator,
     canActivate: [authGuard],
   },
+  {
+  path: 'shopping-cart',
+  component: ShoppingCart,
+  canActivate: [authGuard],
+},
   { path: 'tours/:id', component: TourDetails },
   { path: 'tours/:id/reviews', component: Reviews },
   { path: 'tours/:id/create-review', component: CreateReview },

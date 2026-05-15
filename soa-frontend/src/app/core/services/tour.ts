@@ -26,6 +26,20 @@ export interface KeyPointResponse {
   imageUrl: string;
 }
 
+export interface OrderItemResponse {
+  id: number;
+  tourId: number;
+  tourName: string;
+  price: number;
+}
+
+export interface ShoppingCartResponse {
+  id: number;
+  touristId: number;
+  totalPrice: number;
+  items: OrderItemResponse[];
+}
+
 export interface TourTransportTimeResponse {
   id: number;
   transportType: string;
@@ -92,7 +106,40 @@ export class TourService {
       headers: this.getAuthHeaders(),
     });
   }
+getShoppingCart(): Observable<ShoppingCartResponse> {
+  return this.http.get<ShoppingCartResponse>(`${this.apiUrl}/shopping-cart`, {
+    headers: this.getAuthHeaders(),
+  });
+}
 
+addTourToCart(tourId: number): Observable<ShoppingCartResponse> {
+  return this.http.post<ShoppingCartResponse>(
+    `${this.apiUrl}/shopping-cart/items/${tourId}`,
+    {},
+    {
+      headers: this.getAuthHeaders(),
+    }
+  );
+}
+
+removeItemFromCart(itemId: number): Observable<ShoppingCartResponse> {
+  return this.http.delete<ShoppingCartResponse>(
+    `${this.apiUrl}/shopping-cart/items/${itemId}`,
+    {
+      headers: this.getAuthHeaders(),
+    }
+  );
+}
+
+checkout(): Observable<ShoppingCartResponse> {
+  return this.http.post<ShoppingCartResponse>(
+    `${this.apiUrl}/shopping-cart/checkout`,
+    {},
+    {
+      headers: this.getAuthHeaders(),
+    }
+  );
+}
   getMyTours(): Observable<TourResponse[]> {
     return this.http.get<TourResponse[]>(`${this.apiUrl}/my`, {
       headers: this.getAuthHeaders(),

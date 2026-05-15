@@ -1,5 +1,6 @@
 package com.soa.tour_service.service;
-
+import com.soa.tour_service.repository.TourPurchaseTokenRepository;
+import com.soa.tour_service.security.AuthenticatedUser;
 
 
 import com.soa.tour_service.dto.CreateKeyPointRequest;
@@ -39,17 +40,21 @@ public class TourService {
     private final TagRepository tagRepository;
     private final KeyPointRepository keyPointRepository;
     private final TourTransportTimeRepository tourTransportTimeRepository;
+    private final TourPurchaseTokenRepository tokenRepository;
 
     public TourService(
             TourRepository tourRepository,
             TagRepository tagRepository,
             KeyPointRepository keyPointRepository,
-            TourTransportTimeRepository tourTransportTimeRepository
+            TourTransportTimeRepository tourTransportTimeRepository,
+            TourPurchaseTokenRepository tokenRepository
     ) {
         this.tourRepository = tourRepository;
         this.tagRepository = tagRepository;
         this.keyPointRepository = keyPointRepository;
         this.tourTransportTimeRepository = tourTransportTimeRepository;
+                this.tokenRepository = tokenRepository;
+
     }
 
     public TourResponse createTour(CreateTourRequest request, Long authorId) {
@@ -365,9 +370,19 @@ public class TourService {
         }
     }
 
-    public TourResponse getTourById(Long tourId) {
+    public TourResponse getTourById(Long tourId, Long userId, String role) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new RuntimeException("Tour not found"));
+
+        if ("TOURIST".equals(role)) {
+            boolean purchased = tokenRepository.existsByTouristIdAndTourId(userId, tourId);
+
+            if (purchased) {
+                return mapToResponse(tour);
+            }
+
+            return mapToTouristPreviewResponse(tour);
+        }
 
         return mapToResponse(tour);
     }

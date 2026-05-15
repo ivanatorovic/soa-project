@@ -48,6 +48,10 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/tours/tourist-location").hasRole("TOURIST")
                         .requestMatchers(HttpMethod.PUT, "/api/tours/tourist-location").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.GET, "/api/tours/shopping-cart").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.POST, "/api/tours/shopping-cart/items/*").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.DELETE, "/api/tours/shopping-cart/items/*").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.POST, "/api/tours/shopping-cart/checkout").hasRole("TOURIST")
 
                         .requestMatchers(HttpMethod.GET, "/api/tours/my").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/tours").authenticated()
