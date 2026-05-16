@@ -35,6 +35,15 @@
           <div class="tags" *ngIf="tour.tags && tour.tags.length > 0">
             <span *ngFor="let tag of tour.tags" class="tag">{{ tag }}</span>
           </div>
+
+              <button
+      *ngIf="tour.purchased"
+      class="route-btn"
+      type="button"
+      (click)="startTour()"
+    >
+      Pokreni turu
+</button>
         </div>
       </div>
 

@@ -19,6 +19,7 @@ import { UserList } from './features/stakeholders/user-list/user-list';
 import { Reviews } from './features/tours/reviews/reviews';
 import { CreateReview } from './features/tours/create-review/create-review';
 import { ShoppingCart } from './features/tours/shopping-cart/shopping-cart';
+import { PurchasedTours } from './features/tours/purchased-tours/purchased-tours';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -39,6 +40,26 @@ export const routes: Routes = [
   path: 'shopping-cart',
   component: ShoppingCart,
   canActivate: [authGuard],
+},
+{
+  path: 'tours/start/:tourId',
+  loadComponent: () =>
+    import('./features/tours/active-tour/active-tour')
+      .then(m => m.ActiveTour),
+  canActivate: [authGuard],
+},
+
+{
+  path: 'tours/active/:executionId',
+  loadComponent: () =>
+    import('./features/tours/active-tour/active-tour')
+      .then(m => m.ActiveTour),
+  canActivate: [authGuard],
+},
+{
+  path: 'tours/purchased',
+  component: PurchasedTours,
+  canActivate: [authGuard]
 },
   { path: 'tours/:id', component: TourDetails },
   { path: 'tours/:id/reviews', component: Reviews },

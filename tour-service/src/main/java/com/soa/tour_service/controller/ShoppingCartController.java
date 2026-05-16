@@ -1,10 +1,15 @@
 package com.soa.tour_service.controller;
 
 import com.soa.tour_service.dto.ShoppingCartResponse;
+import com.soa.tour_service.dto.TourResponse;
 import com.soa.tour_service.security.AuthenticatedUser;
 import com.soa.tour_service.service.ShoppingCartService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tours/shopping-cart")
@@ -65,4 +70,6 @@ public class ShoppingCartController {
 
         return shoppingCartService.checkout(touristId);
     }
+
+
 }

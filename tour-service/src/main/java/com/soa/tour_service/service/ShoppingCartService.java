@@ -2,6 +2,7 @@ package com.soa.tour_service.service;
 
 import com.soa.tour_service.dto.OrderItemResponse;
 import com.soa.tour_service.dto.ShoppingCartResponse;
+import com.soa.tour_service.dto.TourResponse;
 import com.soa.tour_service.model.*;
 import com.soa.tour_service.repository.OrderItemRepository;
 import com.soa.tour_service.repository.ShoppingCartRepository;
@@ -149,4 +150,6 @@ public class ShoppingCartService {
                         .collect(Collectors.toList())
         );
     }
+
+
 }

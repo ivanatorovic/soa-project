@@ -1,0 +1,148 @@
+.active-tour-page {
+  min-height: 100vh;
+  background: #f4f8fc;
+  padding: 40px;
+}
+
+.active-card {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 12px 30px rgba(20, 45, 80, 0.08);
+}
+
+.active-card h1 {
+  color: #16324f;
+  margin-top: 0;
+}
+
+.active-card h2 {
+  color: #0d4d8b;
+}
+
+.map-box {
+  width: 100%;
+  height: 440px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #d7e3f0;
+  margin: 16px 0;
+}
+
+.map-hint {
+  color: #5e6c7b;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.current-location {
+  background: #eef5fc;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: #294766;
+}
+
+.completed-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: #eef5fc;
+  border-radius: 14px;
+}
+
+.empty-state {
+  color: #6f7d8c;
+  margin-bottom: 20px;
+}
+
+.actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.complete-btn,
+.abandon-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 13px 20px;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.complete-btn {
+  background: #1f7a3f;
+}
+
+.abandon-btn {
+  background: #c0392b;
+}
+
+.success-message {
+  margin-top: 18px;
+  color: #1f7a3f;
+  font-weight: 700;
+}
+
+.error-message {
+  margin-top: 18px;
+  color: #c62828;
+  font-weight: 700;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 60px;
+  color: #5e6c7b;
+}
+
+.finish-info {
+  margin-top: 24px;
+  padding: 20px;
+  background: #eef5fc;
+  border-radius: 16px;
+  border: 1px solid #cfe0f2;
+}
+
+.finish-info h3 {
+  margin-top: 0;
+  color: #16324f;
+}
+
+.back-btn {
+  margin-top: 12px;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  background: #0d4d8b;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .active-tour-page {
+    padding: 20px;
+  }
+
+  .active-card {
+    padding: 22px;
+  }
+
+  .map-box {
+    height: 340px;
+  }
+
+  .completed-item {
+    flex-direction: column;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
