@@ -117,4 +117,40 @@ public class TourResponse {
     public void setTransportTimes(List<TourTransportTimeResponse> transportTimes) {
         this.transportTimes = transportTimes;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDifficulty(TourDifficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public void setStatus(TourStatus status) {
+        this.status = status;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public void setKeyPoints(List<KeyPointResponse> keyPoints) {
+        this.keyPoints = keyPoints;
+    }
 }

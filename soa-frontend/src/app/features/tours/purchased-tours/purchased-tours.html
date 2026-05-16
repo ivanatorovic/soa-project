@@ -1,0 +1,108 @@
+<div class="purchased-page">
+  <div class="purchased-header">
+    <div>
+      <h1>Moje kupljene ture</h1>
+      <p>Pregled tura koje ste kupili i koje možete pokrenuti.</p>
+    </div>
+  </div>
+
+  <p *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </p>
+
+  <p *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </p>
+
+  <div *ngIf="activeExecution" class="active-box">
+    <div>
+      <strong>Trenutno imate aktivnu turu:</strong>
+      <span>{{ activeExecution.tourName }}</span>
+    </div>
+
+    <button (click)="goToActiveTour()">
+      Nastavi aktivnu turu
+    </button>
+  </div>
+
+  <div *ngIf="tours.length === 0" class="empty-state">
+    Još nemate kupljenih tura.
+  </div>
+
+  <div class="purchased-grid" *ngIf="tours.length > 0">
+    <div class="tour-card" *ngFor="let tour of tours">
+
+      <div class="tour-icon">
+        🧭
+      </div>
+
+      <div class="status-wrapper">
+        <span class="status-badge" [ngClass]="tour.status?.toLowerCase()">
+          {{ tour.status }}
+        </span>
+      </div>
+
+      <h2>{{ tour.name }}</h2>
+
+      <p class="description">
+        {{ tour.description }}
+      </p>
+
+      <div class="info">
+        <span><b>Težina:</b> {{ tour.difficulty }}</span>
+        <span><b>Cena:</b> {{ tour.price }} RSD</span>
+      </div>
+
+      <div class="tour-extra-info">
+        <p>
+          <b>Status ture:</b> {{ tour.status }}
+        </p>
+
+        <p *ngIf="tour.distanceInKm">
+          <b>Dužina ture:</b>
+          {{ tour.distanceInKm | number:'1.1-2' }} km
+        </p>
+
+        <p *ngIf="tour.publishedAt">
+          <b>Objavljena:</b>
+          {{ tour.publishedAt | date:'dd.MM.yyyy. HH:mm' }}
+        </p>
+
+        <p *ngIf="tour.archivedAt">
+          <b>Arhivirana:</b>
+          {{ tour.archivedAt | date:'dd.MM.yyyy. HH:mm' }}
+        </p>
+      </div>
+
+      <div class="transport-times" *ngIf="tour.transportTimes && tour.transportTimes.length > 0">
+        <span *ngFor="let time of tour.transportTimes">
+          {{ time.transportType }}: {{ time.durationMinutes }} min
+        </span>
+      </div>
+
+      <div class="transport-times empty-transport" *ngIf="!tour.transportTimes || tour.transportTimes.length === 0">
+        <span>Nema uneto vreme obilaska</span>
+      </div>
+
+      <div class="tags" *ngIf="tour.tags && tour.tags.length > 0">
+        <span *ngFor="let tag of tour.tags" class="tag">
+          {{ tag }}
+        </span>
+      </div>
+
+      <button
+  class="start-btn"
+  [disabled]="activeExecution !== null || isTourCompleted(tour.id)"
+  (click)="startTour(tour.id)"
+>
+  {{
+    isTourCompleted(tour.id)
+      ? 'Tura je završena'
+      : activeExecution
+        ? 'Tura je već aktivna'
+        : 'Pokreni turu'
+  }}
+</button>
+    </div>
+  </div>
+</div>

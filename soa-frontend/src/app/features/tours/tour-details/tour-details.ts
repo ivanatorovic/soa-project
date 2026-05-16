@@ -245,4 +245,33 @@ export class TourDetails implements OnInit, OnDestroy {
 
     this.router.navigate(['/tours', this.tour.id, 'reviews']);
   }
+
+  startTour(): void {
+  if (!this.tour) return;
+
+  this.errorMessage = '';
+  this.successMessage = '';
+
+  this.tourService.getTouristLocation().subscribe({
+    next: (location) => {
+      const request = {
+        latitude: location.latitude,
+        longitude: location.longitude
+      };
+
+      this.tourService.startTourExecution(this.tour!.id, request).subscribe({
+        next: (execution) => {
+          this.router.navigate(['/tours/active', execution.id]);
+        },
+        error: (error) => {
+          console.error(error);
+          this.errorMessage = error?.error?.message || 'Nije moguće pokrenuti turu.';
+        }
+      });
+    },
+    error: () => {
+      this.errorMessage = 'Prvo podesite lokaciju u simulatoru pozicije.';
+    }
+  });
+}
 }

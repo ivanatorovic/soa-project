@@ -61,6 +61,10 @@
   Moja korpa
 </button>
 
+<button *ngIf="isTourist()" routerLink="/tours/purchased" class="create-btn">
+  Moje kupljene ture
+</button>
+
     <button *ngIf="!isTourist()" (click)="goToCreateTour()" class="create-btn">
       + Kreiraj turu
     </button>
