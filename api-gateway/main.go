@@ -96,6 +96,7 @@ func main() {
 	blogURL := getEnv("BLOG_SERVICE_URL", "http://localhost:8082")
 	toursURL := getEnv("TOURS_SERVICE_URL", "http://localhost:8083")
 	followerURL := getEnv("FOLLOWER_SERVICE_URL", "http://localhost:5000")
+	purchaseURL := getEnv("PURCHASE_SERVICE_URL", "http://localhost:8084")
 	port := getEnv("PORT", "8000")
 	grpcConn, err := grpc.Dial(
     	"tours-service:9093",
@@ -114,6 +115,7 @@ func main() {
 	blogProxy := newProxy(blogURL)
 	toursProxy := newProxy(toursURL)
 	followerProxy := newProxy(followerURL)
+	purchaseProxy := newProxy(purchaseURL)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
@@ -252,6 +254,11 @@ w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
 			followerProxy.ServeHTTP(w, r)
 			return
 		}
+
+    if strings.HasPrefix(r.URL.Path, "/api/purchase") {
+    	purchaseProxy.ServeHTTP(w, r)
+    	return
+    }
 
 		http.NotFound(w, r)
 	})

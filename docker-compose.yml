@@ -164,6 +164,43 @@ services:
       NEO4J_USERNAME: neo4j
       NEO4J_PASSWORD: password
 
+  purchase-db:
+    image: postgres:15
+    container_name: purchase-db
+    restart: always
+    networks:
+      - app-network
+    environment:
+      POSTGRES_DB: purchase_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - purchase-db-data:/var/lib/postgresql/data
+
+  purchase-service:
+    build:
+      context: ./purchase-service
+      dockerfile: Dockerfile
+    container_name: purchase-service
+    restart: on-failure
+    depends_on:
+      - purchase-db
+      - tours-service
+    networks:
+      - app-network
+    ports:
+      - "8084:8084"
+    environment:
+      SERVER_PORT: 8084
+      SPRING_DATASOURCE_URL: jdbc:postgresql://purchase-db:5432/purchase_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_SQL_INIT_MODE: always
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: true
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -175,6 +212,7 @@ services:
       - blog-service
       - tours-service
       - follower-service
+      - purchase-service
 
     networks:
       - app-network
@@ -186,6 +224,7 @@ services:
       BLOG_SERVICE_URL: http://blog-service:8082
       TOURS_SERVICE_URL: http://tours-service:8083
       FOLLOWER_SERVICE_URL: http://follower-service:5000
+      PURCHASE_SERVICE_URL: http://purchase-service:8084
 
 volumes:
   blog-db-data:
@@ -193,6 +232,7 @@ volumes:
   pgadmin-data:
   tours-db-data:
   follower-neo4j-data:
+  purchase-db-data:
 
 networks:
   app-network:

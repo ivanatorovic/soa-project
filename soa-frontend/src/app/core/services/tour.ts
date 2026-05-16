@@ -92,6 +92,7 @@ export interface ReviewResponse {
 })
 export class TourService {
   private apiUrl = 'http://localhost:8000/api/tours';
+  private purchaseApiUrl = 'http://localhost:8000/api/purchase/shopping-cart';
 
   constructor(private http: HttpClient) {}
 
@@ -109,37 +110,30 @@ export class TourService {
     });
   }
 getShoppingCart(): Observable<ShoppingCartResponse> {
-  return this.http.get<ShoppingCartResponse>(`${this.apiUrl}/shopping-cart`, {
+  return this.http.get<ShoppingCartResponse>(this.purchaseApiUrl, {
     headers: this.getAuthHeaders(),
   });
 }
 
 addTourToCart(tourId: number): Observable<ShoppingCartResponse> {
   return this.http.post<ShoppingCartResponse>(
-    `${this.apiUrl}/shopping-cart/items/${tourId}`,
+    `${this.purchaseApiUrl}/items/${tourId}`,
     {},
-    {
-      headers: this.getAuthHeaders(),
-    }
+    { headers: this.getAuthHeaders() }
   );
 }
 
 removeItemFromCart(itemId: number): Observable<ShoppingCartResponse> {
   return this.http.delete<ShoppingCartResponse>(
-    `${this.apiUrl}/shopping-cart/items/${itemId}`,
-    {
-      headers: this.getAuthHeaders(),
-    }
+    `${this.purchaseApiUrl}/items/${itemId}`,
+    { headers: this.getAuthHeaders() }
   );
 }
-
 checkout(): Observable<ShoppingCartResponse> {
   return this.http.post<ShoppingCartResponse>(
-    `${this.apiUrl}/shopping-cart/checkout`,
+    `${this.purchaseApiUrl}/checkout`,
     {},
-    {
-      headers: this.getAuthHeaders(),
-    }
+    { headers: this.getAuthHeaders() }
   );
 }
   getMyTours(): Observable<TourResponse[]> {

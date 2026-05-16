@@ -15,6 +15,7 @@ import com.soa.tour_service.repository.KeyPointRepository;
 import com.soa.tour_service.repository.TagRepository;
 import com.soa.tour_service.repository.TourRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import com.soa.tour_service.model.TransportType;
@@ -42,7 +43,7 @@ public class TourService {
     private final TourTransportTimeRepository tourTransportTimeRepository;
     private final TourPurchaseTokenRepository tokenRepository;
     private final ShoppingCartRepository shoppingCartRepository;
-
+    private final RestTemplate restTemplate;
 
     public TourService(
             TourRepository tourRepository,
@@ -50,7 +51,8 @@ public class TourService {
             KeyPointRepository keyPointRepository,
             TourTransportTimeRepository tourTransportTimeRepository,
             TourPurchaseTokenRepository tokenRepository,
-            ShoppingCartRepository shoppingCartRepository
+            ShoppingCartRepository shoppingCartRepository,
+            RestTemplate restTemplate
     ) {
         this.tourRepository = tourRepository;
         this.tagRepository = tagRepository;
@@ -58,6 +60,7 @@ public class TourService {
         this.tourTransportTimeRepository = tourTransportTimeRepository;
                 this.tokenRepository = tokenRepository;
         this.shoppingCartRepository = shoppingCartRepository;
+        this.restTemplate = restTemplate;
 
     }
 
@@ -93,16 +96,23 @@ public class TourService {
     }
     private void enrichTourForTourist(TourResponse response, Long touristId) {
 
-        boolean purchased = tokenRepository
-                .existsByTouristIdAndTourId(touristId, response.getId());
+        boolean purchased = Boolean.TRUE.equals(
+                restTemplate.getForObject(
+                        "http://purchase-service:8084/api/purchase/shopping-cart/tokens/exists?touristId="
+                                + touristId + "&tourId=" + response.getId(),
+                        Boolean.class
+                )
+        );
 
         response.setPurchased(purchased);
 
-        boolean inCart = shoppingCartRepository.findByTouristId(touristId)
-                .map(cart -> cart.getItems()
-                        .stream()
-                        .anyMatch(item -> item.getTourId().equals(response.getId())))
-                .orElse(false);
+        boolean inCart = Boolean.TRUE.equals(
+                restTemplate.getForObject(
+                        "http://purchase-service:8084/api/purchase/shopping-cart/contains?touristId="
+                                + touristId + "&tourId=" + response.getId(),
+                        Boolean.class
+                )
+        );
 
         response.setInShoppingCart(inCart);
     }
@@ -398,7 +408,13 @@ public class TourService {
                 .orElseThrow(() -> new RuntimeException("Tour not found"));
 
         if ("TOURIST".equals(role)) {
-            boolean purchased = tokenRepository.existsByTouristIdAndTourId(userId, tourId);
+            boolean purchased = Boolean.TRUE.equals(
+                    restTemplate.getForObject(
+                            "http://purchase-service:8084/api/purchase/shopping-cart/tokens/exists?touristId="
+                                    + userId + "&tourId=" + tourId,
+                            Boolean.class
+                    )
+            );
 
             if (purchased) {
                 return mapToResponse(tour);
