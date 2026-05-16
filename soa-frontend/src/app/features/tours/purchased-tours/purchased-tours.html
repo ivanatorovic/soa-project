@@ -80,9 +80,17 @@
         </span>
       </div>
 
-      <div class="transport-times empty-transport" *ngIf="!tour.transportTimes || tour.transportTimes.length === 0">
-        <span>Nema uneto vreme obilaska</span>
-      </div>
+     <div class="transport-times empty-transport" *ngIf="isTourCompleted(tour.id)">
+  <span *ngIf="getCompletedExecution(tour.id)?.completedAt">
+    Završena:
+    {{ getCompletedExecution(tour.id)?.completedAt | date:'dd.MM.yyyy. HH:mm' }}
+  </span>
+
+  <span *ngIf="getCompletedExecution(tour.id)?.abandonedAt">
+    Napuštena:
+    {{ getCompletedExecution(tour.id)?.abandonedAt | date:'dd.MM.yyyy. HH:mm' }}
+  </span>
+</div>
 
       <div class="tags" *ngIf="tour.tags && tour.tags.length > 0">
         <span *ngFor="let tag of tour.tags" class="tag">

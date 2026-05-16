@@ -4,7 +4,7 @@ import com.soa.tour_service.dto.*;
 import com.soa.tour_service.model.*;
 import com.soa.tour_service.repository.CompletedKeyPointRepository;
 import com.soa.tour_service.repository.TourExecutionRepository;
-import com.soa.tour_service.repository.TourPurchaseTokenRepository;
+import org.springframework.web.client.RestTemplate;
 import com.soa.tour_service.repository.TourRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,18 +19,19 @@ public class TourExecutionService {
     private final TourExecutionRepository tourExecutionRepository;
     private final CompletedKeyPointRepository completedKeyPointRepository;
     private final TourRepository tourRepository;
-    private final TourPurchaseTokenRepository tokenRepository;
+    private final RestTemplate restTemplate;
+
 
     public TourExecutionService(
             TourExecutionRepository tourExecutionRepository,
             CompletedKeyPointRepository completedKeyPointRepository,
             TourRepository tourRepository,
-            TourPurchaseTokenRepository tokenRepository
+            RestTemplate restTemplate
     ) {
         this.tourExecutionRepository = tourExecutionRepository;
         this.completedKeyPointRepository = completedKeyPointRepository;
         this.tourRepository = tourRepository;
-        this.tokenRepository = tokenRepository;
+        this.restTemplate = restTemplate;
     }
 
     public TourExecutionResponse startTour(Long touristId, Long tourId, StartTourExecutionRequest request) {
@@ -51,7 +52,14 @@ public class TourExecutionService {
             throw new RuntimeException("Moguće je pokrenuti samo objavljenu ili arhiviranu turu");
         }
 
-        boolean purchased = tokenRepository.existsByTouristIdAndTourId(touristId, tourId);
+        boolean purchased = Boolean.TRUE.equals(
+                restTemplate.getForObject(
+                        "http://purchase-service:8084/api/purchase/shopping-cart/tokens/exists?touristId="
+                                + touristId + "&tourId=" + tourId,
+                        Boolean.class
+                )
+        );
+
         if (!purchased) {
             throw new RuntimeException("Morate kupiti turu pre pokretanja");
         }

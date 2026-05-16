@@ -4,9 +4,10 @@ import { Router } from '@angular/router';
 import {
   TourService,
   TourResponse,
-  TourExecutionResponse,
-  TouristLocationResponse
+  TourExecutionResponse
 } from '../../../core/services/tour';
+
+import { PurchaseService } from '../../../core/services/purchase';
 
 @Component({
   selector: 'app-purchased-tours',
@@ -19,13 +20,15 @@ export class PurchasedTours implements OnInit {
 
   tours: TourResponse[] = [];
   activeExecution: TourExecutionResponse | null = null;
+  completedTourIds: number[] = [];
 
   errorMessage = '';
   successMessage = '';
+  completedExecutions: TourExecutionResponse[] = [];
 
-  completedTourIds: number[] = [];
   constructor(
     private tourService: TourService,
+    private purchaseService: PurchaseService,
     private router: Router
   ) {}
 
@@ -36,11 +39,11 @@ export class PurchasedTours implements OnInit {
   }
 
   loadPurchasedTours(): void {
-    this.tourService.getPurchasedTours().subscribe({
-      next: (response) => {
+    this.purchaseService.getPurchasedTours().subscribe({
+      next: (response: TourResponse[]) => {
         this.tours = response;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error(error);
         this.errorMessage = 'Nije moguće učitati kupljene ture.';
       }
@@ -49,10 +52,10 @@ export class PurchasedTours implements OnInit {
 
   loadActiveTour(): void {
     this.tourService.getActiveTourExecution().subscribe({
-      next: (response) => {
+      next: (response: TourExecutionResponse) => {
         this.activeExecution = response;
       },
-      error: (error) => {
+      error: (error: any) => {
         if (error.status === 204) {
           this.activeExecution = null;
           return;
@@ -64,16 +67,16 @@ export class PurchasedTours implements OnInit {
   }
 
   startTour(tourId: number): void {
-  this.errorMessage = '';
-  this.successMessage = '';
+    this.errorMessage = '';
+    this.successMessage = '';
 
-  if (this.activeExecution) {
-    this.errorMessage = 'Već imate aktivnu turu.';
-    return;
+    if (this.activeExecution) {
+      this.errorMessage = 'Već imate aktivnu turu.';
+      return;
+    }
+
+    this.router.navigate(['/tours/start', tourId]);
   }
-
-  this.router.navigate(['/tours/start', tourId]);
-}
 
   goToActiveTour(): void {
     if (this.activeExecution) {
@@ -82,18 +85,22 @@ export class PurchasedTours implements OnInit {
   }
 
   isTourCompleted(tourId: number): boolean {
-  return this.completedTourIds.includes(tourId);
-}
+    return this.completedTourIds.includes(tourId);
+  }
 
-loadCompletedTours(): void {
+  loadCompletedTours(): void {
   this.tourService.getCompletedExecutions().subscribe({
-    next: (executions) => {
+    next: (executions: TourExecutionResponse[]) => {
+      this.completedExecutions = executions;
       this.completedTourIds = executions.map(e => e.tourId);
     },
-    error: (error) => {
+    error: (error: any) => {
       console.error(error);
     }
   });
 }
 
+  getCompletedExecution(tourId: number): TourExecutionResponse | undefined {
+  return this.completedExecutions.find(e => e.tourId === tourId);
+}
 }

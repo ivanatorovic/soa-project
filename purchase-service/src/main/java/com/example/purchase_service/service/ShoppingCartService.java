@@ -1,6 +1,7 @@
 package com.example.purchase_service.service;
 
 import com.example.purchase_service.dto.OrderItemResponse;
+import com.example.purchase_service.dto.PurchasedTourResponse;
 import com.example.purchase_service.dto.ShoppingCartResponse;
 import com.example.purchase_service.dto.TourResponse;
 import com.example.purchase_service.model.OrderItem;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -183,5 +185,28 @@ public class ShoppingCartService {
                         .stream()
                         .anyMatch(item -> item.getTourId().equals(tourId)))
                 .orElse(false);
+    }
+
+    public List<TourResponse> getPurchasedTours(Long touristId, String jwt) {
+        List<TourPurchaseToken> tokens = tokenRepository.findByTouristId(touristId);
+
+        return tokens.stream()
+                .map(token -> {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setBearerAuth(jwt);
+
+                    HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+                    ResponseEntity<TourResponse> response = restTemplate.exchange(
+                            "http://tours-service:8083/api/tours/" + token.getTourId(),
+                            HttpMethod.GET,
+                            entity,
+                            TourResponse.class
+                    );
+
+                    return response.getBody();
+                })
+                .filter(tour -> tour != null)
+                .toList();
     }
 }

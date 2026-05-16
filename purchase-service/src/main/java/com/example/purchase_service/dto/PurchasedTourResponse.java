@@ -1,21 +1,15 @@
-package com.soa.tour_service.dto;
+package com.example.purchase_service.dto;
 
-public class OrderItemResponse {
+public class PurchasedTourResponse {
 
-    private Long id;
     private Long tourId;
     private String tourName;
     private Double price;
 
-    public OrderItemResponse(Long id, Long tourId, String tourName, Double price) {
-        this.id = id;
+    public PurchasedTourResponse(Long tourId, String tourName, Double price) {
         this.tourId = tourId;
         this.tourName = tourName;
         this.price = price;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Long getTourId() {

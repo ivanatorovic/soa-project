@@ -1,9 +1,6 @@
 package com.soa.tour_service.service;
-import com.soa.tour_service.repository.TourPurchaseTokenRepository;
-import com.soa.tour_service.security.AuthenticatedUser;
 
 
-import com.soa.tour_service.dto.CreateKeyPointRequest;
 import com.soa.tour_service.dto.CreateTourRequest;
 import com.soa.tour_service.dto.KeyPointResponse;
 import com.soa.tour_service.dto.TourResponse;
@@ -11,18 +8,15 @@ import com.soa.tour_service.model.KeyPoint;
 import com.soa.tour_service.model.Tag;
 import com.soa.tour_service.model.Tour;
 import com.soa.tour_service.model.TourStatus;
-import com.soa.tour_service.repository.KeyPointRepository;
-import com.soa.tour_service.repository.TagRepository;
-import com.soa.tour_service.repository.TourRepository;
+import com.soa.tour_service.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import com.soa.tour_service.model.TransportType;
 import com.soa.tour_service.model.TourTransportTime;
-import com.soa.tour_service.repository.TourTransportTimeRepository;
 import com.soa.tour_service.dto.TourTransportTimeResponse;
-import com.soa.tour_service.repository.ShoppingCartRepository;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,8 +35,6 @@ public class TourService {
     private final TagRepository tagRepository;
     private final KeyPointRepository keyPointRepository;
     private final TourTransportTimeRepository tourTransportTimeRepository;
-    private final TourPurchaseTokenRepository tokenRepository;
-    private final ShoppingCartRepository shoppingCartRepository;
     private final RestTemplate restTemplate;
 
     public TourService(
@@ -50,16 +42,12 @@ public class TourService {
             TagRepository tagRepository,
             KeyPointRepository keyPointRepository,
             TourTransportTimeRepository tourTransportTimeRepository,
-            TourPurchaseTokenRepository tokenRepository,
-            ShoppingCartRepository shoppingCartRepository,
             RestTemplate restTemplate
     ) {
         this.tourRepository = tourRepository;
         this.tagRepository = tagRepository;
         this.keyPointRepository = keyPointRepository;
         this.tourTransportTimeRepository = tourTransportTimeRepository;
-                this.tokenRepository = tokenRepository;
-        this.shoppingCartRepository = shoppingCartRepository;
         this.restTemplate = restTemplate;
 
     }

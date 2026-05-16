@@ -1,10 +1,14 @@
 package com.example.purchase_service.controller;
 
+
 import com.example.purchase_service.dto.ShoppingCartResponse;
 import com.example.purchase_service.security.AuthenticatedUser;
 import com.example.purchase_service.service.ShoppingCartService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.example.purchase_service.dto.TourResponse;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/purchase/shopping-cart")
@@ -66,4 +70,18 @@ public class ShoppingCartController {
     ) {
         return shoppingCartService.cartContainsTour(touristId, tourId);
     }
+
+    @GetMapping("/purchased-tours")
+    public List<TourResponse> getPurchasedTours(
+            Authentication authentication,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+
+        String jwt = authHeader.replace("Bearer ", "");
+
+        return shoppingCartService.getPurchasedTours(user.getId(), jwt);
+    }
+
+
 }
