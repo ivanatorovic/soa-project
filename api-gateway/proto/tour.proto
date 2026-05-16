@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.soa.tour_service.grpc";
+option java_outer_classname = "TourProto";
+option go_package = "./proto";
+
+service TourRpcService {
+  rpc GetPublishedTours (GetPublishedToursRequest) returns (TourListGrpcResponse);
+  rpc GetTourById (GetTourByIdRequest) returns (TourGrpcResponse);
+  rpc GetMyTours (GetMyToursRequest) returns (TourListGrpcResponse);
+}
+
+message GetPublishedToursRequest {
+  int64 touristId = 1;
+}
+
+message GetTourByIdRequest {
+  int64 tourId = 1;
+  int64 userId = 2;
+  string role = 3;
+}
+
+message GetMyToursRequest {
+  int64 authorId = 1;
+}
+
+message TourListGrpcResponse {
+  repeated TourGrpcResponse tours = 1;
+}
+message TourTransportTimeGrpcResponse {
+  int64 id = 1;
+  string transportType = 2;
+  int32 durationMinutes = 3;
+}
+message TourGrpcResponse {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  string difficulty = 4;
+  double price = 5;
+  string status = 6;
+  int64 authorId = 7;
+  double distanceInKm = 8;
+  repeated TourTransportTimeGrpcResponse transportTimes = 9;
+  bool inShoppingCart = 10;
+  bool purchased = 11;
+}

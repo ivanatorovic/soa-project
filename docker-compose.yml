@@ -133,6 +133,7 @@ services:
       - app-network
     ports:
       - "8083:8083"
+      - "9093:9093"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://tours-db:5432/toursdb
       SPRING_DATASOURCE_USERNAME: postgres
