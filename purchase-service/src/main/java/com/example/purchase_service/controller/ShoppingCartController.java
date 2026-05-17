@@ -1,6 +1,8 @@
 package com.example.purchase_service.controller;
 
 
+import com.example.purchase_service.dto.CheckoutResponse;
+import com.example.purchase_service.dto.PurchaseStatusResponse;
 import com.example.purchase_service.dto.ShoppingCartResponse;
 import com.example.purchase_service.security.AuthenticatedUser;
 import com.example.purchase_service.service.ShoppingCartService;
@@ -49,9 +51,14 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/checkout")
-    public ShoppingCartResponse checkout(Authentication authentication) {
+    public CheckoutResponse checkout(Authentication authentication) {
         AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
         return shoppingCartService.checkout(user.getId());
+    }
+
+    @GetMapping("/purchases/{purchaseId}/status")
+    public PurchaseStatusResponse getPurchaseStatus(@PathVariable String purchaseId) {
+        return shoppingCartService.getPurchaseStatus(purchaseId);
     }
 
 

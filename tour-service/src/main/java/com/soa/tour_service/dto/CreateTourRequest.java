@@ -9,9 +9,18 @@ public class CreateTourRequest {
     private String name;
     private String description;
     private TourDifficulty difficulty;
+    private Integer availableSlots;
     private List<String> tags;
 
     public CreateTourRequest() {
+    }
+
+    public Integer getAvailableSlots() {
+        return availableSlots;
+    }
+
+    public void setAvailableSlots(Integer availableSlots) {
+        this.availableSlots = availableSlots;
     }
 
     public String getName() {

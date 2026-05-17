@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tours/executions")
@@ -22,13 +23,15 @@ public class TourExecutionController {
     }
 
     @PostMapping("/start/{tourId}")
-    public ResponseEntity<TourExecutionResponse> startTour(
+    public ResponseEntity<Map<String, String>> startTour(
             @PathVariable Long tourId,
             @RequestBody StartTourExecutionRequest request,
             @AuthenticationPrincipal AuthenticatedUser user
     ) {
+        String message = tourExecutionService.startTour(user.getId(), tourId, request);
+
         return ResponseEntity.ok(
-                tourExecutionService.startTour(user.getId(), tourId, request)
+                Map.of("message", message)
         );
     }
 

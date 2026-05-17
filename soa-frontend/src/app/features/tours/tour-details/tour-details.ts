@@ -96,7 +96,7 @@ export class TourDetails implements OnInit, OnDestroy {
       .addTransportTime(
         this.tour.id,
         this.transportForm.transportType,
-        this.transportForm.durationMinutes
+        this.transportForm.durationMinutes,
       )
       .subscribe({
         next: (response) => {
@@ -242,36 +242,66 @@ export class TourDetails implements OnInit, OnDestroy {
 
   goToReviews(): void {
     if (!this.tour) return;
-
     this.router.navigate(['/tours', this.tour.id, 'reviews']);
   }
 
   startTour(): void {
-  if (!this.tour) return;
+    if (!this.tour) return;
 
-  this.errorMessage = '';
-  this.successMessage = '';
+    this.errorMessage = '';
+    this.successMessage = '';
 
-  this.tourService.getTouristLocation().subscribe({
-    next: (location) => {
-      const request = {
-        latitude: location.latitude,
-        longitude: location.longitude
-      };
+    console.log('[TourDetails] startTour clicked for tour:', this.tour.id);
 
-      this.tourService.startTourExecution(this.tour!.id, request).subscribe({
-        next: (execution) => {
-          this.router.navigate(['/tours/active', execution.id]);
-        },
-        error: (error) => {
-          console.error(error);
-          this.errorMessage = error?.error?.message || 'Nije moguće pokrenuti turu.';
+    this.tourService.getTouristLocation().subscribe({
+      next: (location) => {
+        console.log('[TourDetails] tourist location:', location);
+
+        if (!location || location.latitude == null || location.longitude == null) {
+          this.errorMessage = 'Prvo podesite lokaciju u simulatoru pozicije.';
+          return;
         }
-      });
-    },
-    error: () => {
-      this.errorMessage = 'Prvo podesite lokaciju u simulatoru pozicije.';
-    }
-  });
-}
+
+        const request = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        };
+
+        this.tourService.startTourExecution(this.tour!.id, request).subscribe({
+          next: (startResponse) => {
+            console.log('[TourDetails] startTourExecution response:', startResponse);
+
+            this.successMessage = 'Pokretanje ture je započeto...';
+
+            setTimeout(() => {
+              this.tourService.getActiveTourExecution().subscribe({
+                next: (execution) => {
+                  console.log('[TourDetails] active execution response:', execution);
+
+                  if (!execution || !execution.id) {
+                    this.errorMessage = 'Aktivna tura još nije spremna. Pokušajte ponovo.';
+                    return;
+                  }
+
+                  this.router.navigate(['/tours/active', execution.id]);
+                },
+                error: (error) => {
+                  console.error('[TourDetails] getActiveTourExecution error:', error);
+                  this.errorMessage = 'Nije moguće učitati aktivnu turu.';
+                },
+              });
+            }, 1000);
+          },
+          error: (error) => {
+            console.error('[TourDetails] startTourExecution error:', error);
+            this.errorMessage = error?.error?.message || 'Nije moguće pokrenuti turu.';
+          },
+        });
+      },
+      error: (error) => {
+        console.error('[TourDetails] getTouristLocation error:', error);
+        this.errorMessage = 'Prvo podesite lokaciju u simulatoru pozicije.';
+      },
+    });
+  }
 }

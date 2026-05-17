@@ -117,6 +117,11 @@ private static final long serialVersionUID = 0L;
             purchased_ = input.readBool();
             break;
           }
+          case 96: {
+
+            availableSlots_ = input.readInt32();
+            break;
+          }
           default: {
             if (!parseUnknownField(
                 input, unknownFields, extensionRegistry, tag)) {
@@ -391,6 +396,16 @@ private static final long serialVersionUID = 0L;
     return purchased_;
   }
 
+  public static final int AVAILABLESLOTS_FIELD_NUMBER = 12;
+  private int availableSlots_;
+  /**
+   * <code>int32 availableSlots = 12;</code>
+   * @return The availableSlots.
+   */
+  public int getAvailableSlots() {
+    return availableSlots_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -437,6 +452,9 @@ private static final long serialVersionUID = 0L;
     }
     if (purchased_ != false) {
       output.writeBool(11, purchased_);
+    }
+    if (availableSlots_ != 0) {
+      output.writeInt32(12, availableSlots_);
     }
     unknownFields.writeTo(output);
   }
@@ -487,6 +505,10 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeBoolSize(11, purchased_);
     }
+    if (availableSlots_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(12, availableSlots_);
+    }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
     return size;
@@ -526,6 +548,8 @@ private static final long serialVersionUID = 0L;
         != other.getInShoppingCart()) return false;
     if (getPurchased()
         != other.getPurchased()) return false;
+    if (getAvailableSlots()
+        != other.getAvailableSlots()) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -567,6 +591,8 @@ private static final long serialVersionUID = 0L;
     hash = (37 * hash) + PURCHASED_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
         getPurchased());
+    hash = (37 * hash) + AVAILABLESLOTS_FIELD_NUMBER;
+    hash = (53 * hash) + getAvailableSlots();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -727,6 +753,8 @@ private static final long serialVersionUID = 0L;
 
       purchased_ = false;
 
+      availableSlots_ = 0;
+
       return this;
     }
 
@@ -773,6 +801,7 @@ private static final long serialVersionUID = 0L;
       }
       result.inShoppingCart_ = inShoppingCart_;
       result.purchased_ = purchased_;
+      result.availableSlots_ = availableSlots_;
       onBuilt();
       return result;
     }
@@ -880,6 +909,9 @@ private static final long serialVersionUID = 0L;
       }
       if (other.getPurchased() != false) {
         setPurchased(other.getPurchased());
+      }
+      if (other.getAvailableSlots() != 0) {
+        setAvailableSlots(other.getAvailableSlots());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -1631,6 +1663,36 @@ private static final long serialVersionUID = 0L;
     public Builder clearPurchased() {
       
       purchased_ = false;
+      onChanged();
+      return this;
+    }
+
+    private int availableSlots_ ;
+    /**
+     * <code>int32 availableSlots = 12;</code>
+     * @return The availableSlots.
+     */
+    public int getAvailableSlots() {
+      return availableSlots_;
+    }
+    /**
+     * <code>int32 availableSlots = 12;</code>
+     * @param value The availableSlots to set.
+     * @return This builder for chaining.
+     */
+    public Builder setAvailableSlots(int value) {
+      
+      availableSlots_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>int32 availableSlots = 12;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearAvailableSlots() {
+      
+      availableSlots_ = 0;
       onChanged();
       return this;
     }

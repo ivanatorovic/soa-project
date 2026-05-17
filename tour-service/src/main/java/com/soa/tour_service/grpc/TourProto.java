@@ -60,20 +60,21 @@ public final class TourProto {
       "\030\001 \001(\003\"8\n\024TourListGrpcResponse\022 \n\005tours\030" +
       "\001 \003(\0132\021.TourGrpcResponse\"[\n\035TourTranspor" +
       "tTimeGrpcResponse\022\n\n\002id\030\001 \001(\003\022\025\n\rtranspo" +
-      "rtType\030\002 \001(\t\022\027\n\017durationMinutes\030\003 \001(\005\"\377\001" +
+      "rtType\030\002 \001(\t\022\027\n\017durationMinutes\030\003 \001(\005\"\227\002" +
       "\n\020TourGrpcResponse\022\n\n\002id\030\001 \001(\003\022\014\n\004name\030\002" +
       " \001(\t\022\023\n\013description\030\003 \001(\t\022\022\n\ndifficulty\030" +
       "\004 \001(\t\022\r\n\005price\030\005 \001(\001\022\016\n\006status\030\006 \001(\t\022\020\n\010" +
       "authorId\030\007 \001(\003\022\024\n\014distanceInKm\030\010 \001(\001\0226\n\016" +
       "transportTimes\030\t \003(\0132\036.TourTransportTime" +
       "GrpcResponse\022\026\n\016inShoppingCart\030\n \001(\010\022\021\n\t" +
-      "purchased\030\013 \001(\0102\307\001\n\016TourRpcService\022E\n\021Ge" +
-      "tPublishedTours\022\031.GetPublishedToursReque" +
-      "st\032\025.TourListGrpcResponse\0225\n\013GetTourById" +
-      "\022\023.GetTourByIdRequest\032\021.TourGrpcResponse" +
-      "\0227\n\nGetMyTours\022\022.GetMyToursRequest\032\025.Tou" +
-      "rListGrpcResponseB(\n\031com.soa.tour_servic" +
-      "e.grpcB\tTourProtoP\001b\006proto3"
+      "purchased\030\013 \001(\010\022\026\n\016availableSlots\030\014 \001(\0052" +
+      "\307\001\n\016TourRpcService\022E\n\021GetPublishedTours\022" +
+      "\031.GetPublishedToursRequest\032\025.TourListGrp" +
+      "cResponse\0225\n\013GetTourById\022\023.GetTourByIdRe" +
+      "quest\032\021.TourGrpcResponse\0227\n\nGetMyTours\022\022" +
+      ".GetMyToursRequest\032\025.TourListGrpcRespons" +
+      "eB(\n\031com.soa.tour_service.grpcB\tTourProt" +
+      "oP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -114,7 +115,7 @@ public final class TourProto {
     internal_static_TourGrpcResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_TourGrpcResponse_descriptor,
-        new java.lang.String[] { "Id", "Name", "Description", "Difficulty", "Price", "Status", "AuthorId", "DistanceInKm", "TransportTimes", "InShoppingCart", "Purchased", });
+        new java.lang.String[] { "Id", "Name", "Description", "Difficulty", "Price", "Status", "AuthorId", "DistanceInKm", "TransportTimes", "InShoppingCart", "Purchased", "AvailableSlots", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

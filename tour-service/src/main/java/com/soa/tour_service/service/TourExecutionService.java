@@ -1,9 +1,15 @@
 package com.soa.tour_service.service;
 
+
+import com.soa.tour_service.config.RabbitMQConfig;
 import com.soa.tour_service.dto.*;
+import com.soa.tour_service.events.StartTourExecutionRequestedEvent;
+import com.soa.tour_service.events.TourExecutionAbandonedEvent;
+import com.soa.tour_service.events.TourExecutionCompletedEvent;
 import com.soa.tour_service.model.*;
 import com.soa.tour_service.repository.CompletedKeyPointRepository;
 import com.soa.tour_service.repository.TourExecutionRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.web.client.RestTemplate;
 import com.soa.tour_service.repository.TourRepository;
 import org.springframework.stereotype.Service;
@@ -19,49 +25,27 @@ public class TourExecutionService {
     private final TourExecutionRepository tourExecutionRepository;
     private final CompletedKeyPointRepository completedKeyPointRepository;
     private final TourRepository tourRepository;
-    private final RestTemplate restTemplate;
+    private final RabbitTemplate rabbitTemplate;
 
 
     public TourExecutionService(
             TourExecutionRepository tourExecutionRepository,
             CompletedKeyPointRepository completedKeyPointRepository,
             TourRepository tourRepository,
-            RestTemplate restTemplate
+            RabbitTemplate rabbitTemplate
     ) {
         this.tourExecutionRepository = tourExecutionRepository;
         this.completedKeyPointRepository = completedKeyPointRepository;
         this.tourRepository = tourRepository;
-        this.restTemplate = restTemplate;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
-    public TourExecutionResponse startTour(Long touristId, Long tourId, StartTourExecutionRequest request) {
+    public String startTour(Long touristId, Long tourId, StartTourExecutionRequest request) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
-        boolean alreadyFinishedOrAbandoned =
-                tourExecutionRepository.existsByTouristIdAndTourIdAndStatusIn(
-                        touristId,
-                        tourId,
-                        List.of(TourExecutionStatus.COMPLETED, TourExecutionStatus.ABANDONED)
-                );
-
-        if (alreadyFinishedOrAbandoned) {
-            throw new RuntimeException("Ovu turu ste već završili ili napustili i ne možete je ponovo pokrenuti");
-        }
 
         if (tour.getStatus() != TourStatus.PUBLISHED && tour.getStatus() != TourStatus.ARCHIVED) {
             throw new RuntimeException("Moguće je pokrenuti samo objavljenu ili arhiviranu turu");
-        }
-
-        boolean purchased = Boolean.TRUE.equals(
-                restTemplate.getForObject(
-                        "http://purchase-service:8084/api/purchase/shopping-cart/tokens/exists?touristId="
-                                + touristId + "&tourId=" + tourId,
-                        Boolean.class
-                )
-        );
-
-        if (!purchased) {
-            throw new RuntimeException("Morate kupiti turu pre pokretanja");
         }
 
         tourExecutionRepository.findByTouristIdAndStatus(touristId, TourExecutionStatus.ACTIVE)
@@ -69,19 +53,19 @@ public class TourExecutionService {
                     throw new RuntimeException("Već imate aktivnu turu");
                 });
 
-        LocalDateTime now = LocalDateTime.now();
 
-        TourExecution execution = new TourExecution();
-        execution.setTouristId(touristId);
-        execution.setTour(tour);
-        execution.setStatus(TourExecutionStatus.ACTIVE);
-        execution.setStartedAt(now);
-        execution.setLastActivityAt(now);
-        execution.setStartLatitude(request.getLatitude());
-        execution.setStartLongitude(request.getLongitude());
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.TOURS_EXCHANGE,
+                RabbitMQConfig.TOUR_EXECUTION_START_REQUESTED_ROUTING_KEY,
+                new StartTourExecutionRequestedEvent(
+                        touristId,
+                        tourId,
+                        request.getLatitude(),
+                        request.getLongitude()
+                )
+        );
 
-        TourExecution saved = tourExecutionRepository.save(execution);
-        return mapToResponse(saved);
+        return "Pokretanje ture je započeto";
     }
 
     public TourExecutionResponse checkKeyPoints(Long touristId, Long executionId, CheckKeyPointRequest request) {
@@ -138,6 +122,14 @@ public class TourExecutionService {
         if (totalKeyPoints > 0 && completedCount == totalKeyPoints) {
             execution.setStatus(TourExecutionStatus.COMPLETED);
             execution.setCompletedAt(now);
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.TOURS_EXCHANGE,
+                    RabbitMQConfig.TOUR_EXECUTION_COMPLETED_ROUTING_KEY,
+                    new TourExecutionCompletedEvent(
+                            touristId,
+                            execution.getTour().getId()
+                    )
+            );
         }
 
         TourExecution saved = tourExecutionRepository.save(execution);
@@ -152,7 +144,18 @@ public class TourExecutionService {
         execution.setCompletedAt(now);
         execution.setLastActivityAt(now);
 
-        return mapToResponse(tourExecutionRepository.save(execution));
+        TourExecution saved = tourExecutionRepository.save(execution);
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.TOURS_EXCHANGE,
+                RabbitMQConfig.TOUR_EXECUTION_COMPLETED_ROUTING_KEY,
+                new TourExecutionCompletedEvent(
+                        touristId,
+                        execution.getTour().getId()
+                )
+        );
+
+        return mapToResponse(saved);
     }
 
     public TourExecutionResponse abandonTour(Long touristId, Long executionId) {
@@ -162,7 +165,14 @@ public class TourExecutionService {
         execution.setStatus(TourExecutionStatus.ABANDONED);
         execution.setAbandonedAt(now);
         execution.setLastActivityAt(now);
-
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.TOURS_EXCHANGE,
+                RabbitMQConfig.TOUR_EXECUTION_ABANDONED_ROUTING_KEY,
+                new TourExecutionAbandonedEvent(
+                        touristId,
+                        execution.getTour().getId()
+                )
+        );
         return mapToResponse(tourExecutionRepository.save(execution));
     }
 
@@ -185,14 +195,17 @@ public class TourExecutionService {
     }
 
     private TourExecutionResponse mapToResponse(TourExecution execution) {
-        List<CompletedKeyPointResponse> completed = execution.getCompletedKeyPoints()
-                .stream()
-                .map(kp -> new CompletedKeyPointResponse(
-                        kp.getKeyPointId(),
-                        kp.getKeyPointName(),
-                        kp.getReachedAt()
-                ))
-                .toList();
+        List<CompletedKeyPointResponse> completed =
+                execution.getCompletedKeyPoints() == null
+                        ? List.of()
+                        : execution.getCompletedKeyPoints()
+                        .stream()
+                        .map(kp -> new CompletedKeyPointResponse(
+                                kp.getKeyPointId(),
+                                kp.getKeyPointName(),
+                                kp.getReachedAt()
+                        ))
+                        .toList();
 
         return new TourExecutionResponse(
                 execution.getId(),

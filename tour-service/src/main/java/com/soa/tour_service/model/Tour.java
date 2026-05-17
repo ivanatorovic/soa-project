@@ -33,6 +33,9 @@ public class Tour {
     @Column(nullable = false)
     private TourStatus status;
 
+    @Column(nullable = false)
+    private Integer availableSlots = 0;
+
     private LocalDateTime publishedAt;
 
     private LocalDateTime archivedAt;
@@ -155,6 +158,14 @@ public class Tour {
 
     public Double getDistanceInKm() {
         return distanceInKm;
+    }
+
+    public Integer getAvailableSlots() {
+        return availableSlots;
+    }
+
+    public void setAvailableSlots(Integer availableSlots) {
+        this.availableSlots = availableSlots;
     }
 
     public void setDistanceInKm(Double distanceInKm) {

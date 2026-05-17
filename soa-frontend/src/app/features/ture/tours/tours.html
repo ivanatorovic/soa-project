@@ -57,13 +57,11 @@
       Simulator pozicije
     </button>
 
-    <button *ngIf="isTourist()" routerLink="/shopping-cart" class="create-btn">
-  Moja korpa
-</button>
+    <button *ngIf="isTourist()" routerLink="/shopping-cart" class="create-btn">Moja korpa</button>
 
-<button *ngIf="isTourist()" routerLink="/tours/purchased" class="create-btn">
-  Moje kupljene ture
-</button>
+    <button *ngIf="isTourist()" routerLink="/tours/purchased" class="create-btn">
+      Moje kupljene ture
+    </button>
 
     <button *ngIf="!isTourist()" (click)="goToCreateTour()" class="create-btn">
       + Kreiraj turu
@@ -78,9 +76,7 @@
     {{ errorMessage }}
   </p>
 
-  <div *ngIf="tours.length === 0" class="empty-state">
-    Nema dostupnih tura.
-  </div>
+  <div *ngIf="tours.length === 0" class="empty-state">Nema dostupnih tura.</div>
 
   <div class="tours-grid" *ngIf="tours.length > 0">
     <div class="tour-card" *ngFor="let tour of tours" [routerLink]="['/tours', tour.id]">
@@ -103,20 +99,21 @@
       <div class="info">
         <span><b>Težina:</b> {{ tour.difficulty }}</span>
         <span><b>Cena:</b> {{ tour.price }} RSD</span>
+        <span><b>Mesta:</b> {{ tour.availableSlots }}</span>
       </div>
 
       <div class="tour-extra-info">
         <p>
           <b>Dužina ture:</b>
-          {{ tour.distanceInKm ? (tour.distanceInKm | number:'1.1-2') : 0 }} km
+          {{ tour.distanceInKm ? (tour.distanceInKm | number: '1.1-2') : 0 }} km
         </p>
 
         <p *ngIf="tour.publishedAt">
-          <b>Objavljena:</b> {{ tour.publishedAt | date:'dd.MM.yyyy. HH:mm' }}
+          <b>Objavljena:</b> {{ tour.publishedAt | date: 'dd.MM.yyyy. HH:mm' }}
         </p>
 
         <p *ngIf="tour.archivedAt">
-          <b>Arhivirana:</b> {{ tour.archivedAt | date:'dd.MM.yyyy. HH:mm' }}
+          <b>Arhivirana:</b> {{ tour.archivedAt | date: 'dd.MM.yyyy. HH:mm' }}
         </p>
       </div>
 
@@ -126,7 +123,10 @@
         </span>
       </div>
 
-      <div class="transport-times empty-transport" *ngIf="!tour.transportTimes || tour.transportTimes.length === 0">
+      <div
+        class="transport-times empty-transport"
+        *ngIf="!tour.transportTimes || tour.transportTimes.length === 0"
+      >
         <span>Nema uneto vreme obilaska</span>
       </div>
 
@@ -146,28 +146,22 @@
       </button>
 
       <button
-  *ngIf="isTourist() && !tour.inShoppingCart && !tour.purchased"
-  class="details-btn"
-  (click)="addToCart(tour.id, $event)"
->
-  Dodaj u korpu
-</button>
+        *ngIf="isTourist() && !tour.inShoppingCart && !tour.purchased"
+        class="details-btn"
+        (click)="addToCart(tour.id, $event)"
+      >
+        Dodaj u korpu
+      </button>
 
-<button
-  *ngIf="isTourist() && tour.inShoppingCart && !tour.purchased"
-  class="details-btn"
-  disabled
->
-  Dodata u korpu
-</button>
+      <button
+        *ngIf="isTourist() && tour.inShoppingCart && !tour.purchased"
+        class="details-btn"
+        disabled
+      >
+        Dodata u korpu
+      </button>
 
-<button
-  *ngIf="isTourist() && tour.purchased"
-  class="details-btn"
-  disabled
->
-  Kupljena
-</button>
+      <button *ngIf="isTourist() && tour.purchased" class="details-btn" disabled>Kupljena</button>
 
       <div *ngIf="!isTourist()" class="lifecycle-actions">
         <button

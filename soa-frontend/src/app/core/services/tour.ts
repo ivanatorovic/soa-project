@@ -7,6 +7,7 @@ export interface CreateTourRequest {
   description: string;
   difficulty: string;
   tags: string[];
+  availableSlots: number;
 }
 
 export interface CreateKeyPointRequest {
@@ -54,7 +55,7 @@ export interface TourResponse {
   price: number;
   status: string;
   inShoppingCart?: boolean;
-purchased?: boolean;
+  purchased?: boolean;
   authorId: number;
   tags: string[];
   keyPoints: KeyPointResponse[];
@@ -63,6 +64,7 @@ purchased?: boolean;
   archivedAt?: string | null;
   distanceInKm?: number;
   transportTimes?: TourTransportTimeResponse[];
+  availableSlots?: number;
 }
 
 export interface TouristLocationRequest {
@@ -137,33 +139,32 @@ export class TourService {
       headers: this.getAuthHeaders(),
     });
   }
-getShoppingCart(): Observable<ShoppingCartResponse> {
-  return this.http.get<ShoppingCartResponse>(this.purchaseApiUrl, {
-    headers: this.getAuthHeaders(),
-  });
-}
+  getShoppingCart(): Observable<ShoppingCartResponse> {
+    return this.http.get<ShoppingCartResponse>(this.purchaseApiUrl, {
+      headers: this.getAuthHeaders(),
+    });
+  }
 
-addTourToCart(tourId: number): Observable<ShoppingCartResponse> {
-  return this.http.post<ShoppingCartResponse>(
-    `${this.purchaseApiUrl}/items/${tourId}`,
-    {},
-    { headers: this.getAuthHeaders() }
-  );
-}
+  addTourToCart(tourId: number): Observable<ShoppingCartResponse> {
+    return this.http.post<ShoppingCartResponse>(
+      `${this.purchaseApiUrl}/items/${tourId}`,
+      {},
+      { headers: this.getAuthHeaders() },
+    );
+  }
 
-removeItemFromCart(itemId: number): Observable<ShoppingCartResponse> {
-  return this.http.delete<ShoppingCartResponse>(
-    `${this.purchaseApiUrl}/items/${itemId}`,
-    { headers: this.getAuthHeaders() }
-  );
-}
-checkout(): Observable<ShoppingCartResponse> {
-  return this.http.post<ShoppingCartResponse>(
-    `${this.purchaseApiUrl}/checkout`,
-    {},
-    { headers: this.getAuthHeaders() }
-  );
-}
+  removeItemFromCart(itemId: number): Observable<ShoppingCartResponse> {
+    return this.http.delete<ShoppingCartResponse>(`${this.purchaseApiUrl}/items/${itemId}`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+  checkout(): Observable<ShoppingCartResponse> {
+    return this.http.post<ShoppingCartResponse>(
+      `${this.purchaseApiUrl}/checkout`,
+      {},
+      { headers: this.getAuthHeaders() },
+    );
+  }
   getMyTours(): Observable<TourResponse[]> {
     return this.http.get<TourResponse[]>(`${this.apiUrl}/my`, {
       headers: this.getAuthHeaders(),
@@ -194,7 +195,7 @@ checkout(): Observable<ShoppingCartResponse> {
       {},
       {
         headers: this.getAuthHeaders(),
-      }
+      },
     );
   }
 
@@ -204,7 +205,7 @@ checkout(): Observable<ShoppingCartResponse> {
       {},
       {
         headers: this.getAuthHeaders(),
-      }
+      },
     );
   }
 
@@ -214,28 +215,28 @@ checkout(): Observable<ShoppingCartResponse> {
       {},
       {
         headers: this.getAuthHeaders(),
-      }
+      },
     );
   }
 
   addTransportTime(
     tourId: number,
     transportType: string,
-    durationMinutes: number
+    durationMinutes: number,
   ): Observable<TourResponse> {
     return this.http.post<TourResponse>(
       `${this.apiUrl}/${tourId}/transport-times?transportType=${transportType}&durationMinutes=${durationMinutes}`,
       {},
       {
         headers: this.getAuthHeaders(),
-      }
+      },
     );
   }
 
   addKeyPoint(
     tourId: number,
     request: CreateKeyPointRequest,
-    imageFile?: File | null
+    imageFile?: File | null,
   ): Observable<void> {
     const formData = new FormData();
 
@@ -257,7 +258,7 @@ checkout(): Observable<ShoppingCartResponse> {
     tourId: number,
     keyPointId: number,
     request: CreateKeyPointRequest,
-    imageFile?: File | null
+    imageFile?: File | null,
   ): Observable<void> {
     const formData = new FormData();
 
@@ -306,83 +307,65 @@ checkout(): Observable<ShoppingCartResponse> {
   }
 
   createReview(tourId: number, formData: FormData): Observable<ReviewResponse> {
-  return this.http.post<ReviewResponse>(`${this.apiUrl}/${tourId}/reviews`, formData, {
-    headers: this.getAuthHeaders(),
-  });
-}
-
-getPurchasedTours(): Observable<TourResponse[]> {
-  return this.http.get<TourResponse[]>(
-    `${this.apiUrl}/purchases`,
-    {
+    return this.http.post<ReviewResponse>(`${this.apiUrl}/${tourId}/reviews`, formData, {
       headers: this.getAuthHeaders(),
-    }
-  );
-}
+    });
+  }
 
-  startTourExecution(
-  tourId: number,
-  request: StartTourExecutionRequest
-): Observable<TourExecutionResponse> {
-  return this.http.post<TourExecutionResponse>(
-    `${this.apiUrl}/executions/start/${tourId}`,
-    request,
-    {
+  getPurchasedTours(): Observable<TourResponse[]> {
+    return this.http.get<TourResponse[]>(`${this.apiUrl}/purchases`, {
       headers: this.getAuthHeaders(),
-    }
-  );
-}
+    });
+  }
 
-getActiveTourExecution(): Observable<TourExecutionResponse> {
-  return this.http.get<TourExecutionResponse>(
-    `${this.apiUrl}/executions/active`,
-    {
+  startTourExecution(tourId: number, request: StartTourExecutionRequest): Observable<string> {
+    return this.http.post(`${this.apiUrl}/executions/start/${tourId}`, request, {
       headers: this.getAuthHeaders(),
-    }
-  );
-}
+      responseType: 'text' as const,
+    });
+  }
 
-checkKeyPoints(
-  executionId: number,
-  request: CheckKeyPointRequest
-): Observable<TourExecutionResponse> {
-  return this.http.post<TourExecutionResponse>(
-    `${this.apiUrl}/executions/${executionId}/check-key-points`,
-    request,
-    {
+  getActiveTourExecution(): Observable<TourExecutionResponse> {
+    return this.http.get<TourExecutionResponse>(`${this.apiUrl}/executions/active`, {
       headers: this.getAuthHeaders(),
-    }
-  );
-}
+    });
+  }
 
-completeTourExecution(executionId: number): Observable<TourExecutionResponse> {
-  return this.http.post<TourExecutionResponse>(
-    `${this.apiUrl}/executions/${executionId}/complete`,
-    {},
-    {
+  checkKeyPoints(
+    executionId: number,
+    request: CheckKeyPointRequest,
+  ): Observable<TourExecutionResponse> {
+    return this.http.post<TourExecutionResponse>(
+      `${this.apiUrl}/executions/${executionId}/check-key-points`,
+      request,
+      {
+        headers: this.getAuthHeaders(),
+      },
+    );
+  }
+
+  completeTourExecution(executionId: number): Observable<TourExecutionResponse> {
+    return this.http.post<TourExecutionResponse>(
+      `${this.apiUrl}/executions/${executionId}/complete`,
+      {},
+      {
+        headers: this.getAuthHeaders(),
+      },
+    );
+  }
+
+  abandonTourExecution(executionId: number): Observable<TourExecutionResponse> {
+    return this.http.post<TourExecutionResponse>(
+      `${this.apiUrl}/executions/${executionId}/abandon`,
+      {},
+      {
+        headers: this.getAuthHeaders(),
+      },
+    );
+  }
+  getCompletedExecutions(): Observable<TourExecutionResponse[]> {
+    return this.http.get<TourExecutionResponse[]>(`${this.apiUrl}/executions/completed`, {
       headers: this.getAuthHeaders(),
-    }
-  );
-}
-
-abandonTourExecution(executionId: number): Observable<TourExecutionResponse> {
-  return this.http.post<TourExecutionResponse>(
-    `${this.apiUrl}/executions/${executionId}/abandon`,
-    {},
-    {
-      headers: this.getAuthHeaders(),
-    }
-  );
-}
-getCompletedExecutions(): Observable<TourExecutionResponse[]> {
-  return this.http.get<TourExecutionResponse[]>(
-    `${this.apiUrl}/executions/completed`,
-    {
-      headers: this.getAuthHeaders(),
-    }
-  );
-}
-
-
-
+    });
+  }
 }

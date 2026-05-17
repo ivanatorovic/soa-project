@@ -4,8 +4,8 @@
       <p class="subtitle">Tour Service</p>
       <h1>Kreiranje ture</h1>
       <p class="description">
-        Unesite osnovne podatke o turi. Prilikom kreiranja, status ture će biti draft,
-        a cena će automatski biti postavljena na 0.
+        Unesite osnovne podatke o turi. Prilikom kreiranja, status ture će biti draft, a cena će
+        automatski biti postavljena na 0.
       </p>
     </div>
 
@@ -44,12 +44,7 @@
 
       <div class="form-group">
         <label for="difficulty">Težina</label>
-        <select
-          id="difficulty"
-          name="difficulty"
-          [(ngModel)]="formData.difficulty"
-          required
-        >
+        <select id="difficulty" name="difficulty" [(ngModel)]="formData.difficulty" required>
           <option value="EASY">Laka</option>
           <option value="MEDIUM">Srednja</option>
           <option value="HARD">Teška</option>
@@ -68,9 +63,20 @@
         <small>Tagove odvoj zarezom.</small>
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="tourForm.invalid">
-        Kreiraj turu
-      </button>
+      <div class="form-group">
+        <label for="availableSlots">Broj slobodnih mesta</label>
+        <input
+          type="number"
+          id="availableSlots"
+          name="availableSlots"
+          [(ngModel)]="formData.availableSlots"
+          required
+          min="1"
+          placeholder="npr. 20"
+        />
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="tourForm.invalid">Kreiraj turu</button>
     </form>
 
     <div *ngIf="createdTour" class="created-tour-preview">
@@ -104,6 +110,11 @@
       <div class="preview-row">
         <span class="label">Tagovi:</span>
         <span>{{ createdTour.tags.join(', ') }}</span>
+      </div>
+
+      <div class="preview-row">
+        <span class="label">Slobodna mesta:</span>
+        <span>{{ createdTour.availableSlots }}</span>
       </div>
     </div>
   </div>

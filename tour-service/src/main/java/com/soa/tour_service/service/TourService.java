@@ -1,32 +1,26 @@
 package com.soa.tour_service.service;
 
-
 import com.soa.tour_service.dto.CreateTourRequest;
 import com.soa.tour_service.dto.KeyPointResponse;
 import com.soa.tour_service.dto.TourResponse;
-import com.soa.tour_service.model.KeyPoint;
-import com.soa.tour_service.model.Tag;
-import com.soa.tour_service.model.Tour;
-import com.soa.tour_service.model.TourStatus;
+import com.soa.tour_service.dto.TourTransportTimeResponse;
+import com.soa.tour_service.model.*;
 import com.soa.tour_service.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import java.time.LocalDateTime;
-import com.soa.tour_service.model.TransportType;
-import com.soa.tour_service.model.TourTransportTime;
-import com.soa.tour_service.dto.TourTransportTimeResponse;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.HashSet;
 
 @Service
 public class TourService {
@@ -49,7 +43,6 @@ public class TourService {
         this.keyPointRepository = keyPointRepository;
         this.tourTransportTimeRepository = tourTransportTimeRepository;
         this.restTemplate = restTemplate;
-
     }
 
     public TourResponse createTour(CreateTourRequest request, Long authorId) {
@@ -70,11 +63,16 @@ public class TourService {
             }
         }
 
+        if (request.getAvailableSlots() == null || request.getAvailableSlots() <= 0) {
+            throw new RuntimeException("Broj slobodnih mesta mora biti veći od 0");
+        }
+
         Tour tour = new Tour();
         tour.setName(request.getName());
         tour.setDescription(request.getDescription());
         tour.setDifficulty(request.getDifficulty());
         tour.setPrice(0.0);
+        tour.setAvailableSlots(request.getAvailableSlots());
         tour.setStatus(TourStatus.DRAFT);
         tour.setAuthorId(authorId);
         tour.setTags(resolvedTags);
@@ -82,8 +80,8 @@ public class TourService {
         Tour savedTour = tourRepository.save(tour);
         return mapToResponse(savedTour);
     }
-    private void enrichTourForTourist(TourResponse response, Long touristId) {
 
+    private void enrichTourForTourist(TourResponse response, Long touristId) {
         boolean purchased = Boolean.TRUE.equals(
                 restTemplate.getForObject(
                         "http://purchase-service:8084/api/purchase/shopping-cart/tokens/exists?touristId="
@@ -104,12 +102,14 @@ public class TourService {
 
         response.setInShoppingCart(inCart);
     }
+
     public List<TourResponse> getMyTours(Long authorId) {
         return tourRepository.findByAuthorId(authorId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+
     public TourResponse publishTour(Long tourId, Long userId) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
@@ -130,6 +130,7 @@ public class TourService {
         Tour savedTour = tourRepository.save(tour);
         return mapToResponse(savedTour);
     }
+
     public TourResponse archiveTour(Long tourId, Long userId) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
@@ -148,6 +149,7 @@ public class TourService {
         Tour savedTour = tourRepository.save(tour);
         return mapToResponse(savedTour);
     }
+
     public TourResponse reactivateTour(Long tourId, Long userId) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new RuntimeException("Tura nije pronađena"));
@@ -166,6 +168,7 @@ public class TourService {
         Tour savedTour = tourRepository.save(tour);
         return mapToResponse(savedTour);
     }
+
     private void validateTourForPublishing(Tour tour) {
         if (tour.getName() == null || tour.getName().isBlank()) {
             throw new RuntimeException("Tura mora imati naziv");
@@ -191,6 +194,7 @@ public class TourService {
             throw new RuntimeException("Tura mora imati bar jedno vreme obilaska");
         }
     }
+
     public TourResponse addTransportTime(
             Long tourId,
             TransportType transportType,
@@ -214,13 +218,12 @@ public class TourService {
         transportTime.setDurationMinutes(durationMinutes);
 
         tourTransportTimeRepository.save(transportTime);
-
         tour.getTransportTimes().add(transportTime);
 
         return mapToResponse(tour);
     }
-    public List<TourResponse> getPublishedToursForTourist(Long touristId) {
 
+    public List<TourResponse> getPublishedToursForTourist(Long touristId) {
         List<TourResponse> tours = tourRepository.findByStatus(TourStatus.PUBLISHED)
                 .stream()
                 .map(this::mapToTouristPreviewResponse)
@@ -230,6 +233,7 @@ public class TourService {
 
         return tours;
     }
+
     private TourResponse mapToTouristPreviewResponse(Tour tour) {
         List<String> tagNames = tour.getTags()
                 .stream()
@@ -274,9 +278,11 @@ public class TourService {
         response.setArchivedAt(tour.getArchivedAt());
         response.setDistanceInKm(tour.getDistanceInKm());
         response.setTransportTimes(transportTimeResponses);
+        response.setAvailableSlots(tour.getAvailableSlots());
 
         return response;
     }
+
     private TourResponse mapToResponse(Tour tour) {
         List<String> tagNames = tour.getTags()
                 .stream()
@@ -320,6 +326,7 @@ public class TourService {
         response.setArchivedAt(tour.getArchivedAt());
         response.setDistanceInKm(tour.getDistanceInKm());
         response.setTransportTimes(transportTimeResponses);
+        response.setAvailableSlots(tour.getAvailableSlots());
 
         return response;
     }
@@ -355,7 +362,6 @@ public class TourService {
         kp.setTour(tour);
 
         keyPointRepository.save(kp);
-
         tour.getKeyPoints().add(kp);
 
         double totalDistance = calculateTotalTourDistance(tour.getKeyPoints());
@@ -413,6 +419,7 @@ public class TourService {
 
         return mapToResponse(tour);
     }
+
     public List<TourResponse> getAllTours() {
         return tourRepository.findAll()
                 .stream()
@@ -455,8 +462,10 @@ public class TourService {
         }
 
         keyPointRepository.save(keyPoint);
+
         double totalDistance = calculateTotalTourDistance(tour.getKeyPoints());
         tour.setDistanceInKm(totalDistance);
+
         tourRepository.save(tour);
     }
 
@@ -476,7 +485,6 @@ public class TourService {
         }
 
         keyPointRepository.delete(keyPoint);
-
         tour.getKeyPoints().remove(keyPoint);
 
         double totalDistance = calculateTotalTourDistance(tour.getKeyPoints());

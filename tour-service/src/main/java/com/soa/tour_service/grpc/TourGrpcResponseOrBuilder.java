@@ -114,4 +114,10 @@ public interface TourGrpcResponseOrBuilder extends
    * @return The purchased.
    */
   boolean getPurchased();
+
+  /**
+   * <code>int32 availableSlots = 12;</code>
+   * @return The availableSlots.
+   */
+  int getAvailableSlots();
 }

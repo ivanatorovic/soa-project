@@ -28,6 +28,7 @@ type TourJsonResponse struct {
 	TransportTimes []*pb.TourTransportTimeGrpcResponse `json:"transportTimes"`
 	InShoppingCart bool                          `json:"inShoppingCart"`
 	Purchased      bool                          `json:"purchased"`
+	AvailableSlots int32 `json:"availableSlots"`
 }
 
 func newProxy(target string) *httputil.ReverseProxy {
@@ -260,6 +261,95 @@ func main() {
 			blogProxy.ServeHTTP(w, r)
 			return
 		}
+
+
+if r.URL.Path == "/api/tours/published" {
+
+	touristId := extractUserIdFromJwt(r)
+
+    grpcResponse, err := tourGrpcClient.GetPublishedTours(
+    	context.Background(),
+    	&pb.GetPublishedToursRequest{
+    		TouristId: touristId,
+    	},
+    )
+
+	if err != nil {
+    	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+    	http.Error(w, err.Error(), http.StatusInternalServerError)
+    	return
+    }
+w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+	w.Header().Set("Content-Type", "application/json")
+
+	response := make([]TourJsonResponse, 0)
+
+    for _, tour := range grpcResponse.Tours {
+    	response = append(response, TourJsonResponse{
+            ID:             tour.Id,
+            Name:           tour.Name,
+            Description:    tour.Description,
+            Difficulty:     tour.Difficulty,
+            Price:          tour.Price,
+            Status:         tour.Status,
+            AuthorId:       tour.AuthorId,
+            DistanceInKm:   tour.DistanceInKm,
+            TransportTimes: tour.TransportTimes,
+            InShoppingCart: tour.InShoppingCart,
+            Purchased:      tour.Purchased,
+            AvailableSlots: tour.AvailableSlots,
+        })
+    }
+
+    json.NewEncoder(w).Encode(response)
+
+	return
+}
+if r.URL.Path == "/api/tours/my" {
+
+	authorId := extractUserIdFromJwt(r)
+
+	if authorId == 0 {
+		http.Error(w, "Nije moguće pročitati userId iz tokena", http.StatusUnauthorized)
+		return
+	}
+
+	grpcResponse, err := tourGrpcClient.GetMyTours(
+		context.Background(),
+		&pb.GetMyToursRequest{
+			AuthorId: authorId,
+		},
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+	w.Header().Set("Content-Type", "application/json")
+	response := make([]TourJsonResponse, 0)
+
+    for _, tour := range grpcResponse.Tours {
+    	response = append(response, TourJsonResponse{
+            ID:             tour.Id,
+            Name:           tour.Name,
+            Description:    tour.Description,
+            Difficulty:     tour.Difficulty,
+            Price:          tour.Price,
+            Status:         tour.Status,
+            AuthorId:       tour.AuthorId,
+            DistanceInKm:   tour.DistanceInKm,
+            TransportTimes: tour.TransportTimes,
+            InShoppingCart: tour.InShoppingCart,
+            Purchased:      tour.Purchased,
+            AvailableSlots: tour.AvailableSlots,
+        })
+    }
+
+    json.NewEncoder(w).Encode(response)
+
+	return
+}
 
 
 if r.URL.Path == "/api/tours/published" {

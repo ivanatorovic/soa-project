@@ -16,19 +16,26 @@
             <span><b>Težina:</b> {{ tour.difficulty }}</span>
             <span><b>Status:</b> {{ tour.status }}</span>
             <span><b>Cena:</b> {{ tour.price }} RSD</span>
+            <span><b>Slobodna mesta:</b> {{ tour.availableSlots }}</span>
             <span>
               <b>Dužina:</b>
-              {{ tour.distanceInKm ? (tour.distanceInKm | number:'1.1-2') : 0 }} km
+              {{ tour.distanceInKm ? (tour.distanceInKm | number: '1.1-2') : 0 }} km
             </span>
           </div>
 
-          <div class="transport-preview" *ngIf="tour.transportTimes && tour.transportTimes.length > 0">
+          <div
+            class="transport-preview"
+            *ngIf="tour.transportTimes && tour.transportTimes.length > 0"
+          >
             <span *ngFor="let time of tour.transportTimes">
               {{ getTransportLabel(time.transportType) }}: {{ time.durationMinutes }} min
             </span>
           </div>
 
-          <div class="transport-preview empty-transport" *ngIf="!tour.transportTimes || tour.transportTimes.length === 0">
+          <div
+            class="transport-preview empty-transport"
+            *ngIf="!tour.transportTimes || tour.transportTimes.length === 0"
+          >
             <span>Nema uneto vreme obilaska</span>
           </div>
 
@@ -36,14 +43,9 @@
             <span *ngFor="let tag of tour.tags" class="tag">{{ tag }}</span>
           </div>
 
-              <button
-      *ngIf="tour.purchased"
-      class="route-btn"
-      type="button"
-      (click)="startTour()"
-    >
-      Pokreni turu
-</button>
+          <button *ngIf="tour.purchased" class="route-btn" type="button" (click)="startTour()">
+            Pokreni turu
+          </button>
         </div>
       </div>
 
@@ -126,9 +128,7 @@
               />
             </div>
 
-            <button type="submit" class="save-time-btn">
-              Sačuvaj vreme obilaska
-            </button>
+            <button type="submit" class="save-time-btn">Sačuvaj vreme obilaska</button>
           </form>
         </div>
       </div>

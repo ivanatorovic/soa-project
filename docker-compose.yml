@@ -129,6 +129,7 @@ services:
     restart: on-failure
     depends_on:
       - tours-db
+      - rabbitmq
     networks:
       - app-network
     ports:
@@ -142,8 +143,13 @@ services:
       SPRING_SQL_INIT_MODE: always
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: true
       SERVER_PORT: 8083
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+
     volumes:
-      - ./tour-service/uploads:/app/uploads
+        - ./tour-service/uploads:/app/uploads
 
   follower-service:
     build:
@@ -188,6 +194,7 @@ services:
     depends_on:
       - purchase-db
       - tours-service
+      - rabbitmq
     networks:
       - app-network
     ports:
@@ -200,6 +207,24 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
       SPRING_SQL_INIT_MODE: always
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: true
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      APP_TEST_FAIL_TOKEN_CREATION: false
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
 
   api-gateway:
     build:
@@ -213,7 +238,6 @@ services:
       - tours-service
       - follower-service
       - purchase-service
-
     networks:
       - app-network
     ports:

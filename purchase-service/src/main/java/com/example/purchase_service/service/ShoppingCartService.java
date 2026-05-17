@@ -1,13 +1,12 @@
 package com.example.purchase_service.service;
 
-import com.example.purchase_service.dto.OrderItemResponse;
-import com.example.purchase_service.dto.PurchasedTourResponse;
-import com.example.purchase_service.dto.ShoppingCartResponse;
-import com.example.purchase_service.dto.TourResponse;
+import com.example.purchase_service.dto.*;
 import com.example.purchase_service.model.OrderItem;
+import com.example.purchase_service.model.Purchase;
 import com.example.purchase_service.model.ShoppingCart;
 import com.example.purchase_service.model.TourPurchaseToken;
 import com.example.purchase_service.repository.OrderItemRepository;
+import com.example.purchase_service.repository.PurchaseRepository;
 import com.example.purchase_service.repository.ShoppingCartRepository;
 import com.example.purchase_service.repository.TourPurchaseTokenRepository;
 import org.springframework.http.HttpEntity;
@@ -16,6 +15,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.example.purchase_service.config.RabbitMQConfig;
+import com.example.purchase_service.events.PurchaseStartedEvent;
+import com.example.purchase_service.events.PurchaseTourItem;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,17 +32,23 @@ public class ShoppingCartService {
     private final OrderItemRepository orderItemRepository;
     private final TourPurchaseTokenRepository tokenRepository;
     private final RestTemplate restTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    private final PurchaseRepository purchaseRepository;
 
     public ShoppingCartService(
             ShoppingCartRepository shoppingCartRepository,
             OrderItemRepository orderItemRepository,
             TourPurchaseTokenRepository tokenRepository,
-            RestTemplate restTemplate
+            RestTemplate restTemplate,
+            RabbitTemplate rabbitTemplate,
+            PurchaseRepository purchaseRepository
     ) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.orderItemRepository = orderItemRepository;
         this.tokenRepository = tokenRepository;
         this.restTemplate = restTemplate;
+        this.rabbitTemplate = rabbitTemplate;
+        this.purchaseRepository = purchaseRepository;
     }
 
     public ShoppingCartResponse getCart(Long touristId) {
@@ -119,7 +128,18 @@ public class ShoppingCartService {
         return mapToResponse(cart);
     }
 
-    public ShoppingCartResponse checkout(Long touristId) {
+    public PurchaseStatusResponse getPurchaseStatus(String purchaseId) {
+        Purchase purchase = purchaseRepository.findByPurchaseId(purchaseId)
+                .orElseThrow(() -> new RuntimeException("Kupovina nije pronađena"));
+
+        return new PurchaseStatusResponse(
+                purchase.getPurchaseId(),
+                purchase.getStatus().toString(),
+                purchase.getFailureReason()
+        );
+    }
+
+    public CheckoutResponse checkout(Long touristId) {
         ShoppingCart cart = getOrCreateCart(touristId);
 
         if (cart.getItems().isEmpty()) {
@@ -130,23 +150,36 @@ public class ShoppingCartService {
             boolean alreadyPurchased =
                     tokenRepository.existsByTouristIdAndTourId(touristId, item.getTourId());
 
-            if (!alreadyPurchased) {
-                TourPurchaseToken token = new TourPurchaseToken();
-                token.setTouristId(touristId);
-                token.setTourId(item.getTourId());
-                token.setToken(UUID.randomUUID().toString());
-                token.setCreatedAt(LocalDateTime.now());
-
-                tokenRepository.save(token);
+            if (alreadyPurchased) {
+                throw new RuntimeException("Tura je već kupljena: " + item.getTourName());
             }
         }
 
-        cart.getItems().clear();
-        cart.setTotalPrice(0.0);
+        String purchaseId = UUID.randomUUID().toString();
 
-        shoppingCartRepository.save(cart);
+        Purchase purchase = new Purchase(purchaseId, touristId);
+        purchaseRepository.save(purchase);
 
-        return mapToResponse(cart);
+        PurchaseStartedEvent event = new PurchaseStartedEvent(
+                purchaseId,
+                touristId,
+                cart.getItems()
+                        .stream()
+                        .map(item -> new PurchaseTourItem(item.getTourId()))
+                        .toList()
+        );
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.PURCHASE_EXCHANGE,
+                RabbitMQConfig.PURCHASE_STARTED_ROUTING_KEY,
+                event
+        );
+
+        return new CheckoutResponse(
+                purchaseId,
+                "PENDING",
+                "Kupovina je pokrenuta"
+        );
     }
 
     private ShoppingCart getOrCreateCart(Long touristId) {

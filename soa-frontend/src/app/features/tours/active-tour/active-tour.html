@@ -1,24 +1,20 @@
 <div class="active-tour-page">
   <div class="active-card" *ngIf="execution || isStartMode; else loadingBlock">
-
     <h1>{{ isStartMode ? 'Pokretanje ture' : 'Aktivna tura' }}</h1>
 
     <h2>{{ execution ? execution.tourName : tour?.name }}</h2>
 
     <ng-container *ngIf="execution">
-      <p>
-        <b>Status:</b>
-        {{ execution.status }}
-      </p>
+      <p><b>Status:</b> {{ execution.status }}</p>
 
       <p>
         <b>Pokrenuta:</b>
-        {{ execution.startedAt | date:'dd.MM.yyyy. HH:mm:ss' }}
+        {{ execution.startedAt | date: 'dd.MM.yyyy. HH:mm:ss' }}
       </p>
 
       <p>
         <b>Poslednja aktivnost:</b>
-        {{ execution.lastActivityAt | date:'dd.MM.yyyy. HH:mm:ss' }}
+        {{ execution.lastActivityAt | date: 'dd.MM.yyyy. HH:mm:ss' }}
       </p>
     </ng-container>
 
@@ -31,8 +27,7 @@
     </p>
 
     <p class="map-hint" *ngIf="execution?.status === 'ACTIVE'">
-      Kliknite na mapu da promenite trenutnu simuliranu lokaciju.
-      Ruta prikazuje ključne tačke ture.
+      Kliknite na mapu da promenite trenutnu simuliranu lokaciju. Ruta prikazuje ključne tačke ture.
     </p>
 
     <p *ngIf="latitude !== null && longitude !== null" class="current-location">
@@ -41,93 +36,58 @@
     </p>
 
     <ng-container *ngIf="execution">
-
       <h3>Kompletirane ključne tačke</h3>
 
-      <div
-        *ngIf="execution.completedKeyPoints.length === 0"
-        class="empty-state"
-      >
+      <div *ngIf="(execution.completedKeyPoints || []).length === 0" class="empty-state">
         Još nijedna ključna tačka nije dostignuta.
       </div>
 
-      <div
-        class="completed-item"
-        *ngFor="let kp of execution.completedKeyPoints"
-      >
+      <div class="completed-item" *ngFor="let kp of execution.completedKeyPoints || []">
         <strong>{{ kp.keyPointName }}</strong>
 
         <span>
-          {{ kp.reachedAt | date:'dd.MM.yyyy. HH:mm:ss' }}
+          {{ kp.reachedAt | date: 'dd.MM.yyyy. HH:mm:ss' }}
         </span>
       </div>
 
       <div class="actions" *ngIf="execution.status === 'ACTIVE'">
-       
-
-        <button
-          class="abandon-btn"
-          (click)="abandonTour()"
-        >
-          Napusti turu
-        </button>
+        <button class="abandon-btn" (click)="abandonTour()">Napusti turu</button>
       </div>
 
-      <div
-        *ngIf="execution.status !== 'ACTIVE'"
-        class="finish-info"
-      >
+      <div *ngIf="execution.status !== 'ACTIVE'" class="finish-info">
         <h3>Informacije o završetku ture</h3>
 
-        <p>
-          <b>Status:</b>
-          {{ execution.status }}
-        </p>
+        <p><b>Status:</b> {{ execution.status }}</p>
 
         <p *ngIf="execution.completedAt">
           <b>Vreme završavanja:</b>
-          {{ execution.completedAt | date:'dd.MM.yyyy. HH:mm:ss' }}
+          {{ execution.completedAt | date: 'dd.MM.yyyy. HH:mm:ss' }}
         </p>
 
         <p *ngIf="execution.abandonedAt">
           <b>Vreme napuštanja:</b>
-          {{ execution.abandonedAt | date:'dd.MM.yyyy. HH:mm:ss' }}
+          {{ execution.abandonedAt | date: 'dd.MM.yyyy. HH:mm:ss' }}
         </p>
 
         <p>
           <b>Poslednja aktivnost:</b>
-          {{ execution.lastActivityAt | date:'dd.MM.yyyy. HH:mm:ss' }}
+          {{ execution.lastActivityAt | date: 'dd.MM.yyyy. HH:mm:ss' }}
         </p>
 
-        <button
-          class="back-btn"
-          routerLink="/tours"
-        >
-          Nazad na ture
-        </button>
+        <button class="back-btn" routerLink="/tours">Nazad na ture</button>
       </div>
-
     </ng-container>
 
-    <p
-      *ngIf="successMessage"
-      class="success-message"
-    >
+    <p *ngIf="successMessage" class="success-message">
       {{ successMessage }}
     </p>
 
-    <p
-      *ngIf="errorMessage"
-      class="error-message"
-    >
+    <p *ngIf="errorMessage" class="error-message">
       {{ errorMessage }}
     </p>
-
   </div>
 
   <ng-template #loadingBlock>
-    <p class="loading">
-      Učitavanje ture...
-    </p>
+    <p class="loading">Učitavanje ture...</p>
   </ng-template>
 </div>

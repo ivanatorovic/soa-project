@@ -45,4 +45,5 @@ message TourGrpcResponse {
   repeated TourTransportTimeGrpcResponse transportTimes = 9;
   bool inShoppingCart = 10;
   bool purchased = 11;
+  int32 availableSlots = 12;
 }

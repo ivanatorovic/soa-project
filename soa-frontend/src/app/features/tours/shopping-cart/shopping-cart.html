@@ -1,5 +1,4 @@
 <div class="shopping-cart-page">
-
   <h1>Moja korpa</h1>
 
   <p *ngIf="successMessage" class="success-message">
@@ -10,33 +9,29 @@
     {{ errorMessage }}
   </p>
 
-  <div *ngIf="cart && cart.items.length === 0" class="empty-cart">
-    Korpa je prazna.
-  </div>
+  <div *ngIf="cart && cart.items.length === 0" class="empty-cart">Korpa je prazna.</div>
 
   <div *ngIf="cart && cart.items.length > 0">
-
     <div class="cart-item" *ngFor="let item of cart.items">
-
       <div>
         <h3>{{ item.tourName }}</h3>
         <p>{{ item.price }} RSD</p>
       </div>
 
-      <button (click)="removeItem(item.id)">
-        Ukloni
-      </button>
-
+      <button (click)="removeItem(item.id)">Ukloni</button>
     </div>
 
     <div class="cart-summary">
       <h2>Ukupno: {{ cart.totalPrice }} RSD</h2>
 
-      <button (click)="checkout()">
-        Checkout
+      <button (click)="checkout()" [disabled]="processingCheckout">
+        <span *ngIf="!processingCheckout">Checkout</span>
+        <span *ngIf="processingCheckout">Kupovina se obrađuje...</span>
       </button>
     </div>
-
+    <div *ngIf="processingCheckout" class="checkout-processing">
+      <div class="spinner"></div>
+      <span>Molimo sačekajte, kupovina se obrađuje.</span>
+    </div>
   </div>
-
 </div>

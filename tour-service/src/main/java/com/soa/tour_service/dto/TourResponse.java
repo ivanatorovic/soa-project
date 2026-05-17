@@ -22,6 +22,7 @@ public class TourResponse {
     private boolean inShoppingCart;
     private boolean purchased;
     private List<TourTransportTimeResponse> transportTimes;
+    private Integer availableSlots;
     public TourResponse() {
     }
 
@@ -38,6 +39,14 @@ public class TourResponse {
         this.authorId = authorId;
         this.tags = tags;
         this.keyPoints = keyPoints;
+    }
+
+    public Integer getAvailableSlots() {
+        return availableSlots;
+    }
+
+    public void setAvailableSlots(Integer availableSlots) {
+        this.availableSlots = availableSlots;
     }
 
     public Long getId() {

@@ -84,7 +84,10 @@ public class TourGrpcService extends TourRpcServiceGrpc.TourRpcServiceImplBase {
                 .setAuthorId(tour.getAuthorId() != null ? tour.getAuthorId() : 0L)
                 .setDistanceInKm(tour.getDistanceInKm() != null ? tour.getDistanceInKm() : 0.0)
                 .setInShoppingCart(tour.isInShoppingCart())
-                .setPurchased(tour.isPurchased());
+                .setPurchased(tour.isPurchased())
+                .setAvailableSlots(
+                        tour.getAvailableSlots() != null ? tour.getAvailableSlots() : 0
+                );
 
         if (tour.getTransportTimes() != null) {
             for (TourTransportTimeResponse time : tour.getTransportTimes()) {
