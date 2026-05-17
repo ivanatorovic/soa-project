@@ -30,6 +30,14 @@ type TourJsonResponse struct {
 	Purchased      bool                          `json:"purchased"`
 	AvailableSlots int32 `json:"availableSlots"`
 }
+type CommentJsonResponse struct {
+	ID             string `json:"id"`
+	BlogId         string `json:"blogId"`
+	AuthorId       int64  `json:"authorId"`
+	AuthorUsername string `json:"authorUsername"`
+	Text           string `json:"text"`
+	CreatedAt      string `json:"createdAt"`
+}
 
 func newProxy(target string) *httputil.ReverseProxy {
 	if target == "" {
@@ -92,6 +100,37 @@ func extractUserIdFromJwt(r *http.Request) int64 {
 
 	return 0
 }
+
+func extractStringClaimFromJwt(r *http.Request, claimName string) string {
+	authHeader := r.Header.Get("Authorization")
+
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return ""
+	}
+
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	parts := strings.Split(token, ".")
+
+	if len(parts) < 2 {
+		return ""
+	}
+
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return ""
+	}
+
+	var claims map[string]interface{}
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		return ""
+	}
+
+	if value, ok := claims[claimName].(string); ok {
+		return value
+	}
+
+	return ""
+}
 func main() {
 	stakeholdersURL := getEnv("STAKEHOLDERS_SERVICE_URL", "http://localhost:8081")
 	blogURL := getEnv("BLOG_SERVICE_URL", "http://localhost:8082")
@@ -125,6 +164,18 @@ func main() {
 
     authGrpcClient := pb.NewAuthRpcServiceClient(stakeholdersGrpcConn)
 
+    blogGrpcConn, err := grpc.Dial(
+    	"blog-service:9092",
+    	grpc.WithInsecure(),
+    )
+
+    if err != nil {
+    	log.Fatal("Ne mogu da se povežem na blog gRPC servis:", err)
+    }
+
+    defer blogGrpcConn.Close()
+
+    blogGrpcClient := pb.NewBlogRpcServiceClient(blogGrpcConn)
 	stakeholdersProxy := newProxy(stakeholdersURL)
 	blogProxy := newProxy(blogURL)
 	toursProxy := newProxy(toursURL)
@@ -256,7 +307,102 @@ func main() {
 			blogProxy.ServeHTTP(w, r)
 			return
 		}
+        if strings.HasPrefix(r.URL.Path, "/api/comments") && r.Method == "OPTIONS" {
+        	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+        	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        	w.WriteHeader(http.StatusOK)
+        	return
+        }
 
+        if r.URL.Path == "/api/comments" && r.Method == "POST" {
+        	var request struct {
+        		BlogId string `json:"blogId"`
+        		Text   string `json:"text"`
+        	}
+
+        	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+        		http.Error(w, "Neispravan JSON", http.StatusBadRequest)
+        		return
+        	}
+
+        	authorId := extractUserIdFromJwt(r)
+        	authorUsername := extractStringClaimFromJwt(r, "username")
+        	role := extractStringClaimFromJwt(r, "role")
+
+        	if authorId == 0 {
+        		http.Error(w, "Nije moguće pročitati userId iz tokena", http.StatusUnauthorized)
+        		return
+        	}
+
+        	grpcResponse, err := blogGrpcClient.CreateComment(
+        		context.Background(),
+        		&pb.CreateCommentGrpcRequest{
+        			BlogId:         request.BlogId,
+        			Text:           request.Text,
+        			AuthorId:       authorId,
+        			AuthorUsername: authorUsername,
+        			Role:           role,
+        		},
+        	)
+
+        	if err != nil {
+        		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+        		http.Error(w, err.Error(), http.StatusBadRequest)
+        		return
+        	}
+
+        	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+        	w.Header().Set("Content-Type", "application/json")
+
+        	json.NewEncoder(w).Encode(CommentJsonResponse{
+        		ID:             grpcResponse.Id,
+        		BlogId:         grpcResponse.BlogId,
+        		AuthorId:       grpcResponse.AuthorId,
+        		AuthorUsername: grpcResponse.AuthorUsername,
+        		Text:           grpcResponse.Text,
+        		CreatedAt:      grpcResponse.CreatedAt,
+        	})
+
+        	return
+        }
+
+        if strings.HasPrefix(r.URL.Path, "/api/comments/blog/") && r.Method == "GET" {
+        	blogId := strings.TrimPrefix(r.URL.Path, "/api/comments/blog/")
+
+        	grpcResponse, err := blogGrpcClient.GetCommentsByBlogId(
+        		context.Background(),
+        		&pb.GetCommentsByBlogIdGrpcRequest{
+        			BlogId: blogId,
+        		},
+        	)
+
+        	if err != nil {
+        		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+        		http.Error(w, err.Error(), http.StatusNotFound)
+        		return
+        	}
+
+        	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+        	w.Header().Set("Content-Type", "application/json")
+
+        	response := make([]CommentJsonResponse, 0)
+
+        	for _, comment := range grpcResponse.Comments {
+        		response = append(response, CommentJsonResponse{
+        			ID:             comment.Id,
+        			BlogId:         comment.BlogId,
+        			AuthorId:       comment.AuthorId,
+        			AuthorUsername: comment.AuthorUsername,
+        			Text:           comment.Text,
+        			CreatedAt:      comment.CreatedAt,
+        		})
+        	}
+
+        	json.NewEncoder(w).Encode(response)
+
+        	return
+        }
 		if strings.HasPrefix(r.URL.Path, "/api/comments") {
 			blogProxy.ServeHTTP(w, r)
 			return

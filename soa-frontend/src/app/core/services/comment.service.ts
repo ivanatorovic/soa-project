@@ -24,6 +24,6 @@ export class CommentService {
   }
 
   createComment(request: { blogId: string; text: string }) {
-    return this.http.post<Comment>('http://localhost:8082/api/comments', request);
+    return this.http.post<Comment>('http://localhost:8000/api/comments', request);
   }
 }
