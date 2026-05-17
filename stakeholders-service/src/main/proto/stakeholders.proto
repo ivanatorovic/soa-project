@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option go_package = "api-gateway/proto";
+
+option java_multiple_files = true;
+option java_package = "com.soa.stakeholders_service.grpc";
+option java_outer_classname = "StakeholdersProto";
+
+service AuthRpcService {
+  rpc Register(RegisterGrpcRequest) returns (UserGrpcResponse);
+  rpc Login(LoginGrpcRequest) returns (AuthGrpcResponse);
+}
+
+message RegisterGrpcRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+  string role = 4;
+}
+
+message LoginGrpcRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message UserGrpcResponse {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  string role = 4;
+  bool blocked = 5;
+}
+
+message AuthGrpcResponse {
+  string token = 1;
+  UserGrpcResponse user = 2;
+}

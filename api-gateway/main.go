@@ -111,6 +111,19 @@ func main() {
 
     tourGrpcClient := pb.NewTourRpcServiceClient(grpcConn)
 
+    stakeholdersGrpcConn, err := grpc.Dial(
+        "stakeholders-service:9091",
+        grpc.WithInsecure(),
+    )
+
+    if err != nil {
+        log.Fatal("Ne mogu da se povežem na stakeholders gRPC servis:", err)
+    }
+
+    defer stakeholdersGrpcConn.Close()
+
+    authGrpcClient := pb.NewAuthRpcServiceClient(stakeholdersGrpcConn)
+
 	stakeholdersProxy := newProxy(stakeholdersURL)
 	blogProxy := newProxy(blogURL)
 	toursProxy := newProxy(toursURL)
@@ -120,6 +133,13 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("Request:", r.Method, r.URL.Path)
+		if (r.URL.Path == "/api/auth/login" || r.URL.Path == "/api/auth/register") && r.Method == "OPTIONS" {
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+            w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            w.WriteHeader(http.StatusOK)
+            return
+        }
 		if (r.URL.Path == "/api/tours/my" || r.URL.Path == "/api/tours/published") && r.Method == "OPTIONS" {
         	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
         	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -132,6 +152,89 @@ func main() {
 			w.Write([]byte("API Gateway radi"))
 			return
 		}
+
+        if r.URL.Path == "/api/auth/register" && r.Method == "POST" {
+            var request struct {
+                Username string `json:"username"`
+                Password string `json:"password"`
+                Email    string `json:"email"`
+                Role     string `json:"role"`
+            }
+
+            if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+                http.Error(w, "Neispravan JSON", http.StatusBadRequest)
+                return
+            }
+
+            grpcResponse, err := authGrpcClient.Register(
+                context.Background(),
+                &pb.RegisterGrpcRequest{
+                    Username: request.Username,
+                    Password: request.Password,
+                    Email:    request.Email,
+                    Role:     request.Role,
+                },
+            )
+
+            if err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+            }
+
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+            w.Header().Set("Content-Type", "application/json")
+
+            json.NewEncoder(w).Encode(map[string]interface{}{
+                "id":       grpcResponse.Id,
+                "username": grpcResponse.Username,
+                "email":    grpcResponse.Email,
+                "role":     grpcResponse.Role,
+                "blocked":  grpcResponse.Blocked,
+            })
+
+            return
+        }
+
+        if r.URL.Path == "/api/auth/login" && r.Method == "POST" {
+            var request struct {
+                Username string `json:"username"`
+                Password string `json:"password"`
+            }
+
+            if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+                http.Error(w, "Neispravan JSON", http.StatusBadRequest)
+                return
+            }
+
+            grpcResponse, err := authGrpcClient.Login(
+                context.Background(),
+                &pb.LoginGrpcRequest{
+                    Username: request.Username,
+                    Password: request.Password,
+                },
+            )
+
+            if err != nil {
+                http.Error(w, err.Error(), http.StatusUnauthorized)
+                return
+            }
+
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+            w.Header().Set("Content-Type", "application/json")
+
+            json.NewEncoder(w).Encode(map[string]interface{}{
+                "token": grpcResponse.Token,
+                "user": map[string]interface{}{
+                    "id":       grpcResponse.User.Id,
+                    "username": grpcResponse.User.Username,
+                    "email":    grpcResponse.User.Email,
+                    "role":     grpcResponse.User.Role,
+                    "blocked":  grpcResponse.User.Blocked,
+                },
+            })
+
+            return
+        }
 
 		if strings.HasPrefix(r.URL.Path, "/api/auth") {
 			stakeholdersProxy.ServeHTTP(w, r)
