@@ -15,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.soa.tour_service.model.TransportType;
+import org.springframework.http.HttpStatus;
+import java.util.Map;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -188,5 +190,10 @@ public class TourController {
                 )
         );
     }
-
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", e.getMessage()));
+    }
 }

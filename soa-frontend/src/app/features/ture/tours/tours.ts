@@ -24,7 +24,7 @@ export class Tours implements OnInit, OnDestroy {
 
   currentSlide: number = 0;
   private sliderInterval: any;
-  
+
 
   constructor(
     private tourService: TourService,
@@ -138,7 +138,15 @@ export class Tours implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error(error);
-        this.errorMessage = error?.error?.message || 'Nije moguće objaviti turu.';
+
+        if (error?.error?.message) {
+          this.errorMessage = error.error.message;
+        } else if (typeof error?.error === 'string') {
+          this.errorMessage = error.error;
+        } else {
+          this.errorMessage = 'Nije moguće objaviti turu. Proverite da li tura ima naziv, opis, težinu, tagove, najmanje dve ključne tačke i bar jedno vreme obilaska.';
+        }
+
       }
     });
   }
