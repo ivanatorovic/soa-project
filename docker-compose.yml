@@ -250,6 +250,55 @@ services:
       FOLLOWER_SERVICE_URL: http://follower-service:5000
       PURCHASE_SERVICE_URL: http://purchase-service:8084
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    networks:
+      - app-network
+    ports:
+      - "18085:8080"
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    depends_on:
+      - cadvisor
+    networks:
+      - app-network
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+
 volumes:
   blog-db-data:
   stakeholders-db-data:
@@ -257,7 +306,8 @@ volumes:
   tours-db-data:
   follower-neo4j-data:
   purchase-db-data:
-
+  prometheus-data:
+  grafana-data:
 networks:
   app-network:
     driver: bridge
