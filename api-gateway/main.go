@@ -1,150 +1,151 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"os"
-	"strings"
-	"context"
-    	"encoding/json"
+    "log"
+    "net/http"
+    "net/http/httputil"
+    "net/url"
+    "os"
+    "strings"
+    "context"
+        "encoding/json"
 "encoding/base64"
 
-    	pb "api-gateway/proto"
+        pb "api-gateway/proto"
 
-    	"google.golang.org/grpc"
+        "google.golang.org/grpc"
 
 )
 type TourJsonResponse struct {
-	ID             int64                         `json:"id"`
-	Name           string                        `json:"name"`
-	Description    string                        `json:"description"`
-	Difficulty     string                        `json:"difficulty"`
-	Price          float64                       `json:"price"`
-	Status         string                        `json:"status"`
-	AuthorId       int64                         `json:"authorId"`
-	DistanceInKm   float64                       `json:"distanceInKm"`
-	TransportTimes []*pb.TourTransportTimeGrpcResponse `json:"transportTimes"`
-	InShoppingCart bool                          `json:"inShoppingCart"`
-	Purchased      bool                          `json:"purchased"`
-	AvailableSlots int32 `json:"availableSlots"`
+    ID             int64                         `json:"id"`
+    Name           string                        `json:"name"`
+    Description    string                        `json:"description"`
+    Difficulty     string                        `json:"difficulty"`
+    Price          float64                       `json:"price"`
+    Status         string                        `json:"status"`
+    AuthorId       int64                         `json:"authorId"`
+    DistanceInKm   float64                       `json:"distanceInKm"`
+    TransportTimes []*pb.TourTransportTimeGrpcResponse `json:"transportTimes"`
+    InShoppingCart bool                          `json:"inShoppingCart"`
+    Purchased      bool                          `json:"purchased"`
+    AvailableSlots int32 `json:"availableSlots"`
 }
 type CommentJsonResponse struct {
-	ID             string `json:"id"`
-	BlogId         string `json:"blogId"`
-	AuthorId       int64  `json:"authorId"`
-	AuthorUsername string `json:"authorUsername"`
-	Text           string `json:"text"`
-	CreatedAt      string `json:"createdAt"`
+    ID             string `json:"id"`
+    BlogId         string `json:"blogId"`
+    AuthorId       int64  `json:"authorId"`
+    AuthorUsername string `json:"authorUsername"`
+    Text           string `json:"text"`
+    CreatedAt      string `json:"createdAt"`
 }
 
 func newProxy(target string) *httputil.ReverseProxy {
-	if target == "" {
-		log.Fatal("Target URL nije postavljen")
-	}
+    if target == "" {
+       log.Fatal("Target URL nije postavljen")
+    }
 
-	parsedURL, err := url.Parse(target)
-	if err != nil {
-		log.Fatal("Greška pri parsiranju URL-a:", err)
-	}
+    parsedURL, err := url.Parse(target)
+    if err != nil {
+       log.Fatal("Greška pri parsiranju URL-a:", err)
+    }
 
-	proxy := httputil.NewSingleHostReverseProxy(parsedURL)
+    proxy := httputil.NewSingleHostReverseProxy(parsedURL)
 
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		log.Println("Proxy greška:", err)
-		http.Error(w, "Servis trenutno nije dostupan", http.StatusBadGateway)
-	}
+    proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+       log.Println("Proxy greška:", err)
+       http.Error(w, "Servis trenutno nije dostupan", http.StatusBadGateway)
+    }
 
-	return proxy
+    return proxy
 }
 
 func getEnv(key, fallback string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		return fallback
-	}
-	return value
+    value := os.Getenv(key)
+    if value == "" {
+       return fallback
+    }
+    return value
 }
 func extractUserIdFromJwt(r *http.Request) int64 {
-	authHeader := r.Header.Get("Authorization")
+    authHeader := r.Header.Get("Authorization")
 
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return 0
-	}
+    if !strings.HasPrefix(authHeader, "Bearer ") {
+       return 0
+    }
 
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	parts := strings.Split(token, ".")
+    token := strings.TrimPrefix(authHeader, "Bearer ")
+    parts := strings.Split(token, ".")
 
-	if len(parts) < 2 {
-		return 0
-	}
+    if len(parts) < 2 {
+       return 0
+    }
 
-	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
-	if err != nil {
-		return 0
-	}
+    payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+    if err != nil {
+       return 0
+    }
 
-	var claims map[string]interface{}
-	if err := json.Unmarshal(payload, &claims); err != nil {
-		return 0
-	}
+    var claims map[string]interface{}
+    if err := json.Unmarshal(payload, &claims); err != nil {
+       return 0
+    }
 
-	if id, ok := claims["id"].(float64); ok {
-		return int64(id)
-	}
+    if id, ok := claims["id"].(float64); ok {
+       return int64(id)
+    }
 
-	if userId, ok := claims["userId"].(float64); ok {
-		return int64(userId)
-	}
+    if userId, ok := claims["userId"].(float64); ok {
+       return int64(userId)
+    }
 
-	return 0
+    return 0
 }
 
 func extractStringClaimFromJwt(r *http.Request, claimName string) string {
-	authHeader := r.Header.Get("Authorization")
+    authHeader := r.Header.Get("Authorization")
 
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return ""
-	}
+    if !strings.HasPrefix(authHeader, "Bearer ") {
+       return ""
+    }
 
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	parts := strings.Split(token, ".")
+    token := strings.TrimPrefix(authHeader, "Bearer ")
+    parts := strings.Split(token, ".")
 
-	if len(parts) < 2 {
-		return ""
-	}
+    if len(parts) < 2 {
+       return ""
+    }
 
-	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
-	if err != nil {
-		return ""
-	}
+    payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+    if err != nil {
+       return ""
+    }
 
-	var claims map[string]interface{}
-	if err := json.Unmarshal(payload, &claims); err != nil {
-		return ""
-	}
+    var claims map[string]interface{}
+    if err := json.Unmarshal(payload, &claims); err != nil {
+       return ""
+    }
 
-	if value, ok := claims[claimName].(string); ok {
-		return value
-	}
+    if value, ok := claims[claimName].(string); ok {
+       return value
+    }
 
-	return ""
+    return ""
 }
 func main() {
-	stakeholdersURL := getEnv("STAKEHOLDERS_SERVICE_URL", "http://localhost:8081")
-	blogURL := getEnv("BLOG_SERVICE_URL", "http://localhost:8082")
-	toursURL := getEnv("TOURS_SERVICE_URL", "http://localhost:8083")
-	followerURL := getEnv("FOLLOWER_SERVICE_URL", "http://localhost:5000")
-	purchaseURL := getEnv("PURCHASE_SERVICE_URL", "http://localhost:8084")
-	port := getEnv("PORT", "8000")
-	grpcConn, err := grpc.Dial(
-    	"tours-service:9093",
-    	grpc.WithInsecure(),
+    stakeholdersURL := getEnv("STAKEHOLDERS_SERVICE_URL", "http://localhost:8081")
+    blogURL := getEnv("BLOG_SERVICE_URL", "http://localhost:8082")
+    toursURL := getEnv("TOURS_SERVICE_URL", "http://localhost:8083")
+    followerURL := getEnv("FOLLOWER_SERVICE_URL", "http://localhost:5000")
+    purchaseURL := getEnv("PURCHASE_SERVICE_URL", "http://localhost:8084")
+    port := getEnv("PORT", "8000")
+    grpcConn, err := grpc.Dial(
+        "tours-service:9093",
+        grpc.WithInsecure(),
     )
 
+
     if err != nil {
-    	log.Fatal("Ne mogu da se povežem na tour gRPC servis:", err)
+        log.Fatal("Ne mogu da se povežem na tour gRPC servis:", err)
     }
 
     defer grpcConn.Close()
@@ -165,45 +166,45 @@ func main() {
     authGrpcClient := pb.NewAuthRpcServiceClient(stakeholdersGrpcConn)
 
     blogGrpcConn, err := grpc.Dial(
-    	"blog-service:9092",
-    	grpc.WithInsecure(),
+        "blog-service:9092",
+        grpc.WithInsecure(),
     )
 
     if err != nil {
-    	log.Fatal("Ne mogu da se povežem na blog gRPC servis:", err)
+        log.Fatal("Ne mogu da se povežem na blog gRPC servis:", err)
     }
 
     defer blogGrpcConn.Close()
 
     blogGrpcClient := pb.NewBlogRpcServiceClient(blogGrpcConn)
-	stakeholdersProxy := newProxy(stakeholdersURL)
-	blogProxy := newProxy(blogURL)
-	toursProxy := newProxy(toursURL)
-	followerProxy := newProxy(followerURL)
-	purchaseProxy := newProxy(purchaseURL)
+    stakeholdersProxy := newProxy(stakeholdersURL)
+    blogProxy := newProxy(blogURL)
+    toursProxy := newProxy(toursURL)
+    followerProxy := newProxy(followerURL)
+    purchaseProxy := newProxy(purchaseURL)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		log.Println("Request:", r.Method, r.URL.Path)
-		if (r.URL.Path == "/api/auth/login" || r.URL.Path == "/api/auth/register") && r.Method == "OPTIONS" {
+       log.Println("Request:", r.Method, r.URL.Path)
+       if (r.URL.Path == "/api/auth/login" || r.URL.Path == "/api/auth/register") && r.Method == "OPTIONS" {
             w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
             w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
             w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
             w.WriteHeader(http.StatusOK)
             return
         }
-		if (r.URL.Path == "/api/tours/my" || r.URL.Path == "/api/tours/published") && r.Method == "OPTIONS" {
-        	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-        	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        	w.WriteHeader(http.StatusOK)
-        	return
+       if (r.URL.Path == "/api/tours/my" || r.URL.Path == "/api/tours/published") && r.Method == "OPTIONS" {
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+            w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            w.WriteHeader(http.StatusOK)
+            return
         }
 
-		if r.URL.Path == "/" {
-			w.Write([]byte("API Gateway radi"))
-			return
-		}
+       if r.URL.Path == "/" {
+          w.Write([]byte("API Gateway radi"))
+          return
+       }
 
         if r.URL.Path == "/api/auth/register" && r.Method == "POST" {
             var request struct {
@@ -288,150 +289,156 @@ func main() {
             return
         }
 
-		if strings.HasPrefix(r.URL.Path, "/api/auth") {
-			stakeholdersProxy.ServeHTTP(w, r)
-			return
-		}
+       if strings.HasPrefix(r.URL.Path, "/api/auth") {
+          stakeholdersProxy.ServeHTTP(w, r)
+          return
+       }
 
-		if strings.HasPrefix(r.URL.Path, "/api/users") {
-			stakeholdersProxy.ServeHTTP(w, r)
-			return
-		}
+       if strings.HasPrefix(r.URL.Path, "/api/users") {
+          stakeholdersProxy.ServeHTTP(w, r)
+          return
+       }
 
-		if strings.HasPrefix(r.URL.Path, "/profile-images/") {
-			stakeholdersProxy.ServeHTTP(w, r)
-			return
-		}
+       if strings.HasPrefix(r.URL.Path, "/profile-images/") {
+          stakeholdersProxy.ServeHTTP(w, r)
+          return
+       }
 
-		if strings.HasPrefix(r.URL.Path, "/api/blog") {
-			blogProxy.ServeHTTP(w, r)
-			return
-		}
+       if strings.HasPrefix(r.URL.Path, "/api/blog") {
+          blogProxy.ServeHTTP(w, r)
+          return
+       }
         if strings.HasPrefix(r.URL.Path, "/api/comments") && r.Method == "OPTIONS" {
-        	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-        	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        	w.WriteHeader(http.StatusOK)
-        	return
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+            w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            w.WriteHeader(http.StatusOK)
+            return
         }
 
         if r.URL.Path == "/api/comments" && r.Method == "POST" {
-        	var request struct {
-        		BlogId string `json:"blogId"`
-        		Text   string `json:"text"`
-        	}
+            var request struct {
+               BlogId string `json:"blogId"`
+               Text   string `json:"text"`
+            }
 
-        	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-        		http.Error(w, "Neispravan JSON", http.StatusBadRequest)
-        		return
-        	}
+            if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+               http.Error(w, "Neispravan JSON", http.StatusBadRequest)
+               return
+            }
 
-        	authorId := extractUserIdFromJwt(r)
-        	authorUsername := extractStringClaimFromJwt(r, "username")
-        	role := extractStringClaimFromJwt(r, "role")
+            authorId := extractUserIdFromJwt(r)
+          authorUsername := extractStringClaimFromJwt(r, "username")
+          if authorUsername == "" {
+             authorUsername = extractStringClaimFromJwt(r, "sub")
+          }
+          if authorUsername == "" {
+             authorUsername = extractStringClaimFromJwt(r, "name")
+          }
+            role := extractStringClaimFromJwt(r, "role")
 
-        	if authorId == 0 {
-        		http.Error(w, "Nije moguće pročitati userId iz tokena", http.StatusUnauthorized)
-        		return
-        	}
+            if authorId == 0 {
+               http.Error(w, "Nije moguće pročitati userId iz tokena", http.StatusUnauthorized)
+               return
+            }
 
-        	grpcResponse, err := blogGrpcClient.CreateComment(
-        		context.Background(),
-        		&pb.CreateCommentGrpcRequest{
-        			BlogId:         request.BlogId,
-        			Text:           request.Text,
-        			AuthorId:       authorId,
-        			AuthorUsername: authorUsername,
-        			Role:           role,
-        		},
-        	)
+            grpcResponse, err := blogGrpcClient.CreateComment(
+               context.Background(),
+               &pb.CreateCommentGrpcRequest{
+                  BlogId:         request.BlogId,
+                  Text:           request.Text,
+                  AuthorId:       authorId,
+                  AuthorUsername: authorUsername,
+                  Role:           role,
+               },
+            )
 
-        	if err != nil {
-        		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-        		http.Error(w, err.Error(), http.StatusBadRequest)
-        		return
-        	}
+            if err != nil {
+               w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+               http.Error(w, err.Error(), http.StatusBadRequest)
+               return
+            }
 
-        	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-        	w.Header().Set("Content-Type", "application/json")
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+            w.Header().Set("Content-Type", "application/json")
 
-        	json.NewEncoder(w).Encode(CommentJsonResponse{
-        		ID:             grpcResponse.Id,
-        		BlogId:         grpcResponse.BlogId,
-        		AuthorId:       grpcResponse.AuthorId,
-        		AuthorUsername: grpcResponse.AuthorUsername,
-        		Text:           grpcResponse.Text,
-        		CreatedAt:      grpcResponse.CreatedAt,
-        	})
+            json.NewEncoder(w).Encode(CommentJsonResponse{
+               ID:             grpcResponse.Id,
+               BlogId:         grpcResponse.BlogId,
+               AuthorId:       grpcResponse.AuthorId,
+               AuthorUsername: grpcResponse.AuthorUsername,
+               Text:           grpcResponse.Text,
+               CreatedAt:      grpcResponse.CreatedAt,
+            })
 
-        	return
+            return
         }
 
         if strings.HasPrefix(r.URL.Path, "/api/comments/blog/") && r.Method == "GET" {
-        	blogId := strings.TrimPrefix(r.URL.Path, "/api/comments/blog/")
+            blogId := strings.TrimPrefix(r.URL.Path, "/api/comments/blog/")
 
-        	grpcResponse, err := blogGrpcClient.GetCommentsByBlogId(
-        		context.Background(),
-        		&pb.GetCommentsByBlogIdGrpcRequest{
-        			BlogId: blogId,
-        		},
-        	)
+            grpcResponse, err := blogGrpcClient.GetCommentsByBlogId(
+               context.Background(),
+               &pb.GetCommentsByBlogIdGrpcRequest{
+                  BlogId: blogId,
+               },
+            )
 
-        	if err != nil {
-        		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-        		http.Error(w, err.Error(), http.StatusNotFound)
-        		return
-        	}
+            if err != nil {
+               w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+               http.Error(w, err.Error(), http.StatusNotFound)
+               return
+            }
 
-        	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-        	w.Header().Set("Content-Type", "application/json")
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+            w.Header().Set("Content-Type", "application/json")
 
-        	response := make([]CommentJsonResponse, 0)
+            response := make([]CommentJsonResponse, 0)
 
-        	for _, comment := range grpcResponse.Comments {
-        		response = append(response, CommentJsonResponse{
-        			ID:             comment.Id,
-        			BlogId:         comment.BlogId,
-        			AuthorId:       comment.AuthorId,
-        			AuthorUsername: comment.AuthorUsername,
-        			Text:           comment.Text,
-        			CreatedAt:      comment.CreatedAt,
-        		})
-        	}
+            for _, comment := range grpcResponse.Comments {
+               response = append(response, CommentJsonResponse{
+                  ID:             comment.Id,
+                  BlogId:         comment.BlogId,
+                  AuthorId:       comment.AuthorId,
+                  AuthorUsername: comment.AuthorUsername,
+                  Text:           comment.Text,
+                  CreatedAt:      comment.CreatedAt,
+               })
+            }
 
-        	json.NewEncoder(w).Encode(response)
+            json.NewEncoder(w).Encode(response)
 
-        	return
+            return
         }
-		if strings.HasPrefix(r.URL.Path, "/api/comments") {
-			blogProxy.ServeHTTP(w, r)
-			return
-		}
+       if strings.HasPrefix(r.URL.Path, "/api/comments") {
+          blogProxy.ServeHTTP(w, r)
+          return
+       }
 
 
 if r.URL.Path == "/api/tours/published" {
 
-	touristId := extractUserIdFromJwt(r)
+    touristId := extractUserIdFromJwt(r)
 
     grpcResponse, err := tourGrpcClient.GetPublishedTours(
-    	context.Background(),
-    	&pb.GetPublishedToursRequest{
-    		TouristId: touristId,
-    	},
+        context.Background(),
+        &pb.GetPublishedToursRequest{
+           TouristId: touristId,
+        },
     )
 
-	if err != nil {
-    	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-    	http.Error(w, err.Error(), http.StatusInternalServerError)
-    	return
+    if err != nil {
+        w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
     }
 w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-	w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Content-Type", "application/json")
 
-	response := make([]TourJsonResponse, 0)
+    response := make([]TourJsonResponse, 0)
 
     for _, tour := range grpcResponse.Tours {
-    	response = append(response, TourJsonResponse{
+        response = append(response, TourJsonResponse{
             ID:             tour.Id,
             Name:           tour.Name,
             Description:    tour.Description,
@@ -449,34 +456,34 @@ w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
 
     json.NewEncoder(w).Encode(response)
 
-	return
+    return
 }
 if r.URL.Path == "/api/tours/my" {
 
-	authorId := extractUserIdFromJwt(r)
+    authorId := extractUserIdFromJwt(r)
 
-	if authorId == 0 {
-		http.Error(w, "Nije moguće pročitati userId iz tokena", http.StatusUnauthorized)
-		return
-	}
+    if authorId == 0 {
+       http.Error(w, "Nije moguće pročitati userId iz tokena", http.StatusUnauthorized)
+       return
+    }
 
-	grpcResponse, err := tourGrpcClient.GetMyTours(
-		context.Background(),
-		&pb.GetMyToursRequest{
-			AuthorId: authorId,
-		},
-	)
+    grpcResponse, err := tourGrpcClient.GetMyTours(
+       context.Background(),
+       &pb.GetMyToursRequest{
+          AuthorId: authorId,
+       },
+    )
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+    if err != nil {
+       http.Error(w, err.Error(), http.StatusInternalServerError)
+       return
+    }
 w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-	w.Header().Set("Content-Type", "application/json")
-	response := make([]TourJsonResponse, 0)
+    w.Header().Set("Content-Type", "application/json")
+    response := make([]TourJsonResponse, 0)
 
     for _, tour := range grpcResponse.Tours {
-    	response = append(response, TourJsonResponse{
+        response = append(response, TourJsonResponse{
             ID:             tour.Id,
             Name:           tour.Name,
             Description:    tour.Description,
@@ -494,117 +501,33 @@ w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
 
     json.NewEncoder(w).Encode(response)
 
-	return
+    return
 }
 
 
-if r.URL.Path == "/api/tours/published" {
 
-	touristId := extractUserIdFromJwt(r)
 
-    grpcResponse, err := tourGrpcClient.GetPublishedTours(
-    	context.Background(),
-    	&pb.GetPublishedToursRequest{
-    		TouristId: touristId,
-    	},
-    )
+       if strings.HasPrefix(r.URL.Path, "/api/tours") {
+          toursProxy.ServeHTTP(w, r)
+          return
+       }
 
-	if err != nil {
-    	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-    	http.Error(w, err.Error(), http.StatusInternalServerError)
-    	return
-    }
-w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-	w.Header().Set("Content-Type", "application/json")
-
-	response := make([]TourJsonResponse, 0)
-
-    for _, tour := range grpcResponse.Tours {
-    	response = append(response, TourJsonResponse{
-    		ID:             tour.Id,
-    		Name:           tour.Name,
-    		Description:    tour.Description,
-    		Difficulty:     tour.Difficulty,
-    		Price:          tour.Price,
-    		Status:         tour.Status,
-    		AuthorId:       tour.AuthorId,
-    		DistanceInKm:   tour.DistanceInKm,
-    		TransportTimes: tour.TransportTimes,
-    		InShoppingCart: tour.InShoppingCart,
-    		Purchased:      tour.Purchased,
-    	})
-    }
-
-    json.NewEncoder(w).Encode(response)
-
-	return
-}
-if r.URL.Path == "/api/tours/my" {
-
-	authorId := extractUserIdFromJwt(r)
-
-	if authorId == 0 {
-		http.Error(w, "Nije moguće pročitati userId iz tokena", http.StatusUnauthorized)
-		return
-	}
-
-	grpcResponse, err := tourGrpcClient.GetMyTours(
-		context.Background(),
-		&pb.GetMyToursRequest{
-			AuthorId: authorId,
-		},
-	)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-	w.Header().Set("Content-Type", "application/json")
-	response := make([]TourJsonResponse, 0)
-
-    for _, tour := range grpcResponse.Tours {
-    	response = append(response, TourJsonResponse{
-    		ID:             tour.Id,
-    		Name:           tour.Name,
-    		Description:    tour.Description,
-    		Difficulty:     tour.Difficulty,
-    		Price:          tour.Price,
-    		Status:         tour.Status,
-    		AuthorId:       tour.AuthorId,
-    		DistanceInKm:   tour.DistanceInKm,
-    		TransportTimes: tour.TransportTimes,
-    		InShoppingCart: tour.InShoppingCart,
-    		Purchased:      tour.Purchased,
-    	})
-    }
-
-    json.NewEncoder(w).Encode(response)
-
-	return
-}
-
-		if strings.HasPrefix(r.URL.Path, "/api/tours") {
-			toursProxy.ServeHTTP(w, r)
-			return
-		}
-
-		if strings.HasPrefix(r.URL.Path, "/api/follows") {
-			followerProxy.ServeHTTP(w, r)
-			return
-		}
+       if strings.HasPrefix(r.URL.Path, "/api/follows") {
+          followerProxy.ServeHTTP(w, r)
+          return
+       }
 
     if strings.HasPrefix(r.URL.Path, "/api/purchase") {
-    	purchaseProxy.ServeHTTP(w, r)
-    	return
+        purchaseProxy.ServeHTTP(w, r)
+        return
     }
 
-		http.NotFound(w, r)
-	})
+       http.NotFound(w, r)
+    })
 
-	log.Println("API Gateway pokrenut na portu", port)
-	err = http.ListenAndServe(":"+port, nil)
-	if err != nil {
-		log.Fatal("Greška pri pokretanju servera:", err)
-	}
+    log.Println("API Gateway pokrenut na portu", port)
+    err = http.ListenAndServe(":"+port, nil)
+    if err != nil {
+       log.Fatal("Greška pri pokretanju servera:", err)
+    }
 }

@@ -147,9 +147,16 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-
+      JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: tours-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     volumes:
-        - ./tour-service/uploads:/app/uploads
+      - ./tour-service/uploads:/app/uploads
+      - ./opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar
 
   follower-service:
     build:
@@ -212,6 +219,15 @@ services:
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
       APP_TEST_FAIL_TOKEN_CREATION: false
+      JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: purchase-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
+    volumes:
+      - ./opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -250,54 +266,70 @@ services:
       FOLLOWER_SERVICE_URL: http://follower-service:5000
       PURCHASE_SERVICE_URL: http://purchase-service:8084
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    restart: unless-stopped
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    container_name: jaeger
+    restart: always
     networks:
       - app-network
     ports:
-      - "18085:8080"
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
-
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus
     container_name: prometheus
-    restart: unless-stopped
-    depends_on:
-      - cadvisor
-    networks:
-      - app-network
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app-network
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - app-network
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana
     container_name: grafana
-    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
     depends_on:
       - prometheus
+
+  loki:
+    image: grafana/loki:3.2.1
+    container_name: loki
+    restart: always
     networks:
       - app-network
     ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      - "3100:3100"
     volumes:
-      - grafana-data:/var/lib/grafana
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yml
+    command: -config.file=/etc/loki/local-config.yml
+
+  promtail:
+    image: grafana/promtail:3.2.1
+    container_name: promtail
+    restart: always
+    depends_on:
+      - loki
+    networks:
+      - app-network
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
 
 volumes:
   blog-db-data:
@@ -306,8 +338,8 @@ volumes:
   tours-db-data:
   follower-neo4j-data:
   purchase-db-data:
-  prometheus-data:
-  grafana-data:
+  loki-data:
+
 networks:
   app-network:
     driver: bridge
